@@ -1954,6 +1954,10 @@ run().catch(console.error);
 after the `callback` has been invoked. In the case of reuse of streams after
 failure, this can cause event listener leaks and swallowed errors.
 
+`steam.pipeline()` closes all the streams when an error is raised. It means that
+`IncomingRequest` should be avoided once it would destroy the socket without
+sending any response.
+
 ### `stream.compose(...streams)`
 <!-- YAML
 added: v16.9.0
