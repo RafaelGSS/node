@@ -25,6 +25,7 @@
 #include "node.h"
 #include "node_external_reference.h"
 #include "string_bytes.h"
+#include "policy/policy.h"
 
 namespace node {
 
@@ -136,6 +137,7 @@ void FSEventWrap::New(const FunctionCallbackInfo<Value>& args) {
 // wrap.start(filename, persistent, recursive, encoding)
 void FSEventWrap::Start(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
 
   FSEventWrap* wrap = Unwrap<FSEventWrap>(args.This());
   CHECK_NOT_NULL(wrap);

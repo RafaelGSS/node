@@ -11,6 +11,7 @@ if (process.features.inspector) {
   requiresArgument('--inspect-port=');
   requiresArgument('--debug-port');
   requiresArgument('--debug-port=');
+  requiresArgument('--policy-deny-fs=');
 }
 requiresArgument('--eval');
 

@@ -27,6 +27,7 @@
 #include "node_process-inl.h"
 #include "node_stat_watcher.h"
 #include "util-inl.h"
+#include "policy/policy.h"
 
 #include "tracing/trace_event.h"
 
@@ -528,6 +529,9 @@ FileHandleReadWrap::FileHandleReadWrap(FileHandle* handle, Local<Object> obj)
 int FileHandle::ReadStart() {
   if (!IsAlive() || IsClosing())
     return UV_EOF;
+  if (!node::policy::root_policy.is_granted(
+        node::policy::Permission::kFileSystemIn))
+    return UV_EPERM;
 
   reading_ = true;
 
@@ -931,6 +935,8 @@ void AfterScanDir(uv_fs_t* req) {
 
 void Access(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
+
   Isolate* isolate = env->isolate();
   HandleScope scope(isolate);
 
@@ -987,6 +993,7 @@ void Close(const FunctionCallbackInfo<Value>& args) {
 // Used to speed up module loading. Returns an array [string, boolean]
 static void InternalModuleReadJSON(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
   Isolate* isolate = env->isolate();
   uv_loop_t* loop = env->event_loop();
 
@@ -1085,6 +1092,7 @@ static void InternalModuleReadJSON(const FunctionCallbackInfo<Value>& args) {
 // The speedup comes from not creating thousands of Stat and Error objects.
 static void InternalModuleStat(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
 
   CHECK(args[0]->IsString());
   node::Utf8Value path(env->isolate(), args[0]);
@@ -1103,6 +1111,7 @@ static void InternalModuleStat(const FunctionCallbackInfo<Value>& args) {
 static void Stat(const FunctionCallbackInfo<Value>& args) {
   BindingData* binding_data = Environment::GetBindingData<BindingData>(args);
   Environment* env = binding_data->env();
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
 
   const int argc = args.Length();
   CHECK_GE(argc, 2);
@@ -1136,6 +1145,7 @@ static void Stat(const FunctionCallbackInfo<Value>& args) {
 static void LStat(const FunctionCallbackInfo<Value>& args) {
   BindingData* binding_data = Environment::GetBindingData<BindingData>(args);
   Environment* env = binding_data->env();
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
 
   const int argc = args.Length();
   CHECK_GE(argc, 3);
@@ -1170,6 +1180,7 @@ static void LStat(const FunctionCallbackInfo<Value>& args) {
 static void FStat(const FunctionCallbackInfo<Value>& args) {
   BindingData* binding_data = Environment::GetBindingData<BindingData>(args);
   Environment* env = binding_data->env();
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
 
   const int argc = args.Length();
   CHECK_GE(argc, 2);
@@ -1269,6 +1280,7 @@ static void Link(const FunctionCallbackInfo<Value>& args) {
 
 static void ReadLink(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
   Isolate* isolate = env->isolate();
 
   const int argc = args.Length();
@@ -1702,6 +1714,7 @@ static void MKDir(const FunctionCallbackInfo<Value>& args) {
 
 static void RealPath(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
   Isolate* isolate = env->isolate();
 
   const int argc = args.Length();
@@ -1748,6 +1761,7 @@ static void RealPath(const FunctionCallbackInfo<Value>& args) {
 
 static void ReadDir(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
   Isolate* isolate = env->isolate();
 
   const int argc = args.Length();
@@ -1840,6 +1854,7 @@ static void ReadDir(const FunctionCallbackInfo<Value>& args) {
 
 static void Open(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
 
   const int argc = args.Length();
   CHECK_GE(argc, 3);
@@ -1875,6 +1890,7 @@ static void Open(const FunctionCallbackInfo<Value>& args) {
 static void OpenFileHandle(const FunctionCallbackInfo<Value>& args) {
   BindingData* binding_data = Environment::GetBindingData<BindingData>(args);
   Environment* env = binding_data->env();
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
   Isolate* isolate = env->isolate();
 
   const int argc = args.Length();
@@ -2165,6 +2181,7 @@ static void WriteString(const FunctionCallbackInfo<Value>& args) {
  */
 static void Read(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
 
   const int argc = args.Length();
   CHECK_GE(argc, 5);
