@@ -41,6 +41,7 @@
 #include "node_snapshot_builder.h"
 #include "node_v8_platform-inl.h"
 #include "node_version.h"
+#include "policy/policy.h"
 
 #if HAVE_OPENSSL
 #include "node_crypto.h"
@@ -856,6 +857,13 @@ int ProcessGlobalArgs(std::vector<std::string>* args,
     errors->push_back("bad option: " + std::string(v8_args_as_char_ptr[i]));
 
   if (v8_args_as_char_ptr.size() > 1) return 9;
+
+  if (policy::root_policy.Apply(
+        per_process::cli_options->policy_deny).IsNothing()) {
+    errors->emplace_back(
+        "invalid permissions passed to --policy-deny");
+    return 12;
+  }
 
   return 0;
 }
