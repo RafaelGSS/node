@@ -25,6 +25,7 @@
 #include "node.h"
 #include "node_external_reference.h"
 #include "string_bytes.h"
+#include "permission/permission.h"
 
 namespace node {
 
@@ -146,6 +147,8 @@ void FSEventWrap::Start(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, permission::PermissionScope::kFileSystemIn, *path);
 
   unsigned int flags = 0;
   if (args[2]->IsTrue())

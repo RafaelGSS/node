@@ -42,6 +42,7 @@
 #include "node_snapshot_builder.h"
 #include "node_v8_platform-inl.h"
 #include "node_version.h"
+#include "permission/permission.h"
 
 #if HAVE_OPENSSL
 #include "node_crypto.h"

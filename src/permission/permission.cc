@@ -1,0 +1,172 @@
+#include "permission.h"
+#include "base_object-inl.h"
+#include "env-inl.h"
+#include "memory_tracker-inl.h"
+#include "node.h"
+#include "node_external_reference.h"
+#include "node_errors.h"
+
+#include "v8.h"
+
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
+namespace node {
+
+using v8::Array;
+using v8::Context;
+using v8::FunctionCallbackInfo;
+using v8::Integer;
+using v8::Local;
+using v8::Nothing;
+using v8::Object;
+using v8::String;
+using v8::Value;
+
+namespace permission {
+
+namespace {
+
+// permission.deny('fs.read', ['/tmp/'])
+// permission.deny('fs.read')
+static void Deny(const FunctionCallbackInfo<Value>& args) {
+  Environment* env = Environment::GetCurrent(args);
+  v8::Isolate* isolate = env->isolate();
+
+  CHECK(args[0]->IsString());
+  CHECK(args.Length() == 1 || (args[1]->IsUndefined() || args[1]->IsArray()));
+
+  std::string deny_scope = *String::Utf8Value(isolate, args[0]);
+  PermissionScope scope = Permission::StringToPermission(deny_scope);
+  if (scope == PermissionScope::kPermissionsRoot) {
+    return args.GetReturnValue().Set(false);
+  }
+
+  Local<Array> js_params = Local<Array>::Cast(args[1]);
+  Local<Context> context = isolate->GetCurrentContext();
+
+  std::vector<std::string> params;
+  for (uint32_t i = 0; i < js_params->Length(); ++i) {
+    Local<Value> arg;
+    if (!js_params->Get(context, Integer::New(isolate, i)).ToLocal(&arg)) {
+      return;
+    }
+    String::Utf8Value utf8_arg(isolate, arg);
+    if (*utf8_arg == nullptr) {
+      return;
+    }
+    params.push_back(*utf8_arg);
+  }
+
+  return args.GetReturnValue()
+    .Set(env->permission()->Deny(scope, params));
+}
+
+// permission.check('fs.in', '/tmp/')
+// permission.check('fs.in')
+static void Check(const FunctionCallbackInfo<Value>& args) {
+  Environment* env = Environment::GetCurrent(args);
+  v8::Isolate* isolate = env->isolate();
+  CHECK(args[0]->IsString());
+
+  String::Utf8Value utf8_deny_scope(isolate, args[0]);
+  if (*utf8_deny_scope == nullptr) {
+    return;
+  }
+
+  const std::string deny_scope = *utf8_deny_scope;
+  PermissionScope scope = Permission::StringToPermission(deny_scope);
+  if (scope == PermissionScope::kPermissionsRoot) {
+    return args.GetReturnValue().Set(false);
+  }
+
+  if (args.Length() > 1 && !args[1]->IsUndefined()) {
+    String::Utf8Value utf8_arg(isolate, args[1]);
+    if (*utf8_arg == nullptr) {
+      return;
+    }
+    return args.GetReturnValue()
+      .Set(env->permission()->is_granted(scope, *utf8_arg));
+  }
+
+  return args.GetReturnValue().Set(env->permission()->is_granted(scope));
+}
+
+}  // namespace
+
+#define V(Name, label, _)                                                      \
+  if (perm == PermissionScope::k##Name) return #Name;
+const char* Permission::PermissionToString(const PermissionScope perm) {
+  PERMISSIONS(V)
+  return nullptr;
+}
+#undef V
+
+#define V(Name, label, _)                                                      \
+  if (perm == label) return PermissionScope::k##Name;
+PermissionScope Permission::StringToPermission(const std::string& perm) {
+  PERMISSIONS(V)
+  return PermissionScope::kPermissionsRoot;
+}
+#undef V
+
+void Permission::ThrowAccessDenied(Environment* env, PermissionScope perm) {
+  Local<Value> err = ERR_ACCESS_DENIED(env->isolate());
+  CHECK(err->IsObject());
+  err.As<Object>()->Set(
+      env->context(),
+      env->permission_string(),
+      v8::String::NewFromUtf8(env->isolate(),
+        PermissionToString(perm),
+        v8::NewStringType::kNormal).ToLocalChecked())
+    .FromMaybe(false);  // Nothing to do about an error at this point.
+  env->isolate()->ThrowException(err);
+}
+
+void Permission::EnablePermissions() {
+  if (!enabled_) {
+    enabled_ = true;
+  }
+}
+
+void Permission::Apply(const std::string& allow, PermissionScope scope) {
+  EnablePermissions();
+  auto permission = nodes_.find(scope);
+  if (permission != nodes_.end()) {
+    permission->second->Apply(allow);
+  }
+}
+
+bool Permission::Deny(PermissionScope scope,
+                      const std::vector<std::string>& params) {
+  auto permission = nodes_.find(scope);
+  if (permission != nodes_.end()) {
+    return permission->second->Deny(scope, params);
+  }
+  return false;
+}
+
+void Initialize(Local<Object> target,
+                       Local<Value> unused,
+                       Local<Context> context,
+                       void* priv) {
+  SetMethod(context, target, "deny", Deny);
+  SetMethodNoSideEffect(context, target, "check", Check);
+
+  target->SetIntegrityLevel(context, v8::IntegrityLevel::kFrozen).FromJust();
+}
+
+void RegisterExternalReferences(
+    ExternalReferenceRegistry* registry) {
+  registry->Register(Deny);
+  registry->Register(Check);
+}
+
+}  // namespace permission
+}  // namespace node
+
+NODE_BINDING_CONTEXT_AWARE_INTERNAL(permission, node::permission::Initialize)
+NODE_BINDING_EXTERNAL_REFERENCE(permission,
+                               node::permission::RegisterExternalReferences)
