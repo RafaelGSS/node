@@ -239,6 +239,8 @@ class PerProcessOptions : public Options {
   bool print_v8_help = false;
   bool print_version = false;
 
+  std::string policy_deny;
+
 #ifdef NODE_HAVE_I18N_SUPPORT
   std::string icu_data_dir;
 #endif

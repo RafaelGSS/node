@@ -364,6 +364,7 @@ constexpr size_t kFsStatsBufferLength =
   V(password_string, "password")                                               \
   V(path_string, "path")                                                       \
   V(pending_handle_string, "pendingHandle")                                    \
+  V(permission_string, "permission")                                           \
   V(pid_string, "pid")                                                         \
   V(ping_rtt_string, "pingRTT")                                                \
   V(pipe_source_string, "pipeSource")                                          \

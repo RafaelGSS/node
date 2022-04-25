@@ -709,6 +709,7 @@ PerIsolateOptionsParser::PerIsolateOptionsParser(
             &PerIsolateOptions::experimental_top_level_await,
             kAllowedInEnvironment);
   AddOption("--harmony-top-level-await", "", V8Option{});
+
   Implies("--experimental-top-level-await", "--harmony-top-level-await");
   Implies("--harmony-top-level-await", "--experimental-top-level-await");
   ImpliesNot("--no-harmony-top-level-await", "--experimental-top-level-await");
@@ -846,6 +847,10 @@ PerProcessOptionsParser::PerProcessOptionsParser(
   AddOption("--force-fips",
             "force FIPS crypto (cannot be disabled)",
             &PerProcessOptions::force_fips_crypto,
+            kAllowedInEnvironment);
+  AddOption("--policy-deny",
+            "denied permissions",
+            &PerProcessOptions::policy_deny,
             kAllowedInEnvironment);
   AddOption("--secure-heap",
             "total size of the OpenSSL secure heap",
