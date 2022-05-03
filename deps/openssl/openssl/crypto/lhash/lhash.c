@@ -1,7 +1,7 @@
 /*
  * Copyright 1995-2022 The OpenSSL Project Authors. All Rights Reserved.
  *
- * Licensed under the Apache License 2.0 (the "License").  You may not use
+ * Licensed under the OpenSSL license (the "License").  You may not use
  * this file except in compliance with the License.  You can obtain a copy
  * in the file LICENSE in the source distribution or at
  * https://www.openssl.org/source/license.html
@@ -44,22 +44,6 @@ static int expand(OPENSSL_LHASH *lh);
 static void contract(OPENSSL_LHASH *lh);
 static OPENSSL_LH_NODE **getrn(OPENSSL_LHASH *lh, const void *data, unsigned long *rhash);
 
-static ossl_inline int tsan_lock(const OPENSSL_LHASH *lh)
-{
-#ifdef TSAN_REQUIRES_LOCKING
-    if (!CRYPTO_THREAD_write_lock(lh->tsan_lock))
-        return 0;
-#endif
-    return 1;
-}
-
-static ossl_inline void tsan_unlock(const OPENSSL_LHASH *lh)
-{
-#ifdef TSAN_REQUIRES_LOCKING
-    CRYPTO_THREAD_unlock(lh->tsan_lock);
-#endif
-}
-
 OPENSSL_LHASH *OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c)
 {
     OPENSSL_LHASH *ret;
@@ -68,16 +52,12 @@ OPENSSL_LHASH *OPENSSL_LH_new(OPENSSL_LH_HASHFUNC h, OPENSSL_LH_COMPFUNC c)
         /*
          * Do not set the error code, because the ERR code uses LHASH
          * and we want to avoid possible endless error loop.
-         * ERR_raise(ERR_LIB_CRYPTO, ERR_R_MALLOC_FAILURE);
+         * CRYPTOerr(CRYPTO_F_OPENSSL_LH_NEW, ERR_R_MALLOC_FAILURE);
          */
         return NULL;
     }
     if ((ret->b = OPENSSL_zalloc(sizeof(*ret->b) * MIN_NODES)) == NULL)
         goto err;
-#ifdef TSAN_REQUIRES_LOCKING
-    if ((ret->tsan_lock = CRYPTO_THREAD_lock_new()) == NULL)
-        goto err;
-#endif
     ret->comp = ((c == NULL) ? (OPENSSL_LH_COMPFUNC)strcmp : c);
     ret->hash = ((h == NULL) ? (OPENSSL_LH_HASHFUNC)OPENSSL_LH_strhash : h);
     ret->num_nodes = MIN_NODES / 2;
@@ -95,19 +75,6 @@ err:
 
 void OPENSSL_LH_free(OPENSSL_LHASH *lh)
 {
-    if (lh == NULL)
-        return;
-
-    OPENSSL_LH_flush(lh);
-#ifdef TSAN_REQUIRES_LOCKING
-    CRYPTO_THREAD_lock_free(lh->tsan_lock);
-#endif
-    OPENSSL_free(lh->b);
-    OPENSSL_free(lh);
-}
-
-void OPENSSL_LH_flush(OPENSSL_LHASH *lh)
-{
     unsigned int i;
     OPENSSL_LH_NODE *n, *nn;
 
@@ -121,8 +88,9 @@ void OPENSSL_LH_flush(OPENSSL_LHASH *lh)
             OPENSSL_free(n);
             n = nn;
         }
-        lh->b[i] = NULL;
     }
+    OPENSSL_free(lh->b);
+    OPENSSL_free(lh);
 }
 
 void *OPENSSL_LH_insert(OPENSSL_LHASH *lh, void *data)
@@ -189,20 +157,21 @@ void *OPENSSL_LH_retrieve(OPENSSL_LHASH *lh, const void *data)
 {
     unsigned long hash;
     OPENSSL_LH_NODE **rn;
+    void *ret;
 
-    /*-
-     * This should be atomic without tsan.
-     * It's not clear why it was done this way and not elsewhere.
-     */
     tsan_store((TSAN_QUALIFIER int *)&lh->error, 0);
 
     rn = getrn(lh, data, &hash);
 
-    if (tsan_lock(lh)) {
-        tsan_counter(*rn == NULL ? &lh->num_retrieve_miss : &lh->num_retrieve);
-        tsan_unlock(lh);
+    if (*rn == NULL) {
+        tsan_counter(&lh->num_retrieve_miss);
+        return NULL;
+    } else {
+        ret = (*rn)->data;
+        tsan_counter(&lh->num_retrieve);
     }
-    return *rn == NULL ? NULL : (*rn)->data;
+
+    return ret;
 }
 
 static void doall_util_fn(OPENSSL_LHASH *lh, int use_arg,
@@ -329,14 +298,9 @@ static OPENSSL_LH_NODE **getrn(OPENSSL_LHASH *lh,
     OPENSSL_LH_NODE **ret, *n1;
     unsigned long hash, nn;
     OPENSSL_LH_COMPFUNC cf;
-    int do_tsan = 1;
 
-#ifdef TSAN_REQUIRES_LOCKING
-    do_tsan = tsan_lock(lh);
-#endif
     hash = (*(lh->hash)) (data);
-    if (do_tsan)
-        tsan_counter(&lh->num_hash_calls);
+    tsan_counter(&lh->num_hash_calls);
     *rhash = hash;
 
     nn = hash % lh->pmax;
@@ -346,20 +310,16 @@ static OPENSSL_LH_NODE **getrn(OPENSSL_LHASH *lh,
     cf = lh->comp;
     ret = &(lh->b[(int)nn]);
     for (n1 = *ret; n1 != NULL; n1 = n1->next) {
-        if (do_tsan)
-            tsan_counter(&lh->num_hash_comps);
+        tsan_counter(&lh->num_hash_comps);
         if (n1->hash != hash) {
             ret = &(n1->next);
             continue;
         }
-        if (do_tsan)
-            tsan_counter(&lh->num_comp_calls);
+        tsan_counter(&lh->num_comp_calls);
         if (cf(n1->data, data) == 0)
             break;
         ret = &(n1->next);
     }
-    if (do_tsan)
-        tsan_unlock(lh);
     return ret;
 }
 
@@ -392,7 +352,7 @@ unsigned long OPENSSL_LH_strhash(const char *c)
     return (ret >> 16) ^ ret;
 }
 
-unsigned long ossl_lh_strcasehash(const char *c)
+unsigned long openssl_lh_strcasehash(const char *c)
 {
     unsigned long ret = 0;
     long n;
