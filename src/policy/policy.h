@@ -5,8 +5,10 @@
 
 #include "node_options.h"
 #include "v8.h"
+#include "policy/policy_deny.h"
+#include "policy/policy_deny_fs.h"
 
-#include <bitset>
+#include <map>
 #include <iostream>
 
 namespace node {
@@ -15,51 +17,34 @@ class Environment;
 
 namespace policy {
 
-#define FILESYSTEM_PERMISSIONS(V)                                              \
-  V(FileSystem, "fs", PermissionsRoot)                                         \
-  V(FileSystemIn, "fs.in", FileSystem)                                         \
-  V(FileSystemOut, "fs.out", FileSystem)
-
-#define PERMISSIONS(V)                                                         \
-  FILESYSTEM_PERMISSIONS(V)                                                    \
-
-#define V(name, _, __) k##name,
-enum class Permission {
-  kPermissionsRoot = -1,
-  PERMISSIONS(V)
-  kPermissionsCount
-};
-#undef V
-
 #define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, ...)                     \
     if (!node::policy::root_policy.is_granted(perm_)) {                                      \
       node::policy::Policy::ThrowAccessDenied((env), perm_);                                  \
     }
 
-using PermissionSet =
-    std::bitset<static_cast<size_t>(Permission::kPermissionsCount)>;
-
-class Policy final {
+class Policy {
   public:
-    inline bool is_granted(const Permission perm) const {
-      return !LIKELY(permissions_.test(static_cast<size_t>(perm)));
+    Policy() {
+      deny_policies.insert(std::make_pair(Permission::kFileSystem, new PolicyDenyFs()));
+    }
+    // TODO: release pointers
+
+    inline bool is_granted(const Permission permission) {
+      Permission perm = Policy::PermissionParent(permission);
+      auto policy = deny_policies.find(perm);
+      if (policy != deny_policies.end()) {
+        return policy->second->is_granted(permission);
+      }
+      return false;
     }
 
-    inline bool is_granted(const std::string& perm) const {
-      return is_granted(Policy::PermissionFromName(perm));
-    }
-
-    static Permission PermissionFromName(const std::string& name);
     static const char* PermissionToString(Permission perm);
-
     static void ThrowAccessDenied(Environment* env, Permission perm);
+    static Permission PermissionParent(Permission permission);
 
-    v8::Maybe<PermissionSet> Parse(const std::string& list);
-    v8::Maybe<bool> Apply(const std::string& deny);
+    v8::Maybe<bool> Apply(const std::string& deny, Permission scope);
   private:
-    void Apply(const PermissionSet& deny);
-
-    PermissionSet permissions_;
+    std::map<Permission, PolicyDeny*> deny_policies;
 };
 
 extern policy::Policy root_policy;

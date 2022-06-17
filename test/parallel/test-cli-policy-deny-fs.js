@@ -15,7 +15,7 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
   const { status, stdout } = spawnSync(
     process.execPath,
     [
-      '--policy-deny', 'fs', dep
+      '--policy-deny-fs', 'fs', dep
     ]
   );
 
@@ -30,7 +30,7 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
   const { status, stdout } = spawnSync(
     process.execPath,
     [
-      '--policy-deny', 'fs.in', dep
+      '--policy-deny-fs', 'fs.in', dep
     ]
   );
 
@@ -45,7 +45,7 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
   const { status, stdout } = spawnSync(
     process.execPath,
     [
-      '--policy-deny', 'fs.out', dep
+      '--policy-deny-fs', 'fs.out', dep
     ]
   );
 
@@ -74,7 +74,7 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
 {
   const { status, stderr } = spawnSync(
     process.execPath,
-    ['--policy-deny=fs.in', '-p', 'fs.readFileSync(process.execPath)']);
+    ['--policy-deny-fs=fs.in', '-p', 'fs.readFileSync(process.execPath)']);
   assert.ok(
     stderr.toString().includes('Access to this API has been restricted'),
     stderr);

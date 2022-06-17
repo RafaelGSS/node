@@ -27,48 +27,31 @@ using v8::String;
 namespace policy {
 
 // The root policy is establish at process start using
-// the --policy-grant and --policy-deny command line
-// arguments.
+// the --policy-deny-* command line arguments.
 Policy root_policy;
 
 namespace {
 
 static void Deny(const FunctionCallbackInfo<Value>& args) {
-  Environment* env = Environment::GetCurrent(args);
-  CHECK(args[0]->IsString());
-  Utf8Value list(env->isolate(), args[0]);
-  if (root_policy.Apply(*list).IsJust())
-    return args.GetReturnValue().Set(true);
+  // TODO
+  /* Environment* env = Environment::GetCurrent(args); */
+  /* CHECK(args[0]->IsString()); */
+  /* Utf8Value list(env->isolate(), args[0]); */
+  /* if (root_policy.Apply(*list).IsJust()) */
+  return args.GetReturnValue().Set(true);
 }
 
 static void Check(const FunctionCallbackInfo<Value>& args) {
-  Environment* env = Environment::GetCurrent(args);
-  CHECK(args[0]->IsString());
-  const std::string permString = *String::Utf8Value(env->isolate(), args[0]);
-  args.GetReturnValue()
-    .Set(root_policy.is_granted(permString));
+  // TODO
+  /* Environment* env = Environment::GetCurrent(args); */
+  /* CHECK(args[0]->IsString()); */
+  /* const std::string permString = *String::Utf8Value(env->isolate(), args[0]); */
+  /* args.GetReturnValue() */
+  /*   .Set(root_policy.is_granted(permString)); */
+  return args.GetReturnValue().Set(true);
 }
-
-#define V(name, _, parent)                                                     \
-  if (permission == Permission::k##parent)                                     \
-    SetRecursively(set, Permission::k##name);
-void SetRecursively(PermissionSet* set, Permission permission) {
-  if (permission != Permission::kPermissionsRoot)
-    set->set(static_cast<size_t>(permission));
-  PERMISSIONS(V)
-}
-#undef V
 
 }  // namespace
-
-#define V(Name, label, _)                                                      \
-  if (strcmp(name.c_str(), label) == 0) return Permission::k##Name;
-Permission Policy::PermissionFromName(const std::string& name) {
-  if (strcmp(name.c_str(), "*") == 0) return Permission::kPermissionsRoot;
-  PERMISSIONS(V)
-  return Permission::kPermissionsCount;
-}
-#undef V
 
 #define V(Name, label, _)                                                      \
   if (perm == Permission::k##Name) return #Name;
@@ -91,27 +74,21 @@ void Policy::ThrowAccessDenied(Environment* env, Permission perm) {
   env->isolate()->ThrowException(err);
 }
 
-Maybe<PermissionSet> Policy::Parse(const std::string& list) {
-  PermissionSet set;
-  for (const auto& name : SplitString(list, ',')) {
-    Permission permission = PermissionFromName(name);
-    if (permission == Permission::kPermissionsCount)
-      return Nothing<PermissionSet>();
-    SetRecursively(&set, permission);
+#define V(name, _, parent)                                                     \
+  if (permission == Permission::k##name)                                     \
+    return Permission::k##parent;
+Permission Policy::PermissionParent(Permission permission) {
+  PERMISSIONS(V)
+    // TODO: warn
+}
+#undef V
+
+Maybe<bool> Policy::Apply(const std::string& deny, Permission scope) {
+  auto policy = deny_policies.find(scope);
+  if (policy != deny_policies.end()) {
+    return policy->second->Apply(deny);
   }
-  return Just(set);
-}
-
-Maybe<bool> Policy::Apply(const std::string& deny) {
-  Maybe<PermissionSet> deny_set = Parse(deny);
-
-  if (deny_set.IsNothing()) return Nothing<bool>();
-  Apply(deny_set.FromJust());
-  return Just(true);
-}
-
-void Policy::Apply(const PermissionSet& deny) {
-  permissions_ |= deny;
+  return Just(false);
 }
 
 void Initialize(Local<Object> target,

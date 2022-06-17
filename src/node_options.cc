@@ -848,9 +848,9 @@ PerProcessOptionsParser::PerProcessOptionsParser(
             "force FIPS crypto (cannot be disabled)",
             &PerProcessOptions::force_fips_crypto,
             kAllowedInEnvironment);
-  AddOption("--policy-deny",
-            "denied permissions",
-            &PerProcessOptions::policy_deny,
+  AddOption("--policy-deny-fs",
+            "denied permissions to filesystem",
+            &PerProcessOptions::policy_deny_fs,
             kAllowedInEnvironment);
   AddOption("--secure-heap",
             "total size of the OpenSSL secure heap",
