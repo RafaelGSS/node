@@ -17,8 +17,8 @@ class Environment;
 
 namespace policy {
 
-#define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, ...)                     \
-    if (!node::policy::root_policy.is_granted(perm_)) {                                      \
+#define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, resource_, ...)                     \
+    if (!node::policy::root_policy.is_granted(perm_, resource_)) {                                      \
       node::policy::Policy::ThrowAccessDenied((env), perm_);                                  \
     }
 
@@ -29,14 +29,20 @@ class Policy {
     }
     // TODO: release pointers
 
-    inline bool is_granted(const Permission permission) {
+    inline bool is_granted(const Permission permission, const char* res) {
+      std::cout << "Checking is_granted with " << Policy::PermissionToString(permission) << " res: " << res << std::endl;
       Permission perm = Policy::PermissionParent(permission);
       auto policy = deny_policies.find(perm);
       if (policy != deny_policies.end()) {
-        return policy->second->is_granted(permission);
+        return policy->second->is_granted(permission, res);
       }
       return false;
     }
+
+    inline bool is_granted(const Permission permission, std::string res) {
+      return is_granted(permission, res.c_str());
+    }
+
 
     static const char* PermissionToString(Permission perm);
     static void ThrowAccessDenied(Environment* env, Permission perm);

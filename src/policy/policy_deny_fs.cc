@@ -4,6 +4,7 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 
 using v8::Maybe;
 using v8::Just;
@@ -31,17 +32,22 @@ Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
       } else {
         if (perm == Permission::kFileSystemIn) {
           deny_all_in = false;
-          deny_in_params = opt;
+          deny_in_params.push_back(opt);
         } else {
           deny_all_out = false;
-          deny_out_params = opt;
+          deny_out_params.push_back(opt);
         }
       }
     }
   }
 
-  std::cout << "deny_in_params " << deny_in_params << " is block " << deny_all_in << std::endl;
-  std::cout << "deny_out_params " << deny_out_params << " is block " << deny_all_out << std::endl;
+  // TODO: remove it -- please god
+  std::string strIn;
+  std::string strOut;
+  for (const auto &piece : deny_in_params) strIn += "|" + piece;
+  for (const auto &piece : deny_out_params) strOut += "|" + piece;
+  std::cout << "deny_in_params " << strIn << " is block " << deny_all_in << std::endl;
+  std::cout << "deny_out_params " << strOut << " is block " << deny_all_out << std::endl;
   return Just(true);
 }
 
@@ -59,8 +65,12 @@ bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
   }
 }
 
-bool PolicyDenyFs::is_granted(std::string params, const std::string& opt) {
-  std::cout << "Here was called " << params << " " << opt << std::endl;
+// TODO: check folder
+// TODO: handle realpath
+bool PolicyDenyFs::is_granted(std::vector<std::string> params, const std::string& opt) {
+  for (auto& param : params) {
+    if (param == opt) return false;
+  }
   return true;
 }
 
