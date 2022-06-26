@@ -8,21 +8,24 @@
 #include "policy/policy_deny.h"
 #include <vector>
 
+using v8::Maybe;
+
 namespace node {
 
 namespace policy {
 
+using DenyFsParams = std::vector<std::pair<std::string, bool /* is_folder */>>;
+
 // TODO: implement radix-tree algorithm
-// Benchmark it
 class PolicyDenyFs : public PolicyDeny {
   public:
-    v8::Maybe<bool> Apply(const std::string& deny);
+    Maybe<bool> Apply(const std::string& deny);
     bool is_granted(Permission perm, const std::string& param);
   private:
-    static bool is_granted(std::vector<std::string> params, const std::string& opt);
+    static bool is_granted(DenyFsParams params, const std::string& opt);
 
-    std::vector<std::string> deny_in_params;
-    std::vector<std::string> deny_out_params;
+    DenyFsParams deny_in_params;
+    DenyFsParams deny_out_params;
     bool deny_all_in;
     bool deny_all_out;
 };

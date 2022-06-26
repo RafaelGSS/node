@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <stdlib.h>
+#include <filesystem>
 
 using v8::Maybe;
 using v8::Just;
@@ -30,24 +32,26 @@ Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
           deny_all_out = true;
         }
       } else {
+        // TODO: maybe use internal fs.resolve?
+        char resolvedPath[PATH_MAX];
+        realpath(opt.c_str(), resolvedPath);
+        if (resolvedPath == nullptr) {
+          return Just(false);
+        }
+
+        std::filesystem::path path(resolvedPath);
+        bool isDir = std::filesystem::is_directory(path);
         if (perm == Permission::kFileSystemIn) {
           deny_all_in = false;
-          deny_in_params.push_back(opt);
+          deny_in_params.push_back(std::make_pair(resolvedPath, isDir));
         } else {
           deny_all_out = false;
-          deny_out_params.push_back(opt);
+          deny_out_params.push_back(std::make_pair(resolvedPath, isDir));
         }
       }
     }
   }
 
-  // TODO: remove it -- please god
-  std::string strIn;
-  std::string strOut;
-  for (const auto &piece : deny_in_params) strIn += "|" + piece;
-  for (const auto &piece : deny_out_params) strOut += "|" + piece;
-  std::cout << "deny_in_params " << strIn << " is block " << deny_all_in << std::endl;
-  std::cout << "deny_out_params " << strOut << " is block " << deny_all_out << std::endl;
   return Just(true);
 }
 
@@ -65,11 +69,22 @@ bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
   }
 }
 
-// TODO: check folder
-// TODO: handle realpath
-bool PolicyDenyFs::is_granted(std::vector<std::string> params, const std::string& opt) {
+bool PolicyDenyFs::is_granted(DenyFsParams params, const std::string& opt) {
+  char resolvedPath[PATH_MAX];
+  realpath(opt.c_str(), resolvedPath);
+  if (resolvedPath == nullptr) {
+    return false;
+  }
+
   for (auto& param : params) {
-    if (param == opt) return false;
+    // is folder
+    if (param.second) {
+      if (strstr(resolvedPath, param.first.c_str()) == resolvedPath) {
+        return false;
+      }
+    } else if (param.first == resolvedPath) {
+      return false;
+    }
   }
   return true;
 }
