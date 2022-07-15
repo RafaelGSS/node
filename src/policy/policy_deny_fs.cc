@@ -49,7 +49,8 @@ Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
 
 bool PolicyDenyFs::Deny(Permission perm, std::vector<std::string> params) {
   if (perm == Permission::kFileSystem) {
-    deny_all_in_ = deny_all_out_ = true;
+    deny_all_in_ = true;
+    deny_all_out_ = true;
     return true;
   }
 
@@ -82,9 +83,13 @@ void PolicyDenyFs::RestrictAccess(Permission perm, const std::string& res) {
 
   std::filesystem::path path(resolvedPath);
   bool isDir = std::filesystem::is_directory(path);
+  // when there are parameters deny_params_ is automatically
+  // set to false
   if (perm == Permission::kFileSystemIn) {
+    deny_all_in_ = false;
     deny_in_params_.push_back(std::make_pair(resolvedPath, isDir));
   } else if (perm == Permission::kFileSystemOut) {
+    deny_all_out_ = false;
     deny_out_params_.push_back(std::make_pair(resolvedPath, isDir));
   }
 }
@@ -99,7 +104,7 @@ void PolicyDenyFs::RestrictAccess(Permission perm,
 bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
   switch (perm) {
     case Permission::kFileSystem:
-      return !deny_all_in_ && !deny_all_out_;
+      return !(deny_all_in_ && deny_all_out_);
     case Permission::kFileSystemIn:
       return !deny_all_in_ &&
         (param.empty() || PolicyDenyFs::is_granted(deny_in_params_, param));

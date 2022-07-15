@@ -51,3 +51,6 @@ const dep = fixtures.path('policy', 'deny', 'fs', 'read-file.js');
 
   assert.strictEqual(status, 0);
 }
+// TODO:
+// - test all fs write APIs
+// - test all fs read APIs
