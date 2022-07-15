@@ -13,8 +13,8 @@ namespace policy {
 
 #define FILESYSTEM_PERMISSIONS(V)                                              \
   V(FileSystem, "fs", PermissionsRoot)                                         \
-  V(FileSystemIn, "in", FileSystem)                                         \
-  V(FileSystemOut, "out", FileSystem)
+  V(FileSystemIn, "fs.in", FileSystem)                                         \
+  V(FileSystemOut, "fs.out", FileSystem)
 
 #define PERMISSIONS(V)                                                         \
   FILESYSTEM_PERMISSIONS(V)                                                    \
@@ -30,6 +30,7 @@ enum class Permission {
 class PolicyDeny {
   public:
     virtual v8::Maybe<bool> Apply(const std::string& deny) = 0;
+    virtual bool Deny(Permission scope, std::vector<std::string> params) = 0;
     virtual bool is_granted(Permission perm, const std::string& param = "") = 0;
 };
 

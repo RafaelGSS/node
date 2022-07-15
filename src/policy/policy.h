@@ -24,15 +24,17 @@ namespace policy {
 
 class Policy {
   public:
-    Policy() {
-      deny_policies.insert(std::make_pair(Permission::kFileSystem, new PolicyDenyFs()));
-    }
     // TODO: release pointers
+    Policy() {
+      auto denyFs = new PolicyDenyFs();
+#define V(Name, _, __) \
+      deny_policies.insert(std::make_pair(Permission::k##Name, denyFs));
+      FILESYSTEM_PERMISSIONS(V)
+#undef V
+    }
 
     inline bool is_granted(const Permission permission, const char* res) {
-      std::cout << "Checking is_granted with " << Policy::PermissionToString(permission) << " res: " << res << std::endl;
-      Permission perm = Policy::PermissionParent(permission);
-      auto policy = deny_policies.find(perm);
+      auto policy = deny_policies.find(permission);
       if (policy != deny_policies.end()) {
         return policy->second->is_granted(permission, res);
       }
@@ -43,12 +45,14 @@ class Policy {
       return is_granted(permission, res.c_str());
     }
 
-
+    static Permission StringToPermission(std::string perm);
     static const char* PermissionToString(Permission perm);
     static void ThrowAccessDenied(Environment* env, Permission perm);
-    static Permission PermissionParent(Permission permission);
 
+    // It's called by CLI
     v8::Maybe<bool> Apply(const std::string& deny, Permission scope);
+    // Directly API access
+    bool Deny(Permission scope, std::vector<std::string> params);
   private:
     std::map<Permission, PolicyDeny*> deny_policies;
 };

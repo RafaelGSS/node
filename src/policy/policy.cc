@@ -23,6 +23,8 @@ using v8::Value;
 using v8::Nothing;
 using v8::Just;
 using v8::String;
+using v8::Array;
+using v8::Integer;
 
 namespace policy {
 
@@ -32,23 +34,54 @@ Policy root_policy;
 
 namespace {
 
+// policy.deny('fs.in', ['/tmp/'])
+// policy.deny('fs.in')
 static void Deny(const FunctionCallbackInfo<Value>& args) {
-  // TODO
-  /* Environment* env = Environment::GetCurrent(args); */
-  /* CHECK(args[0]->IsString()); */
-  /* Utf8Value list(env->isolate(), args[0]); */
-  /* if (root_policy.Apply(*list).IsJust()) */
-  return args.GetReturnValue().Set(true);
+  Environment* env = Environment::GetCurrent(args);
+  v8::Isolate* isolate = env->isolate();
+
+  CHECK(args[0]->IsString());
+  CHECK(args.Length() >= 2 || args[1]->IsArray());
+
+  const char* denyScope = *String::Utf8Value(isolate, args[0]);
+  Permission scope = Policy::StringToPermission(denyScope);
+  if (scope == Permission::kPermissionsRoot) {
+    return args.GetReturnValue().Set(false);
+  }
+
+  Local<Array> jsParams = Local<Array>::Cast(args[1]);
+  std::vector<std::string> params;
+  for (uint32_t i = 0; i < jsParams->Length(); ++i) {
+    Local<Value> arg(
+        jsParams
+          ->Get(isolate->GetCurrentContext(), Integer::New(isolate, i))
+          .ToLocalChecked());
+
+    String::Utf8Value utf8_arg(isolate, arg);
+    params.push_back(*utf8_arg);
+  }
+
+  return args.GetReturnValue()
+    .Set(root_policy.Deny(scope, params));
 }
 
+// policy.check('fs.in', '/tmp/')
+// policy.check('fs.in')
 static void Check(const FunctionCallbackInfo<Value>& args) {
-  // TODO
-  /* Environment* env = Environment::GetCurrent(args); */
-  /* CHECK(args[0]->IsString()); */
-  /* const std::string permString = *String::Utf8Value(env->isolate(), args[0]); */
-  /* args.GetReturnValue() */
-  /*   .Set(root_policy.is_granted(permString)); */
-  return args.GetReturnValue().Set(true);
+  Environment* env = Environment::GetCurrent(args);
+  v8::Isolate* isolate = env->isolate();
+  CHECK(args[0]->IsString());
+  CHECK(args.Length() >= 2 || args[1]->IsString());
+
+  std::string denyScope = *String::Utf8Value(isolate, args[0]);
+  Permission scope = Policy::StringToPermission(denyScope);
+  if (scope == Permission::kPermissionsRoot) {
+    // TODO: throw?
+    return args.GetReturnValue().Set(false);
+  }
+
+  return args.GetReturnValue()
+    .Set(root_policy.is_granted(scope, *String::Utf8Value(isolate, args[1])));
 }
 
 }  // namespace
@@ -58,6 +91,14 @@ static void Check(const FunctionCallbackInfo<Value>& args) {
 const char* Policy::PermissionToString(const Permission perm) {
   PERMISSIONS(V)
   return nullptr;
+}
+#undef V
+
+#define V(Name, label, _)                                                      \
+  if (perm == label) return Permission::k##Name;
+Permission Policy::StringToPermission(std::string perm) {
+  PERMISSIONS(V)
+  return Permission::kPermissionsRoot;
 }
 #undef V
 
@@ -74,21 +115,20 @@ void Policy::ThrowAccessDenied(Environment* env, Permission perm) {
   env->isolate()->ThrowException(err);
 }
 
-#define V(name, _, parent)                                                     \
-  if (permission == Permission::k##name)                                     \
-    return Permission::k##parent;
-Permission Policy::PermissionParent(Permission permission) {
-  PERMISSIONS(V)
-    // TODO: warn
-}
-#undef V
-
 Maybe<bool> Policy::Apply(const std::string& deny, Permission scope) {
   auto policy = deny_policies.find(scope);
   if (policy != deny_policies.end()) {
     return policy->second->Apply(deny);
   }
   return Just(false);
+}
+
+bool Policy::Deny(Permission scope, std::vector<std::string> params) {
+  auto policy = deny_policies.find(scope);
+  if (policy != deny_policies.end()) {
+    return policy->second->Deny(scope, params);
+  }
+  return false;
 }
 
 void Initialize(Local<Object> target,

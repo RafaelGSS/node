@@ -20,9 +20,12 @@ using DenyFsParams = std::vector<std::pair<std::string, bool /* is_folder */>>;
 class PolicyDenyFs : public PolicyDeny {
   public:
     Maybe<bool> Apply(const std::string& deny);
+    bool Deny(Permission scope, std::vector<std::string> params);
     bool is_granted(Permission perm, const std::string& param);
   private:
     static bool is_granted(DenyFsParams params, const std::string& opt);
+    void RestrictAccess(Permission scope, std::string& param);
+    void RestrictAccess(Permission scope, std::vector<std::string> params);
 
     DenyFsParams deny_in_params;
     DenyFsParams deny_out_params;
