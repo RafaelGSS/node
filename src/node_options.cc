@@ -849,7 +849,7 @@ PerProcessOptionsParser::PerProcessOptionsParser(
             &PerProcessOptions::force_fips_crypto,
             kAllowedInEnvironment);
   AddOption("--policy-deny-fs",
-            "denied permissions to filesystem",
+            "denied permissions to the filesystem",
             &PerProcessOptions::policy_deny_fs,
             kAllowedInEnvironment);
   AddOption("--secure-heap",

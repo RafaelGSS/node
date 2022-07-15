@@ -27,10 +27,10 @@ class PolicyDenyFs : public PolicyDeny {
     void RestrictAccess(Permission scope, std::string& param);
     void RestrictAccess(Permission scope, std::vector<std::string> params);
 
-    DenyFsParams deny_in_params;
-    DenyFsParams deny_out_params;
-    bool deny_all_in;
-    bool deny_all_out;
+    DenyFsParams deny_in_params_;
+    DenyFsParams deny_out_params_;
+    bool deny_all_in_;
+    bool deny_all_out_;
 };
 
 }  // namespace policy

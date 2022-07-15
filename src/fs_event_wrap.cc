@@ -145,7 +145,11 @@ void FSEventWrap::Start(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn, *path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env,
+      policy::Permission::kFileSystemIn,
+      *path
+  );
 
   unsigned int flags = 0;
   if (args[2]->IsTrue())

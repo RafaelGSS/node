@@ -7,7 +7,7 @@ if (!common.hasCrypto)
 const fixtures = require('../common/fixtures');
 
 const { spawnSync } = require('child_process');
-const assert = require('assert')
+const assert = require('assert');
 
 const dep = fixtures.path('policy', 'deny', 'fs', 'read-file.js');
 // policy.check
@@ -15,7 +15,7 @@ const dep = fixtures.path('policy', 'deny', 'fs', 'read-file.js');
   const { status, stderr } = spawnSync(
     process.execPath,
     [
-      '--policy-deny', 'fs', dep
+      '--policy-deny', 'fs', dep,
     ]
   );
 
@@ -30,7 +30,7 @@ const dep = fixtures.path('policy', 'deny', 'fs', 'read-file.js');
   const { status, stderr } = spawnSync(
     process.execPath,
     [
-      '--policy-deny', 'fs.in', dep
+      '--policy-deny', 'fs.in', dep,
     ]
   );
 
@@ -42,10 +42,10 @@ const dep = fixtures.path('policy', 'deny', 'fs', 'read-file.js');
 }
 
 {
-  const { status, stderr } = spawnSync(
+  const { status } = spawnSync(
     process.execPath,
     [
-      '--policy-deny', 'fs.out', dep
+      '--policy-deny', 'fs.out', dep,
     ]
   );
 
