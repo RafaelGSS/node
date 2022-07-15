@@ -31,8 +31,7 @@ Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
         if (opt == "in") {
           perm = Permission::kFileSystemIn;
           deny_all_in_ = true;
-        }
-        if (opt == "out") {
+        } else if (opt == "out") {
           perm = Permission::kFileSystemOut;
           deny_all_out_ = true;
         } else {
