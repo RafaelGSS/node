@@ -869,8 +869,8 @@ void Access(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    *path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *path);
 
   FSReqBase* req_wrap_async = GetReqWrap(args, 2);
   if (req_wrap_async != nullptr) {  // access(path, mode, req)
@@ -918,8 +918,8 @@ static void InternalModuleReadJSON(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsString());
   node::Utf8Value path(isolate, args[0]);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    path.ToString());
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, path.ToString());
 
   if (strlen(*path) != path.length()) {
     args.GetReturnValue().Set(Array::New(isolate));
@@ -1016,8 +1016,8 @@ static void InternalModuleStat(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsString());
   node::Utf8Value path(env->isolate(), args[0]);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    path.ToString());
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, path.ToString());
 
   uv_fs_t req;
   int rc = uv_fs_stat(env->event_loop(), &req, *path, nullptr);
@@ -1039,8 +1039,8 @@ static void Stat(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    *path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *path);
 
   bool use_bigint = args[1]->IsTrue();
   FSReqBase* req_wrap_async = GetReqWrap(args, 2, use_bigint);
@@ -1072,8 +1072,8 @@ static void LStat(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    *path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *path);
 
   bool use_bigint = args[1]->IsTrue();
   FSReqBase* req_wrap_async = GetReqWrap(args, 2, use_bigint);
@@ -1106,8 +1106,8 @@ static void FStat(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsInt32());
   int fd = args[0].As<Int32>()->Value();
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    "FD: " + fd);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, "FD: " + fd);
 
   bool use_bigint = args[1]->IsTrue();
   FSReqBase* req_wrap_async = GetReqWrap(args, 2, use_bigint);
@@ -1195,8 +1195,8 @@ static void ReadLink(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    *path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *path);
 
   const enum encoding encoding = ParseEncoding(isolate, args[1], UTF8);
 
@@ -1612,8 +1612,8 @@ static void RealPath(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    *path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *path);
 
   const enum encoding encoding = ParseEncoding(isolate, args[1], UTF8);
 
@@ -1658,8 +1658,8 @@ static void ReadDir(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    *path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *path);
 
   const enum encoding encoding = ParseEncoding(isolate, args[1], UTF8);
 
@@ -1746,8 +1746,8 @@ static void Open(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    *path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *path);
 
   CHECK(args[1]->IsInt32());
   const int flags = args[1].As<Int32>()->Value();
@@ -1782,8 +1782,8 @@ static void OpenFileHandle(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    *path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *path);
 
   CHECK(args[1]->IsInt32());
   const int flags = args[1].As<Int32>()->Value();
@@ -2062,9 +2062,9 @@ static void Read(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsInt32());
   const int fd = args[0].As<Int32>()->Value();
-  // TODO: How to handle fd?
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn,
-                                    "FD:" + fd);
+  // TODO(rafaelgss): How to handle fd?
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, "FD:" + fd);
 
   CHECK(Buffer::HasInstance(args[1]));
   Local<Object> buffer_obj = args[1].As<Object>();

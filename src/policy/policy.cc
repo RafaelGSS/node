@@ -14,17 +14,17 @@
 
 namespace node {
 
+using v8::Array;
 using v8::Context;
 using v8::FunctionCallbackInfo;
+using v8::Integer;
+using v8::Just;
 using v8::Local;
 using v8::Maybe;
-using v8::Object;
-using v8::Value;
 using v8::Nothing;
-using v8::Just;
+using v8::Object;
 using v8::String;
-using v8::Array;
-using v8::Integer;
+using v8::Value;
 
 namespace policy {
 
@@ -76,7 +76,7 @@ static void Check(const FunctionCallbackInfo<Value>& args) {
   std::string denyScope = *String::Utf8Value(isolate, args[0]);
   Permission scope = Policy::StringToPermission(denyScope);
   if (scope == Permission::kPermissionsRoot) {
-    // TODO: throw?
+    // TODO(rafaelgss): throw?
     return args.GetReturnValue().Set(false);
   }
 

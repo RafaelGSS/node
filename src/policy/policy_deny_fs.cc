@@ -2,17 +2,14 @@
 #include "base_object-inl.h"
 #include "v8.h"
 
-#include <string>
-#include <iostream>
-#include <vector>
 #include <stdlib.h>
 #include <filesystem>
+#include <iostream>
+#include <string>
+#include <vector>
 
-using v8::Maybe;
 using v8::Just;
-using v8::Local;
-using v8::Array;
-using v8::String;
+using v8::Maybe;
 
 namespace node {
 
@@ -78,7 +75,7 @@ bool PolicyDenyFs::Deny(Permission perm, std::vector<std::string> params) {
   return false;
 }
 
-void PolicyDenyFs::RestrictAccess(Permission perm, std::string& res) {
+void PolicyDenyFs::RestrictAccess(Permission perm, const std::string& res) {
   char resolvedPath[PATH_MAX];
   // check the result
   realpath(res.c_str(), resolvedPath);
@@ -92,14 +89,15 @@ void PolicyDenyFs::RestrictAccess(Permission perm, std::string& res) {
   }
 }
 
-void PolicyDenyFs::RestrictAccess(Permission perm, std::vector<std::string> params) {
+void PolicyDenyFs::RestrictAccess(Permission perm,
+                                  std::vector<std::string> params) {
   for (auto& param : params) {
     RestrictAccess(perm, param);
   }
 }
 
 bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
-  switch(perm) {
+  switch (perm) {
     case Permission::kFileSystem:
       return !deny_all_in_ && !deny_all_out_;
     case Permission::kFileSystemIn:
@@ -129,6 +127,5 @@ bool PolicyDenyFs::is_granted(DenyFsParams params, const std::string& opt) {
   return true;
 }
 
-
-} // namespace policy
-} // namespace node
+}  // namespace policy
+}  // namespace node

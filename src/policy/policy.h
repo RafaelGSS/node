@@ -17,21 +17,21 @@ class Environment;
 
 namespace policy {
 
-#define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, resource_, ...)                     \
-    if (!node::policy::root_policy.is_granted(perm_, resource_)) {                                      \
-      node::policy::Policy::ThrowAccessDenied((env), perm_);                                  \
-    }
+#define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, resource_, ...)          \
+  if (!node::policy::root_policy.is_granted(perm_, resource_)) {               \
+    node::policy::Policy::ThrowAccessDenied((env), perm_);                     \
+  }
 
 class Policy {
-  public:
-    // TODO: release pointers
-    Policy() {
-      auto denyFs = new PolicyDenyFs();
+ public:
+  // TODO(rafaelgss): release pointers
+  Policy() {
+    auto denyFs = new PolicyDenyFs();
 #define V(Name, _, __) \
       deny_policies.insert(std::make_pair(Permission::k##Name, denyFs));
       FILESYSTEM_PERMISSIONS(V)
 #undef V
-    }
+  }
 
     inline bool is_granted(const Permission permission, const char* res) {
       auto policy = deny_policies.find(permission);
@@ -53,7 +53,8 @@ class Policy {
     v8::Maybe<bool> Apply(const std::string& deny, Permission scope);
     // Directly API access
     bool Deny(Permission scope, std::vector<std::string> params);
-  private:
+
+ private:
     std::map<Permission, PolicyDeny*> deny_policies;
 };
 
