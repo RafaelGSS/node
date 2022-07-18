@@ -82,6 +82,7 @@ void PolicyDenyFs::RestrictAccess(Permission perm, const std::string& res) {
 
   std::filesystem::path path(resolvedPath);
   bool isDir = std::filesystem::is_directory(path);
+  std::cout << resolvedPath << std::endl;
   // when there are parameters deny_params_ is automatically
   // set to false
   if (perm == Permission::kFileSystemIn) {
