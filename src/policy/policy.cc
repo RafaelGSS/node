@@ -14,67 +14,91 @@
 
 namespace node {
 
+using v8::Array;
 using v8::Context;
 using v8::FunctionCallbackInfo;
+using v8::Integer;
+using v8::Just;
 using v8::Local;
 using v8::Maybe;
-using v8::Object;
-using v8::Value;
 using v8::Nothing;
-using v8::Just;
+using v8::Object;
 using v8::String;
+using v8::Value;
 
 namespace policy {
 
 // The root policy is establish at process start using
-// the --policy-grant and --policy-deny command line
-// arguments.
+// the --policy-deny-* command line arguments.
 Policy root_policy;
 
 namespace {
 
+// policy.deny('fs.in', ['/tmp/'])
+// policy.deny('fs.in')
 static void Deny(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  v8::Isolate* isolate = env->isolate();
+
   CHECK(args[0]->IsString());
-  Utf8Value list(env->isolate(), args[0]);
-  if (root_policy.Apply(*list).IsJust())
-    return args.GetReturnValue().Set(true);
+  CHECK(args.Length() >= 2 || args[1]->IsArray());
+
+  std::string denyScope = *String::Utf8Value(isolate, args[0]);
+  Permission scope = Policy::StringToPermission(denyScope);
+  if (scope == Permission::kPermissionsRoot) {
+    return args.GetReturnValue().Set(false);
+  }
+
+  Local<Array> jsParams = Local<Array>::Cast(args[1]);
+  std::vector<std::string> params;
+  for (uint32_t i = 0; i < jsParams->Length(); ++i) {
+    Local<Value> arg(
+        jsParams
+          ->Get(isolate->GetCurrentContext(), Integer::New(isolate, i))
+          .ToLocalChecked());
+
+    String::Utf8Value utf8_arg(isolate, arg);
+    params.push_back(*utf8_arg);
+  }
+
+  return args.GetReturnValue()
+    .Set(root_policy.Deny(scope, params));
 }
 
+// policy.check('fs.in', '/tmp/')
+// policy.check('fs.in')
 static void Check(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  v8::Isolate* isolate = env->isolate();
   CHECK(args[0]->IsString());
-  const std::string permString = *String::Utf8Value(env->isolate(), args[0]);
-  args.GetReturnValue()
-    .Set(root_policy.is_granted(permString));
-}
+  CHECK(args.Length() >= 2 || args[1]->IsString());
 
-#define V(name, _, parent)                                                     \
-  if (permission == Permission::k##parent)                                     \
-    SetRecursively(set, Permission::k##name);
-void SetRecursively(PermissionSet* set, Permission permission) {
-  if (permission != Permission::kPermissionsRoot)
-    set->set(static_cast<size_t>(permission));
-  PERMISSIONS(V)
+  std::string denyScope = *String::Utf8Value(isolate, args[0]);
+  Permission scope = Policy::StringToPermission(denyScope);
+  if (scope == Permission::kPermissionsRoot) {
+    // TODO(rafaelgss): throw?
+    return args.GetReturnValue().Set(false);
+  }
+
+  return args.GetReturnValue()
+    .Set(root_policy.is_granted(scope, *String::Utf8Value(isolate, args[1])));
 }
-#undef V
 
 }  // namespace
-
-#define V(Name, label, _)                                                      \
-  if (strcmp(name.c_str(), label) == 0) return Permission::k##Name;
-Permission Policy::PermissionFromName(const std::string& name) {
-  if (strcmp(name.c_str(), "*") == 0) return Permission::kPermissionsRoot;
-  PERMISSIONS(V)
-  return Permission::kPermissionsCount;
-}
-#undef V
 
 #define V(Name, label, _)                                                      \
   if (perm == Permission::k##Name) return #Name;
 const char* Policy::PermissionToString(const Permission perm) {
   PERMISSIONS(V)
   return nullptr;
+}
+#undef V
+
+#define V(Name, label, _)                                                      \
+  if (perm == label) return Permission::k##Name;
+Permission Policy::StringToPermission(std::string perm) {
+  PERMISSIONS(V)
+  return Permission::kPermissionsRoot;
 }
 #undef V
 
@@ -91,27 +115,20 @@ void Policy::ThrowAccessDenied(Environment* env, Permission perm) {
   env->isolate()->ThrowException(err);
 }
 
-Maybe<PermissionSet> Policy::Parse(const std::string& list) {
-  PermissionSet set;
-  for (const auto& name : SplitString(list, ',')) {
-    Permission permission = PermissionFromName(name);
-    if (permission == Permission::kPermissionsCount)
-      return Nothing<PermissionSet>();
-    SetRecursively(&set, permission);
+Maybe<bool> Policy::Apply(const std::string& deny, Permission scope) {
+  auto policy = deny_policies.find(scope);
+  if (policy != deny_policies.end()) {
+    return policy->second->Apply(deny);
   }
-  return Just(set);
+  return Just(false);
 }
 
-Maybe<bool> Policy::Apply(const std::string& deny) {
-  Maybe<PermissionSet> deny_set = Parse(deny);
-
-  if (deny_set.IsNothing()) return Nothing<bool>();
-  Apply(deny_set.FromJust());
-  return Just(true);
-}
-
-void Policy::Apply(const PermissionSet& deny) {
-  permissions_ |= deny;
+bool Policy::Deny(Permission scope, std::vector<std::string> params) {
+  auto policy = deny_policies.find(scope);
+  if (policy != deny_policies.end()) {
+    return policy->second->Deny(scope, params);
+  }
+  return false;
 }
 
 void Initialize(Local<Object> target,

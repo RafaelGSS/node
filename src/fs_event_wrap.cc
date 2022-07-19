@@ -137,7 +137,6 @@ void FSEventWrap::New(const FunctionCallbackInfo<Value>& args) {
 // wrap.start(filename, persistent, recursive, encoding)
 void FSEventWrap::Start(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(env, policy::Permission::kFileSystemIn);
 
   FSEventWrap* wrap = Unwrap<FSEventWrap>(args.This());
   CHECK_NOT_NULL(wrap);
@@ -148,6 +147,8 @@ void FSEventWrap::Start(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *path);
 
   unsigned int flags = 0;
   if (args[2]->IsTrue())

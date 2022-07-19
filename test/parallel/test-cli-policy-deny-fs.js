@@ -7,7 +7,7 @@ if (!common.hasCrypto)
 const fixtures = require('../common/fixtures');
 
 const { spawnSync } = require('child_process');
-const assert = require('assert')
+const assert = require('assert');
 
 const dep = fixtures.path('policy', 'deny', 'check.js');
 
@@ -15,7 +15,10 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
   const { status, stdout } = spawnSync(
     process.execPath,
     [
-      '--policy-deny', 'fs', dep
+      '--policy-deny-fs', 'fs', '-e',
+      `console.log(process.policy.check("fs"));
+       console.log(process.policy.check("fs.in"));
+       console.log(process.policy.check("fs.out"));`
     ]
   );
 
@@ -30,7 +33,11 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
   const { status, stdout } = spawnSync(
     process.execPath,
     [
-      '--policy-deny', 'fs.in', dep
+
+      '--policy-deny-fs', 'in', '-e',
+      `console.log(process.policy.check("fs"));
+       console.log(process.policy.check("fs.in"));
+       console.log(process.policy.check("fs.out"));`
     ]
   );
 
@@ -45,7 +52,10 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
   const { status, stdout } = spawnSync(
     process.execPath,
     [
-      '--policy-deny', 'fs.out', dep
+      '--policy-deny-fs', 'out', '-e',
+      `console.log(process.policy.check("fs"));
+       console.log(process.policy.check("fs.in"));
+       console.log(process.policy.check("fs.out"));`
     ]
   );
 
@@ -60,12 +70,15 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
   const { status, stdout } = spawnSync(
     process.execPath,
     [
-      '--policy-deny', 'fs.in,fs.out', dep
+      '--policy-deny-fs', 'out,in', '-e',
+      `console.log(process.policy.check("fs"));
+       console.log(process.policy.check("fs.in"));
+       console.log(process.policy.check("fs.out"));`
     ]
   );
 
   const [fs, fsIn, fsOut] = stdout.toString().split('\n');
-  assert.strictEqual(fs, 'true');
+  assert.strictEqual(fs, 'false');
   assert.strictEqual(fsIn, 'false');
   assert.strictEqual(fsOut, 'false');
   assert.strictEqual(status, 0);
@@ -74,9 +87,30 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
 {
   const { status, stderr } = spawnSync(
     process.execPath,
-    ['--policy-deny=fs.in', '-p', 'fs.readFileSync(process.execPath)']);
+    ['--policy-deny-fs=in', '-p', 'fs.readFileSync(process.execPath)']);
   assert.ok(
     stderr.toString().includes('Access to this API has been restricted'),
     stderr);
   assert.strictEqual(status, 1);
+}
+
+{
+  const { status, stderr } = spawnSync(
+    process.execPath,
+    ['--policy-deny-fs=fs', '-p', 'fs.readFileSync(process.execPath)']);
+  assert.ok(
+    stderr.toString().includes('Access to this API has been restricted'),
+    stderr);
+  assert.strictEqual(status, 1);
+}
+
+{
+  const { status, stderr } = spawnSync(
+    process.execPath,
+    ['--policy-deny-fs=out', '-p', 'fs.writeFileSync("policy-deny-example.md", "# test")']);
+  assert.ok(
+    stderr.toString().includes('Access to this API has been restricted'),
+    stderr);
+  assert.strictEqual(status, 1);
+  assert.ok(fs.existsSync('policy-deny-example.md'));
 }
