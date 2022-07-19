@@ -434,9 +434,6 @@ FileHandleReadWrap::FileHandleReadWrap(FileHandle* handle, Local<Object> obj)
 int FileHandle::ReadStart() {
   if (!IsAlive() || IsClosing())
     return UV_EOF;
-  if (!node::policy::root_policy.is_granted(
-        node::policy::Permission::kFileSystemIn, ""))
-    return UV_EPERM;
 
   reading_ = true;
 
@@ -1106,8 +1103,6 @@ static void FStat(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsInt32());
   int fd = args[0].As<Int32>()->Value();
-  THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystemIn, "FD: " + fd);
 
   bool use_bigint = args[1]->IsTrue();
   FSReqBase* req_wrap_async = GetReqWrap(args, 2, use_bigint);
@@ -2062,9 +2057,6 @@ static void Read(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsInt32());
   const int fd = args[0].As<Int32>()->Value();
-  // TODO(rafaelgss): How to handle fd?
-  THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystemIn, "FD:" + fd);
 
   CHECK(Buffer::HasInstance(args[1]));
   Local<Object> buffer_obj = args[1].As<Object>();

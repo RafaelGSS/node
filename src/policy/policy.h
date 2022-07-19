@@ -49,9 +49,9 @@ class Policy {
     static const char* PermissionToString(Permission perm);
     static void ThrowAccessDenied(Environment* env, Permission perm);
 
-    // It's called by CLI
+    // CLI Call
     v8::Maybe<bool> Apply(const std::string& deny, Permission scope);
-    // Directly API access
+    // Policy.Deny API
     bool Deny(Permission scope, std::vector<std::string> params);
 
  private:

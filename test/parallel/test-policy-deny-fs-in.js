@@ -252,7 +252,7 @@ const regularFile = __filename;
   });
 }
 
-fs.readdir
+// fs.readdir
 {
   assert.throws(() => {
     fs.readdir(blockedFolder, () => {});

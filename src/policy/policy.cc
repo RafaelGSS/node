@@ -43,7 +43,7 @@ static void Deny(const FunctionCallbackInfo<Value>& args) {
   CHECK(args[0]->IsString());
   CHECK(args.Length() >= 2 || args[1]->IsArray());
 
-  const char* denyScope = *String::Utf8Value(isolate, args[0]);
+  std::string denyScope = *String::Utf8Value(isolate, args[0]);
   Permission scope = Policy::StringToPermission(denyScope);
   if (scope == Permission::kPermissionsRoot) {
     return args.GetReturnValue().Set(false);
