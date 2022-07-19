@@ -45,6 +45,14 @@ class Policy {
       return is_granted(permission, res.c_str());
     }
 
+    inline bool is_granted(const Permission permission, unsigned fd) {
+      auto policy = deny_policies.find(permission);
+      if (policy != deny_policies.end()) {
+        return policy->second->is_granted(permission, fd);
+      }
+      return false;
+    }
+
     static Permission StringToPermission(std::string perm);
     static const char* PermissionToString(Permission perm);
     static void ThrowAccessDenied(Environment* env, Permission perm);

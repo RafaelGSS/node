@@ -2,6 +2,8 @@
 #include "base_object-inl.h"
 #include "v8.h"
 
+#include <fcntl.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <filesystem>
 #include <iostream>
@@ -113,6 +115,11 @@ bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
     default:
       return false;
   }
+}
+
+bool PolicyDenyFs::is_granted(Permission perm, unsigned fd) {
+  // TODO(rafaelgss): FD to Filename
+  return true;
 }
 
 bool PolicyDenyFs::is_granted(DenyFsParams params, const std::string& opt) {

@@ -1741,8 +1741,9 @@ static void Open(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
+  // Open can be called either in write or read
   THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystemIn, *path);
+      env, policy::Permission::kFileSystem, *path);
 
   CHECK(args[1]->IsInt32());
   const int flags = args[1].As<Int32>()->Value();
@@ -1855,6 +1856,8 @@ static void WriteBuffer(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsInt32());
   const int fd = args[0].As<Int32>()->Value();
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemOut, fd);
 
   CHECK(Buffer::HasInstance(args[1]));
   Local<Object> buffer_obj = args[1].As<Object>();
@@ -1953,9 +1956,10 @@ static void WriteString(const FunctionCallbackInfo<Value>& args) {
 
   const int argc = args.Length();
   CHECK_GE(argc, 4);
-
   CHECK(args[0]->IsInt32());
   const int fd = args[0].As<Int32>()->Value();
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemOut, fd);
 
   const int64_t pos = GetOffset(args[2]);
 
@@ -2057,6 +2061,8 @@ static void Read(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsInt32());
   const int fd = args[0].As<Int32>()->Value();
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, fd);
 
   CHECK(Buffer::HasInstance(args[1]));
   Local<Object> buffer_obj = args[1].As<Object>();
