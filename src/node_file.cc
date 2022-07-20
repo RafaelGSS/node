@@ -866,8 +866,10 @@ void Access(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystemIn, *path);
+  // TODO(rafaelgss): likely it will need to be handled in the JS only
+  // See: https://github.com/nodejs/node/pull/35487
+  /* THROW_IF_INSUFFICIENT_PERMISSIONS( */
+  /*     env, policy::Permission::kFileSystemIn, *path); */
 
   FSReqBase* req_wrap_async = GetReqWrap(args, 2);
   if (req_wrap_async != nullptr) {  // access(path, mode, req)
@@ -1653,8 +1655,10 @@ static void ReadDir(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystemIn, *path);
+  // TODO(rafaelgss): likely it will need to be handled in the JS only
+  // See: https://github.com/nodejs/node/pull/35487
+  /* THROW_IF_INSUFFICIENT_PERMISSIONS( */
+  /*     env, policy::Permission::kFileSystemIn, *path); */
 
   const enum encoding encoding = ParseEncoding(isolate, args[1], UTF8);
 
@@ -1741,15 +1745,27 @@ static void Open(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
-  // Open can be called either in write or read
-  THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystem, *path);
 
   CHECK(args[1]->IsInt32());
   const int flags = args[1].As<Int32>()->Value();
 
   CHECK(args[2]->IsInt32());
   const int mode = args[2].As<Int32>()->Value();
+
+  // Open can be called either in write or read
+  if (flags == O_RDWR) {
+    // TODO(rafaelgss): it can be optimized to void n*m
+    THROW_IF_INSUFFICIENT_PERMISSIONS(
+        env, policy::Permission::kFileSystemIn, *path);
+    THROW_IF_INSUFFICIENT_PERMISSIONS(
+        env, policy::Permission::kFileSystemOut, *path);
+  } else if ((flags &~ (O_RDONLY | O_SYNC)) == 0) {
+    THROW_IF_INSUFFICIENT_PERMISSIONS(
+        env, policy::Permission::kFileSystemIn, *path);
+  } else if ((flags & (O_APPEND | O_TRUNC | O_CREAT | O_WRONLY)) != 0) {
+    THROW_IF_INSUFFICIENT_PERMISSIONS(
+        env, policy::Permission::kFileSystemOut, *path);
+  }
 
   FSReqBase* req_wrap_async = GetReqWrap(args, 3);
   if (req_wrap_async != nullptr) {  // open(path, flags, mode, req)
@@ -1786,6 +1802,21 @@ static void OpenFileHandle(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[2]->IsInt32());
   const int mode = args[2].As<Int32>()->Value();
+
+  // Open can be called either in write or read
+  if (flags == O_RDWR) {
+    // TODO(rafaelgss): it can be optimized to void n*m
+    THROW_IF_INSUFFICIENT_PERMISSIONS(
+        env, policy::Permission::kFileSystemIn, *path);
+    THROW_IF_INSUFFICIENT_PERMISSIONS(
+        env, policy::Permission::kFileSystemOut, *path);
+  } else if ((flags &~ (O_RDONLY | O_SYNC)) == 0) {
+    THROW_IF_INSUFFICIENT_PERMISSIONS(
+        env, policy::Permission::kFileSystemIn, *path);
+  } else if ((flags & (O_APPEND | O_TRUNC | O_CREAT | O_WRONLY)) != 0) {
+    THROW_IF_INSUFFICIENT_PERMISSIONS(
+        env, policy::Permission::kFileSystemOut, *path);
+  }
 
   FSReqBase* req_wrap_async = GetReqWrap(args, 3);
   if (req_wrap_async != nullptr) {  // openFileHandle(path, flags, mode, req)
@@ -1856,8 +1887,6 @@ static void WriteBuffer(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsInt32());
   const int fd = args[0].As<Int32>()->Value();
-  THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystemOut, fd);
 
   CHECK(Buffer::HasInstance(args[1]));
   Local<Object> buffer_obj = args[1].As<Object>();
@@ -1958,8 +1987,6 @@ static void WriteString(const FunctionCallbackInfo<Value>& args) {
   CHECK_GE(argc, 4);
   CHECK(args[0]->IsInt32());
   const int fd = args[0].As<Int32>()->Value();
-  THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystemOut, fd);
 
   const int64_t pos = GetOffset(args[2]);
 
@@ -2061,8 +2088,6 @@ static void Read(const FunctionCallbackInfo<Value>& args) {
 
   CHECK(args[0]->IsInt32());
   const int fd = args[0].As<Int32>()->Value();
-  THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystemIn, fd);
 
   CHECK(Buffer::HasInstance(args[1]));
   Local<Object> buffer_obj = args[1].As<Object>();

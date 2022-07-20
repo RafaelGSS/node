@@ -22,7 +22,6 @@ class PolicyDenyFs : public PolicyDeny {
     Maybe<bool> Apply(const std::string& deny);
     bool Deny(Permission scope, std::vector<std::string> params);
     bool is_granted(Permission perm, const std::string& param);
-    bool is_granted(Permission perm, unsigned fd);
  private:
     static bool is_granted(DenyFsParams params, const std::string& opt);
     void RestrictAccess(Permission scope, const std::string& param);
