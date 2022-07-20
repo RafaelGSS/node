@@ -117,11 +117,6 @@ bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
   }
 }
 
-bool PolicyDenyFs::is_granted(Permission perm, unsigned fd) {
-  // TODO(rafaelgss): FD to Filename
-  return true;
-}
-
 bool PolicyDenyFs::is_granted(DenyFsParams params, const std::string& opt) {
   char resolvedPath[PATH_MAX];
   realpath(opt.c_str(), resolvedPath);

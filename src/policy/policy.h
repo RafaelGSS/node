@@ -19,7 +19,7 @@ namespace policy {
 
 #define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, resource_, ...)          \
   if (!node::policy::root_policy.is_granted(perm_, resource_)) {               \
-    node::policy::Policy::ThrowAccessDenied((env), perm_);                     \
+    return node::policy::Policy::ThrowAccessDenied((env), perm_);                     \
   }
 
 class Policy {
@@ -43,14 +43,6 @@ class Policy {
 
     inline bool is_granted(const Permission permission, std::string res) {
       return is_granted(permission, res.c_str());
-    }
-
-    inline bool is_granted(const Permission permission, unsigned fd) {
-      auto policy = deny_policies.find(permission);
-      if (policy != deny_policies.end()) {
-        return policy->second->is_granted(permission, fd);
-      }
-      return false;
     }
 
     static Permission StringToPermission(std::string perm);
