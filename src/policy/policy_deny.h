@@ -32,9 +32,6 @@ class PolicyDeny {
   virtual v8::Maybe<bool> Apply(const std::string& deny) = 0;
   virtual bool Deny(Permission scope, std::vector<std::string> params) = 0;
   virtual bool is_granted(Permission perm, const std::string& param = "") = 0;
-  virtual bool is_granted(Permission perm, unsigned fd) {
-    return false;
-  };
 };
 
 }  // namespace policy
