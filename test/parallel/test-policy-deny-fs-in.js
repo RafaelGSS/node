@@ -126,39 +126,25 @@ const regularFile = __filename;
   });
 }
 
-
-// TODO
 // fs.access
 {
-  // assert.throws(() => {
-  //   fs.access(blockedFile, fs.constants.R_OK, () => {});
-  // }, common.expectsError({
-  //   code: 'ERR_ACCESS_DENIED',
-  //   permission: 'FileSystemIn',
-  // }));
-
-  // assert.throws(() => {
-  //   fs.access(blockedFolder + 'anyfile', fs.constants.R_OK, () => {});
-  // }, common.expectsError({
-  //   code: 'ERR_ACCESS_DENIED',
-  //   permission: 'FileSystemIn',
-  // }));
-
-  assert.doesNotThrow(() => {
-    fs.access(regularFile, fs.constants.R_OK, () => {});
-  });
-}
-
-// fs.chmodSync (should not bypass)
-{
   assert.throws(() => {
-    // this operation will work fine
-    fs.chmodSync(blockedFile, 0o400);
-    fs.readFileSync(blockedFile)
+    fs.access(blockedFile, fs.constants.R_OK, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemIn',
   }));
+
+  assert.throws(() => {
+    fs.access(blockedFolder + 'anyfile', fs.constants.R_OK, () => {});
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemIn',
+  }));
+
+  assert.doesNotThrow(() => {
+    fs.access(regularFile, fs.constants.R_OK, () => {});
+  });
 }
 
 // fs.chownSync (should not bypass)
@@ -173,9 +159,9 @@ const regularFile = __filename;
   }));
 }
 
-// TODO(rafaelgss): mention possible workarounds (spawn('cp blockedFile regularFile'))
-// copyFile (handle security concerns)
-// cp (handle security concerns)
+// // TODO(rafaelgss): mention possible workarounds (spawn('cp blockedFile regularFile'))
+// // copyFile (handle security concerns)
+// // cp (handle security concerns)
 
 // fs.openSync
 {
@@ -221,44 +207,44 @@ const regularFile = __filename;
 
 // fs.opendir (TODO)
 {
-  // assert.throws(() => {
-  //   fs.opendir(blockedFolder, (err) => {
-  //     if (err) throw err;
-  //   });
-  // }, common.expectsError({
-  //   code: 'ERR_ACCESS_DENIED',
-  //   permission: 'FileSystemIn',
-  // }));
-
-  assert.doesNotThrow(() => {
-    fs.opendir(__dirname, () => {});
-  });
-}
-
-// fs.readdir
-{
-  // assert.throws(() => {
-  //   fs.readdir(blockedFolder, () => {});
-  // }, common.expectsError({
-  //   code: 'ERR_ACCESS_DENIED',
-  //   permission: 'FileSystemIn',
-  // }));
-
-  assert.doesNotThrow(() => {
-    fs.readdir(__dirname, () => {});
-  });
-}
-
-// fs.watch (TODO)
-{
   assert.throws(() => {
-    fs.watch(blockedFile, () => {});
+    fs.opendir(blockedFolder, (err) => {
+      if (err) throw err;
+    });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemIn',
   }));
 
   assert.doesNotThrow(() => {
-    fs.readdir(__dirname, () => {});
+    fs.opendir(__dirname, () => {});
   });
 }
+
+// // fs.readdir
+// {
+//   // assert.throws(() => {
+//   //   fs.readdir(blockedFolder, () => {});
+//   // }, common.expectsError({
+//   //   code: 'ERR_ACCESS_DENIED',
+//   //   permission: 'FileSystemIn',
+//   // }));
+
+//   assert.doesNotThrow(() => {
+//     fs.readdir(__dirname, () => {});
+//   });
+// }
+
+// // fs.watch (TODO)
+// {
+//   assert.throws(() => {
+//     fs.watch(blockedFile, () => {});
+//   }, common.expectsError({
+//     code: 'ERR_ACCESS_DENIED',
+//     permission: 'FileSystemIn',
+//   }));
+
+//   assert.doesNotThrow(() => {
+//     fs.readdir(__dirname, () => {});
+//   });
+// }
