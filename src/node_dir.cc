@@ -367,10 +367,8 @@ static void OpenDir(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
-  // TODO(rafaelgss): likely it will need to be handled in the JS only
-  // See: https://github.com/nodejs/node/pull/35487
-  /* THROW_IF_INSUFFICIENT_PERMISSIONS( */
-  /*     env, policy::Permission::kFileSystemIn, *path); */
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *path);
 
   const enum encoding encoding = ParseEncoding(isolate, args[1], UTF8);
 
