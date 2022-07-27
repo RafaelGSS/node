@@ -1,3 +1,5 @@
+'use strict';
+
 const common = require('../common');
 const fs = require('fs');
 const fsPromises = require('node:fs/promises');
@@ -9,7 +11,7 @@ const protectedFolder = fixtures.path('policy', 'deny');
 const protectedFile = fixtures.path('policy', 'deny', 'protected-file.md');
 const regularFile = fixtures.path('policy', 'deny', 'regular-file.md');
 
-// assert check and deny exists
+// Assert check and deny exists
 {
   assert.ok(typeof process.policy.check === 'function');
   assert.ok(typeof process.policy.deny === 'function');
@@ -26,9 +28,8 @@ const regularFile = fixtures.path('policy', 'deny', 'regular-file.md');
   assert.ok(process.policy.check('fs.out', protectedFolder));
   assert.ok(process.policy.check('fs.out', regularFile));
 
-  assert.doesNotReject(() => {
-    return fsPromises.readFile(protectedFile);
-  });
+  // doesNotThrow
+  fs.readFileSync(protectedFile);
 }
 
 // Deny access to fs.in
@@ -50,9 +51,8 @@ const regularFile = fixtures.path('policy', 'deny', 'regular-file.md');
     permission: 'FileSystemIn',
   }));
 
-  assert.doesNotThrow(() => {
-    fs.open(regularFile, () => {});
-  });
+  // doesNotThrow
+  fs.openSync(regularFile, 'w');
 }
 
 // Deny access to fs.out
@@ -69,8 +69,15 @@ const regularFile = fixtures.path('policy', 'deny', 'regular-file.md');
 
   assert.rejects(() => {
     return fsPromises
-      .writeFile(protectedFolder + '/new-file', 'data');
-   }, common.expectsError({
+     .writeFile(protectedFolder + '/new-file', 'data');
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemOut',
+  }));
+
+  assert.throws(() => {
+    fs.openSync(regularFile, 'w');
+  }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
   }));
