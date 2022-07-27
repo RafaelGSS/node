@@ -6,32 +6,11 @@ if (!common.hasCrypto)
   common.skip('missing crypto');
 
 const assert = require('assert');
-const fs = require('fs')
+const fs = require('fs');
 
 const blockedFile = '.gitignore';
 const blockedFolder = '/tmp/';
 const regularFile = __filename;
-
-// fs.readFileSync
-{
-  assert.throws(() => {
-    fs.readFileSync(blockedFile);
-  }, common.expectsError({
-    code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
-  }));
-
-  assert.throws(() => {
-    fs.readFileSync(blockedFolder + 'anyfile');
-  }, common.expectsError({
-    code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
-  }));
-
-  assert.doesNotThrow(() => {
-    fs.readFileSync(regularFile);
-  });
-}
 
 // fs.readFile
 {
@@ -49,9 +28,8 @@ const regularFile = __filename;
     permission: 'FileSystemIn',
   }));
 
-  assert.doesNotThrow(() => {
-    fs.readFile(regularFile, () => {});
-  });
+  // doesNotThrow
+  fs.readFile(regularFile, () => {});
 }
 
 // fs.createReadStream
@@ -59,8 +37,8 @@ const regularFile = __filename;
   assert.rejects(() => {
     return new Promise((_resolve, reject) => {
       const stream = fs.createReadStream(blockedFile);
-      stream.on('error', reject)
-    })
+      stream.on('error', reject);
+    });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemIn',
@@ -69,40 +47,12 @@ const regularFile = __filename;
   assert.rejects(() => {
     return new Promise((_resolve, reject) => {
       const stream = fs.createReadStream(blockedFile);
-      stream.on('error', reject)
-    })
+      stream.on('error', reject);
+    });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemIn',
   }));
-
-  assert.doesNotReject(() => {
-    return new Promise((_resolve, reject) => {
-      const stream = fs.createReadStream(regularFile);
-      stream.on('error', reject)
-    })
-  });
-}
-
-// fs.statSync
-{
-  assert.throws(() => {
-    fs.statSync(blockedFile);
-  }, common.expectsError({
-    code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
-  }));
-
-  assert.throws(() => {
-    fs.statSync(blockedFolder + 'anyfile');
-  }, common.expectsError({
-    code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
-  }));
-
-  assert.doesNotThrow(() => {
-    fs.statSync(regularFile);
-  });
 }
 
 // fs.stat
@@ -121,8 +71,9 @@ const regularFile = __filename;
     permission: 'FileSystemIn',
   }));
 
-  assert.doesNotThrow(() => {
-    fs.stat(regularFile, () => {});
+  // doesNotThrow
+  fs.stat(regularFile, (err) => {
+    assert.ifError(err);
   });
 }
 
@@ -142,46 +93,56 @@ const regularFile = __filename;
     permission: 'FileSystemIn',
   }));
 
-  assert.doesNotThrow(() => {
-    fs.access(regularFile, fs.constants.R_OK, () => {});
+  // doesNotThrow
+  fs.access(regularFile, fs.constants.R_OK, (err) => {
+    assert.ifError(err);
   });
 }
 
 // fs.chownSync (should not bypass)
 {
   assert.throws(() => {
-    // this operation will work fine
+    // This operation will work fine
     fs.chownSync(blockedFile, process.getuid(), process.getgid());
-    fs.readFileSync(blockedFile)
+    fs.readFileSync(blockedFile);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemIn',
   }));
 }
 
-// // TODO(rafaelgss): mention possible workarounds (spawn('cp blockedFile regularFile'))
-// // copyFile (handle security concerns)
-// // cp (handle security concerns)
-
-// fs.openSync
+// fs.copyFile
 {
   assert.throws(() => {
-    fs.openSync(blockedFile, 'r');
+    fs.copyFile(blockedFile, blockedFolder + 'any-other-file', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemIn',
   }));
 
   assert.throws(() => {
-    fs.openSync(blockedFolder + 'anyfile', 'r');
+    fs.copyFile(blockedFile, `${__dirname}/any-other-file`, () => {});
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemIn',
+  }));
+}
+
+// fs.cp
+{
+  assert.throws(() => {
+    fs.cpSync(blockedFile, blockedFolder + 'any-other-file');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemIn',
   }));
 
-  assert.doesNotThrow(() => {
-    fs.openSync(regularFile, 'r');
-  });
+  assert.throws(() => {
+    fs.cpSync(blockedFile, `${__dirname}/any-other-file`);
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemIn',
+  }));
 }
 
 // fs.open
@@ -200,51 +161,55 @@ const regularFile = __filename;
     permission: 'FileSystemIn',
   }));
 
-  assert.doesNotThrow(() => {
-    fs.open(regularFile, 'r', () => {});
+  // doesNotThrow
+  fs.open(regularFile, 'r', (err) => {
+    assert.ifError(err);
   });
 }
 
-// fs.opendir (TODO)
+// fs.opendir
 {
   assert.throws(() => {
     fs.opendir(blockedFolder, (err) => {
-      if (err) throw err;
+      assert.ifError(err);
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemIn',
   }));
 
-  assert.doesNotThrow(() => {
-    fs.opendir(__dirname, () => {});
+  // doesNotThrow
+  fs.opendir(__dirname, (err) => {
+    assert.ifError(err);
   });
 }
 
-// // fs.readdir
-// {
-//   // assert.throws(() => {
-//   //   fs.readdir(blockedFolder, () => {});
-//   // }, common.expectsError({
-//   //   code: 'ERR_ACCESS_DENIED',
-//   //   permission: 'FileSystemIn',
-//   // }));
+// fs.readdir
+{
+  assert.throws(() => {
+    fs.readdir(blockedFolder, () => {});
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemIn',
+  }));
 
-//   assert.doesNotThrow(() => {
-//     fs.readdir(__dirname, () => {});
-//   });
-// }
+  // doesNotThrow
+  fs.readdir(__dirname, (err) => {
+    assert.ifError(err);
+  });
+}
 
-// // fs.watch (TODO)
-// {
-//   assert.throws(() => {
-//     fs.watch(blockedFile, () => {});
-//   }, common.expectsError({
-//     code: 'ERR_ACCESS_DENIED',
-//     permission: 'FileSystemIn',
-//   }));
+// fs.watch
+{
+  assert.throws(() => {
+    fs.watch(blockedFile, () => {});
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemIn',
+  }));
 
-//   assert.doesNotThrow(() => {
-//     fs.readdir(__dirname, () => {});
-//   });
-// }
+  // doesNotThrow
+  fs.readdir(__dirname, (err) => {
+    assert.ifError(err);
+  });
+}

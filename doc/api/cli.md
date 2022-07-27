@@ -896,6 +896,16 @@ unless either the `--pending-deprecation` command-line flag, or the
 are used to provide a kind of selective "early warning" mechanism that
 developers may leverage to detect deprecated API usage.
 
+### `--policy-deny-fs`
+
+<!-- YAML
+added: REPLACEME
+-->
+
+> Stability: 1 - Experimental
+
+TODO
+
 ### `--policy-integrity=sri`
 
 <!-- YAML
@@ -1886,6 +1896,7 @@ Node.js options that are allowed are:
 * `--openssl-legacy-provider`
 * `--openssl-shared-config`
 * `--pending-deprecation`
+* `--policy-deny-fs`
 * `--policy-integrity`
 * `--preserve-symlinks-main`
 * `--preserve-symlinks`

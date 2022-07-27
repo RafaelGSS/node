@@ -19,7 +19,7 @@ namespace policy {
 
 #define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, resource_, ...)          \
   if (!node::policy::root_policy.is_granted(perm_, resource_)) {               \
-    return node::policy::Policy::ThrowAccessDenied((env), perm_);                     \
+    return node::policy::Policy::ThrowAccessDenied((env), perm_);              \
   }
 
 class Policy {

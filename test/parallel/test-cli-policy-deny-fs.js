@@ -4,12 +4,9 @@ const common = require('../common');
 if (!common.hasCrypto)
   common.skip('missing crypto');
 
-const fixtures = require('../common/fixtures');
-
 const { spawnSync } = require('child_process');
 const assert = require('assert');
-
-const dep = fixtures.path('policy', 'deny', 'check.js');
+const fs = require('fs');
 
 {
   const { status, stdout } = spawnSync(
@@ -18,7 +15,7 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
       '--policy-deny-fs', 'fs', '-e',
       `console.log(process.policy.check("fs"));
        console.log(process.policy.check("fs.in"));
-       console.log(process.policy.check("fs.out"));`
+       console.log(process.policy.check("fs.out"));`,
     ]
   );
 
@@ -37,7 +34,7 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
       '--policy-deny-fs', 'in', '-e',
       `console.log(process.policy.check("fs"));
        console.log(process.policy.check("fs.in"));
-       console.log(process.policy.check("fs.out"));`
+       console.log(process.policy.check("fs.out"));`,
     ]
   );
 
@@ -55,7 +52,7 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
       '--policy-deny-fs', 'out', '-e',
       `console.log(process.policy.check("fs"));
        console.log(process.policy.check("fs.in"));
-       console.log(process.policy.check("fs.out"));`
+       console.log(process.policy.check("fs.out"));`,
     ]
   );
 
@@ -73,7 +70,7 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
       '--policy-deny-fs', 'out,in', '-e',
       `console.log(process.policy.check("fs"));
        console.log(process.policy.check("fs.in"));
-       console.log(process.policy.check("fs.out"));`
+       console.log(process.policy.check("fs.out"));`,
     ]
   );
 
@@ -112,5 +109,5 @@ const dep = fixtures.path('policy', 'deny', 'check.js');
     stderr.toString().includes('Access to this API has been restricted'),
     stderr);
   assert.strictEqual(status, 1);
-  assert.ok(fs.existsSync('policy-deny-example.md'));
+  assert.ok(!fs.existsSync('policy-deny-example.md'));
 }

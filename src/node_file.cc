@@ -1335,8 +1335,13 @@ static void Rename(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue old_path(isolate, args[0]);
   CHECK_NOT_NULL(*old_path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemOut, *old_path);
+
   BufferValue new_path(isolate, args[1]);
   CHECK_NOT_NULL(*new_path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemOut, *new_path);
 
   FSReqBase* req_wrap_async = GetReqWrap(args, 2);
   if (req_wrap_async != nullptr) {
@@ -1464,6 +1469,8 @@ static void RMDir(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemOut, *path);
 
   FSReqBase* req_wrap_async = GetReqWrap(args, 1);  // rmdir(path, req)
   if (req_wrap_async != nullptr) {
@@ -1671,6 +1678,8 @@ static void MKDir(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemOut, *path);
 
   CHECK(args[1]->IsInt32());
   const int mode = args[1].As<Int32>()->Value();
@@ -1878,7 +1887,7 @@ static void Open(const FunctionCallbackInfo<Value>& args) {
         env, policy::Permission::kFileSystemIn, *path);
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, policy::Permission::kFileSystemOut, *path);
-  } else if ((flags &~ (O_RDONLY | O_SYNC)) == 0) {
+  } else if ((flags & ~(O_RDONLY | O_SYNC)) == 0) {
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, policy::Permission::kFileSystemIn, *path);
   } else if ((flags & (O_APPEND | O_TRUNC | O_CREAT | O_WRONLY)) != 0) {
@@ -1931,7 +1940,7 @@ static void OpenFileHandle(const FunctionCallbackInfo<Value>& args) {
         env, policy::Permission::kFileSystemIn, *path);
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, policy::Permission::kFileSystemOut, *path);
-  } else if ((flags &~ (O_RDONLY | O_SYNC)) == 0) {
+  } else if ((flags & ~(O_RDONLY | O_SYNC)) == 0) {
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, policy::Permission::kFileSystemIn, *path);
   } else if ((flags & (O_APPEND | O_TRUNC | O_CREAT | O_WRONLY)) != 0) {
@@ -1970,9 +1979,13 @@ static void CopyFile(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue src(isolate, args[0]);
   CHECK_NOT_NULL(*src);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *src);
 
   BufferValue dest(isolate, args[1]);
   CHECK_NOT_NULL(*dest);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemOut, *dest);
 
   CHECK(args[2]->IsInt32());
   const int flags = args[2].As<Int32>()->Value();
@@ -2480,6 +2493,8 @@ static void UTimes(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(env->isolate(), args[0]);
   CHECK_NOT_NULL(*path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemOut, *path);
 
   CHECK(args[1]->IsNumber());
   const double atime = args[1].As<Number>()->Value();
