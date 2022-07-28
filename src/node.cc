@@ -858,14 +858,6 @@ int ProcessGlobalArgs(std::vector<std::string>* args,
 
   if (v8_args_as_char_ptr.size() > 1) return 9;
 
-  if (policy::root_policy.Apply(
-        per_process::cli_options->policy_deny_fs,
-        policy::Permission::kFileSystem).IsNothing()) {
-    errors->emplace_back(
-        "invalid permissions passed to --policy-deny-fs");
-    return 12;
-  }
-
   return 0;
 }
 

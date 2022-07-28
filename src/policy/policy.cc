@@ -8,9 +8,10 @@
 
 #include "v8.h"
 
+#include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
-#include <iostream>
 
 namespace node {
 
@@ -28,10 +29,6 @@ using v8::Value;
 
 namespace policy {
 
-// The root policy is establish at process start using
-// the --policy-deny-* command line arguments.
-Policy root_policy;
-
 namespace {
 
 // policy.deny('fs.in', ['/tmp/'])
@@ -43,26 +40,30 @@ static void Deny(const FunctionCallbackInfo<Value>& args) {
   CHECK(args[0]->IsString());
   CHECK(args.Length() >= 2 || args[1]->IsArray());
 
-  std::string denyScope = *String::Utf8Value(isolate, args[0]);
-  Permission scope = Policy::StringToPermission(denyScope);
+  std::string deny_scope = *String::Utf8Value(isolate, args[0]);
+  Permission scope = Policy::StringToPermission(deny_scope);
   if (scope == Permission::kPermissionsRoot) {
     return args.GetReturnValue().Set(false);
   }
 
-  Local<Array> jsParams = Local<Array>::Cast(args[1]);
-  std::vector<std::string> params;
-  for (uint32_t i = 0; i < jsParams->Length(); ++i) {
-    Local<Value> arg(
-        jsParams
-          ->Get(isolate->GetCurrentContext(), Integer::New(isolate, i))
-          .ToLocalChecked());
+  Local<Array> js_params = Local<Array>::Cast(args[1]);
+  Local<Context> context = isolate->GetCurrentContext();
 
+  std::vector<std::string> params;
+  for (uint32_t i = 0; i < js_params->Length(); ++i) {
+    Local<Value> arg;
+    if (!js_params->Get(context, Integer::New(isolate, i)).ToLocal(&arg)) {
+      return;
+    }
     String::Utf8Value utf8_arg(isolate, arg);
+    if (*utf8_arg == nullptr) {
+      return;
+    }
     params.push_back(*utf8_arg);
   }
 
   return args.GetReturnValue()
-    .Set(root_policy.Deny(scope, params));
+    .Set(env->policy()->Deny(scope, params));
 }
 
 // policy.check('fs.in', '/tmp/')
@@ -73,15 +74,23 @@ static void Check(const FunctionCallbackInfo<Value>& args) {
   CHECK(args[0]->IsString());
   CHECK(args.Length() >= 2 || args[1]->IsString());
 
-  std::string denyScope = *String::Utf8Value(isolate, args[0]);
-  Permission scope = Policy::StringToPermission(denyScope);
+  String::Utf8Value utf8_deny_scope(isolate, args[0]);
+  if (*utf8_deny_scope == nullptr) {
+    return;
+  }
+
+  const std::string deny_scope = *utf8_deny_scope;
+  Permission scope = Policy::StringToPermission(deny_scope);
   if (scope == Permission::kPermissionsRoot) {
-    // TODO(rafaelgss): throw?
     return args.GetReturnValue().Set(false);
   }
 
-  return args.GetReturnValue()
-    .Set(root_policy.is_granted(scope, *String::Utf8Value(isolate, args[1])));
+  String::Utf8Value utf8_arg(isolate, args[1]);
+  if (*utf8_arg == nullptr) {
+    return;
+  }
+
+  return args.GetReturnValue().Set(env->policy()->is_granted(scope, *utf8_arg));
 }
 
 }  // namespace
@@ -96,7 +105,7 @@ const char* Policy::PermissionToString(const Permission perm) {
 
 #define V(Name, label, _)                                                      \
   if (perm == label) return Permission::k##Name;
-Permission Policy::StringToPermission(std::string perm) {
+Permission Policy::StringToPermission(const std::string& perm) {
   PERMISSIONS(V)
   return Permission::kPermissionsRoot;
 }
@@ -123,7 +132,7 @@ Maybe<bool> Policy::Apply(const std::string& deny, Permission scope) {
   return Just(false);
 }
 
-bool Policy::Deny(Permission scope, std::vector<std::string> params) {
+bool Policy::Deny(Permission scope, const std::vector<std::string>& params) {
   auto policy = deny_policies.find(scope);
   if (policy != deny_policies.end()) {
     return policy->second->Deny(scope, params);

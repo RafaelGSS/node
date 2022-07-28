@@ -48,7 +48,8 @@ Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
   return Just(true);
 }
 
-bool PolicyDenyFs::Deny(Permission perm, std::vector<std::string> params) {
+bool PolicyDenyFs::Deny(Permission perm,
+                        const std::vector<std::string>& params) {
   if (perm == Permission::kFileSystem) {
     deny_all_in_ = true;
     deny_all_out_ = true;
@@ -78,25 +79,25 @@ bool PolicyDenyFs::Deny(Permission perm, std::vector<std::string> params) {
 }
 
 void PolicyDenyFs::RestrictAccess(Permission perm, const std::string& res) {
-  char resolvedPath[PATH_MAX];
+  char resolved_path[PATH_MAX];
   // check the result
-  realpath(res.c_str(), resolvedPath);
+  realpath(res.c_str(), resolved_path);
 
-  std::filesystem::path path(resolvedPath);
+  std::filesystem::path path(resolved_path);
   bool isDir = std::filesystem::is_directory(path);
   // when there are parameters deny_params_ is automatically
   // set to false
   if (perm == Permission::kFileSystemIn) {
     deny_all_in_ = false;
-    deny_in_params_.push_back(std::make_pair(resolvedPath, isDir));
+    deny_in_params_.push_back(std::make_pair(resolved_path, isDir));
   } else if (perm == Permission::kFileSystemOut) {
     deny_all_out_ = false;
-    deny_out_params_.push_back(std::make_pair(resolvedPath, isDir));
+    deny_out_params_.push_back(std::make_pair(resolved_path, isDir));
   }
 }
 
 void PolicyDenyFs::RestrictAccess(Permission perm,
-                                  std::vector<std::string> params) {
+                                  const std::vector<std::string>& params) {
   for (auto& param : params) {
     RestrictAccess(perm, param);
   }
@@ -118,15 +119,15 @@ bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
 }
 
 bool PolicyDenyFs::is_granted(DenyFsParams params, const std::string& opt) {
-  char resolvedPath[PATH_MAX];
-  realpath(opt.c_str(), resolvedPath);
+  char resolved_path[PATH_MAX];
+  realpath(opt.c_str(), resolved_path);
   for (auto& param : params) {
     // is folder
     if (param.second) {
-      if (strstr(resolvedPath, param.first.c_str()) == resolvedPath) {
+      if (strstr(resolved_path, param.first.c_str()) == resolved_path) {
         return false;
       }
-    } else if (param.first == resolvedPath) {
+    } else if (param.first == resolved_path) {
       return false;
     }
   }
