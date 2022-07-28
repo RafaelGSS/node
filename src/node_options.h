@@ -120,6 +120,7 @@ class EnvironmentOptions : public Options {
   std::string experimental_policy;
   std::string experimental_policy_integrity;
   bool has_policy_integrity_string = false;
+  std::string policy_deny_fs;
   bool experimental_repl_await = true;
   bool experimental_vm_modules = false;
   bool expose_internals = false;
@@ -256,8 +257,6 @@ class PerProcessOptions : public Options {
   bool print_help = false;
   bool print_v8_help = false;
   bool print_version = false;
-
-  std::string policy_deny_fs;
 
 #ifdef NODE_HAVE_I18N_SUPPORT
   std::string icu_data_dir;

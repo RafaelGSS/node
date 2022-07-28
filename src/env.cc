@@ -731,6 +731,10 @@ Environment::Environment(IsolateData* isolate_data,
                                       "args",
                                       std::move(traced_value));
   }
+
+  policy()->Apply(
+        options_->policy_deny_fs,
+        policy::Permission::kFileSystem);
 }
 
 Environment::Environment(IsolateData* isolate_data,

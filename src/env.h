@@ -47,6 +47,7 @@
 #include "util.h"
 #include "uv.h"
 #include "v8.h"
+#include "policy/policy.h"
 
 #include <array>
 #include <atomic>
@@ -674,6 +675,7 @@ class Environment : public MemoryRetainer {
   inline ImmediateInfo* immediate_info();
   inline TickInfo* tick_info();
   inline uint64_t timer_base() const;
+  inline policy::Policy* policy();
   inline std::shared_ptr<KVStore> env_vars();
   inline void set_env_vars(std::shared_ptr<KVStore> env_vars);
 
@@ -1011,6 +1013,7 @@ class Environment : public MemoryRetainer {
   AsyncHooks async_hooks_;
   ImmediateInfo immediate_info_;
   TickInfo tick_info_;
+  policy::Policy policy_;
   const uint64_t timer_base_;
   std::shared_ptr<KVStore> env_vars_;
   bool printed_error_ = false;
