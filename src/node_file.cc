@@ -1622,8 +1622,6 @@ static void RealPath(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
-  THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystemIn, *path);
 
   const enum encoding encoding = ParseEncoding(isolate, args[1], UTF8);
 

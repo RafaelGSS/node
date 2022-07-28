@@ -10,9 +10,6 @@
 #include <string>
 #include <vector>
 
-using v8::Just;
-using v8::Maybe;
-
 namespace node {
 
 namespace policy {
@@ -20,7 +17,7 @@ namespace policy {
 // deny = 'fs'
 // deny = 'in:/tmp/'
 // deny = 'in:/tmp/,out:./example.js'
-Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
+void PolicyDenyFs::Apply(const std::string& deny) {
   for (const auto& name : SplitString(deny, ',')) {
     Permission perm = Permission::kPermissionsRoot;
     for (std::string& opt : SplitString(name, ':')) {
@@ -28,7 +25,7 @@ Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
         if (opt == "fs") {
           deny_all_in_ = true;
           deny_all_out_ = true;
-          return Just(true);
+          return;
         }
         if (opt == "in") {
           perm = Permission::kFileSystemIn;
@@ -37,18 +34,17 @@ Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
           perm = Permission::kFileSystemOut;
           deny_all_out_ = true;
         } else {
-          return Just(false);
+          return;
         }
       } else {
         RestrictAccess(perm, opt);
       }
     }
   }
-
-  return Just(true);
 }
 
-bool PolicyDenyFs::Deny(Permission perm, std::vector<std::string> params) {
+bool PolicyDenyFs::Deny(Permission perm,
+                        const std::vector<std::string>& params) {
   if (perm == Permission::kFileSystem) {
     deny_all_in_ = true;
     deny_all_out_ = true;
@@ -78,25 +74,35 @@ bool PolicyDenyFs::Deny(Permission perm, std::vector<std::string> params) {
 }
 
 void PolicyDenyFs::RestrictAccess(Permission perm, const std::string& res) {
-  char resolvedPath[PATH_MAX];
-  // check the result
-  realpath(res.c_str(), resolvedPath);
+  uv_fs_t req;
+  req.ptr = nullptr;
+  // This function has certain platform-specific caveats that were discovered
+  // when used in Node.
+  // https://docs.libuv.org/en/latest/fs.html?highlight=uv_fs_realpath#c.uv_fs_realpath
+  uv_fs_realpath(nullptr, &req, res.c_str(), nullptr);
 
-  std::filesystem::path path(resolvedPath);
+  if (req.ptr == nullptr) {
+    // TODO(rafaelgss): req.ptr is null when the path doesn't exist.
+    // This behavior is different from realpath(1)
+    return;
+  }
+
+  std::string resolved_path = std::string(static_cast<char*>(req.ptr));
+  std::filesystem::path path(resolved_path);
   bool isDir = std::filesystem::is_directory(path);
   // when there are parameters deny_params_ is automatically
   // set to false
   if (perm == Permission::kFileSystemIn) {
     deny_all_in_ = false;
-    deny_in_params_.push_back(std::make_pair(resolvedPath, isDir));
+    deny_in_params_.push_back(std::make_pair(resolved_path, isDir));
   } else if (perm == Permission::kFileSystemOut) {
     deny_all_out_ = false;
-    deny_out_params_.push_back(std::make_pair(resolvedPath, isDir));
+    deny_out_params_.push_back(std::make_pair(resolved_path, isDir));
   }
 }
 
 void PolicyDenyFs::RestrictAccess(Permission perm,
-                                  std::vector<std::string> params) {
+                                  const std::vector<std::string>& params) {
   for (auto& param : params) {
     RestrictAccess(perm, param);
   }
@@ -118,15 +124,15 @@ bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
 }
 
 bool PolicyDenyFs::is_granted(DenyFsParams params, const std::string& opt) {
-  char resolvedPath[PATH_MAX];
-  realpath(opt.c_str(), resolvedPath);
+  char resolved_path[PATH_MAX];
+  realpath(opt.c_str(), resolved_path);
   for (auto& param : params) {
     // is folder
     if (param.second) {
-      if (strstr(resolvedPath, param.first.c_str()) == resolvedPath) {
+      if (strstr(resolved_path, param.first.c_str()) == resolved_path) {
         return false;
       }
-    } else if (param.first == resolvedPath) {
+    } else if (param.first == resolved_path) {
       return false;
     }
   }

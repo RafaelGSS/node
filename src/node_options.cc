@@ -380,6 +380,11 @@ EnvironmentOptionsParser::EnvironmentOptionsParser() {
             &EnvironmentOptions::experimental_policy_integrity,
             kAllowedInEnvironment);
   Implies("--policy-integrity", "[has_policy_integrity_string]");
+
+  AddOption("--policy-deny-fs",
+            "denied permissions to the filesystem",
+            &EnvironmentOptions::policy_deny_fs,
+            kAllowedInEnvironment);
   AddOption("--experimental-repl-await",
             "experimental await keyword support in REPL",
             &EnvironmentOptions::experimental_repl_await,
@@ -858,10 +863,6 @@ PerProcessOptionsParser::PerProcessOptionsParser(
   AddOption("--force-fips",
             "force FIPS crypto (cannot be disabled)",
             &PerProcessOptions::force_fips_crypto,
-            kAllowedInEnvironment);
-  AddOption("--policy-deny-fs",
-            "denied permissions to the filesystem",
-            &PerProcessOptions::policy_deny_fs,
             kAllowedInEnvironment);
   AddOption("--secure-heap",
             "total size of the OpenSSL secure heap",

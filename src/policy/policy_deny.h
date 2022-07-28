@@ -29,8 +29,9 @@ enum class Permission {
 
 class PolicyDeny {
  public:
-  virtual v8::Maybe<bool> Apply(const std::string& deny) = 0;
-  virtual bool Deny(Permission scope, std::vector<std::string> params) = 0;
+  virtual void Apply(const std::string& deny) = 0;
+  virtual bool Deny(Permission scope,
+                    const std::vector<std::string>& params) = 0;
   virtual bool is_granted(Permission perm, const std::string& param = "") = 0;
 };
 
