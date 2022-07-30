@@ -124,12 +124,11 @@ void Policy::ThrowAccessDenied(Environment* env, Permission perm) {
   env->isolate()->ThrowException(err);
 }
 
-Maybe<bool> Policy::Apply(const std::string& deny, Permission scope) {
+void Policy::Apply(const std::string& deny, Permission scope) {
   auto policy = deny_policies.find(scope);
   if (policy != deny_policies.end()) {
-    return policy->second->Apply(deny);
+    policy->second->Apply(deny);
   }
-  return Just(false);
 }
 
 bool Policy::Deny(Permission scope, const std::vector<std::string>& params) {

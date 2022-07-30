@@ -18,9 +18,12 @@ class Environment;
 namespace policy {
 
 #define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, resource_, ...)          \
-  if (!env->policy()->is_granted(perm_, resource_)) {               \
-    return node::policy::Policy::ThrowAccessDenied((env), perm_);              \
-  }
+  do {                                                                         \
+    if (UNLIKELY(!(env)->policy()->is_granted(perm_, resource_))) {            \
+      node::policy::Policy::ThrowAccessDenied((env), perm_);                   \
+      return __VA_ARGS__;                                                      \
+    }                                                                          \
+  } while (0)
 
 class Policy {
  public:
@@ -49,7 +52,7 @@ class Policy {
     static void ThrowAccessDenied(Environment* env, Permission perm);
 
     // CLI Call
-    v8::Maybe<bool> Apply(const std::string& deny, Permission scope);
+    void Apply(const std::string& deny, Permission scope);
     // Policy.Deny API
     bool Deny(Permission scope, const std::vector<std::string>& params);
 

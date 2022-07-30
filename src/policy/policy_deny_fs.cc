@@ -20,7 +20,7 @@ namespace policy {
 // deny = 'fs'
 // deny = 'in:/tmp/'
 // deny = 'in:/tmp/,out:./example.js'
-Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
+void PolicyDenyFs::Apply(const std::string& deny) {
   for (const auto& name : SplitString(deny, ',')) {
     Permission perm = Permission::kPermissionsRoot;
     for (std::string& opt : SplitString(name, ':')) {
@@ -28,7 +28,7 @@ Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
         if (opt == "fs") {
           deny_all_in_ = true;
           deny_all_out_ = true;
-          return Just(true);
+          return;
         }
         if (opt == "in") {
           perm = Permission::kFileSystemIn;
@@ -37,15 +37,13 @@ Maybe<bool> PolicyDenyFs::Apply(const std::string& deny) {
           perm = Permission::kFileSystemOut;
           deny_all_out_ = true;
         } else {
-          return Just(false);
+          return;
         }
       } else {
         RestrictAccess(perm, opt);
       }
     }
   }
-
-  return Just(true);
 }
 
 bool PolicyDenyFs::Deny(Permission perm,
@@ -79,10 +77,15 @@ bool PolicyDenyFs::Deny(Permission perm,
 }
 
 void PolicyDenyFs::RestrictAccess(Permission perm, const std::string& res) {
-  char resolved_path[PATH_MAX];
-  // check the result
-  realpath(res.c_str(), resolved_path);
+  uv_fs_t req;
+  req.ptr = nullptr;
+  uv_fs_realpath(nullptr, &req, res.c_str(), nullptr);
 
+  if (req.ptr == nullptr) {
+    return;
+  }
+
+  std::string resolved_path = std::string(static_cast<char*>(req.ptr));
   std::filesystem::path path(resolved_path);
   bool isDir = std::filesystem::is_directory(path);
   // when there are parameters deny_params_ is automatically
@@ -119,12 +122,19 @@ bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
 }
 
 bool PolicyDenyFs::is_granted(DenyFsParams params, const std::string& opt) {
-  char resolved_path[PATH_MAX];
-  realpath(opt.c_str(), resolved_path);
+  uv_fs_t req;
+  req.ptr = nullptr;
+  // TODO: certainly not best option to do sync call here (it should be very fast)
+  uv_fs_realpath(nullptr, &req, opt.c_str(), nullptr);
+
+  // TODO: if null path is invalid
+  CHECK_NOT_NULL(req.ptr);
+  std::string resolved_path = std::string(static_cast<char*>(req.ptr));
+
   for (auto& param : params) {
     // is folder
     if (param.second) {
-      if (strstr(resolved_path, param.first.c_str()) == resolved_path) {
+      if (strstr(resolved_path.c_str(), param.first.c_str()) == resolved_path) {
         return false;
       }
     } else if (param.first == resolved_path) {

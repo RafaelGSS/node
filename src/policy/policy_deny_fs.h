@@ -17,7 +17,7 @@ using DenyFsParams = std::vector<std::pair<std::string, bool /* is_folder */>>;
 // TODO(rafaelgss): implement radix-tree algorithm
 class PolicyDenyFs final : public PolicyDeny {
  public:
-  v8::Maybe<bool> Apply(const std::string& deny) override;
+  void Apply(const std::string& deny) override;
   bool Deny(Permission scope, const std::vector<std::string>& params) override;
   bool is_granted(Permission perm, const std::string& param) override;
 
