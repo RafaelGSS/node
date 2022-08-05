@@ -87,7 +87,8 @@ static void Check(const FunctionCallbackInfo<Value>& args) {
     if (*utf8_arg == nullptr) {
       return;
     }
-    return args.GetReturnValue().Set(env->policy()->is_granted(scope, *utf8_arg));
+    return args.GetReturnValue()
+      .Set(env->policy()->is_granted(scope, *utf8_arg));
   }
 
   return args.GetReturnValue().Set(env->policy()->is_granted(scope));

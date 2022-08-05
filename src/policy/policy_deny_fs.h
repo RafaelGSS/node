@@ -12,22 +12,85 @@ namespace node {
 
 namespace policy {
 
-using DenyFsParams = std::vector<std::pair<std::string, bool /* is_folder */>>;
-
-// TODO(rafaelgss): implement radix-tree algorithm
 class PolicyDenyFs final : public PolicyDeny {
  public:
   void Apply(const std::string& deny) override;
   bool Deny(Permission scope, const std::vector<std::string>& params) override;
   bool is_granted(Permission perm, const std::string& param) override;
 
+  struct RadixTree {
+    bool inserted = false;
+    struct Node {
+      std::string prefix;
+      std::map<char, Node*> children;
+      Node* wildcard_child;
+
+      explicit Node(const std::string& pre):
+        prefix(pre),
+        wildcard_child(nullptr) {}
+
+      Node(): wildcard_child(nullptr) {}
+
+      Node* CreateChild(std::string prefix) {
+        char label = prefix[0];
+
+        Node* child = children[label];
+        if (child == nullptr) {
+          children[label] = new Node(prefix);
+          return children[label];
+        }
+
+        // swap prefix
+        unsigned int i = 0;
+        unsigned int prefix_len = prefix.length();
+        for (; i < child->prefix.length(); ++i) {
+          if (i > prefix_len || prefix[i] != child->prefix[i]) {
+            std::string parent_prefix = child->prefix.substr(0, i);
+            std::string child_prefix = child->prefix.substr(i);
+
+            child->prefix = child_prefix;
+            Node* split_child = new Node(parent_prefix);
+            split_child->children[child_prefix[0]] = child;
+            children[parent_prefix[0]] = split_child;
+
+            return split_child->CreateChild(prefix.substr(i));
+          }
+        }
+        return child->CreateChild(prefix.substr(i));
+      }
+
+      Node* CreateWildcardChild() {
+        if (wildcard_child != nullptr) {
+          return wildcard_child;
+        }
+        wildcard_child = new Node();
+        return wildcard_child;
+      }
+
+      Node* NextNode(std::string path, int idx) {
+        auto child = children[path[idx]];
+        if (!child) {
+          return wildcard_child;
+        }
+        return child;
+      }
+    };
+
+    RadixTree();
+    ~RadixTree();
+    void Insert(const std::string& s);
+    bool Lookup(const std::string& s);
+
+   private:
+    Node* root_node_;
+  };
+
  private:
-  static bool is_granted(DenyFsParams params, const std::string& opt);
-  void RestrictAccess(Permission scope, const std::string& param);
+  void RestrictAccess(Permission scope, std::string param);
   void RestrictAccess(Permission scope, const std::vector<std::string>& params);
 
-  DenyFsParams deny_in_params_;
-  DenyFsParams deny_out_params_;
+  RadixTree deny_in_params_;
+  RadixTree deny_out_params_;
   bool deny_all_in_;
   bool deny_all_out_;
 };

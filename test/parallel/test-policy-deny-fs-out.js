@@ -15,8 +15,8 @@ const regularFolder = fixtures.path('policy', 'deny');
 const regularFile = fixtures.path('policy', 'deny', 'regular-file.md');
 
 {
-  assert.ok(process.policy.deny('fs.out', blockedFolder));
-  assert.ok(process.policy.deny('fs.out', blockedFile));
+  assert.ok(process.policy.deny('fs.out', [blockedFolder]));
+  assert.ok(process.policy.deny('fs.out', [blockedFile]));
 }
 
 // fs.writeFile
@@ -69,7 +69,7 @@ const regularFile = fixtures.path('policy', 'deny', 'regular-file.md');
   }));
 
   assert.throws(() => {
-    fs.utimes(blockedFile + 'anyfile', new Date(), new Date(), () => {});
+    fs.utimes(blockedFolder + '/anyfile', new Date(), new Date(), () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
@@ -138,12 +138,10 @@ const regularFile = fixtures.path('policy', 'deny', 'regular-file.md');
   }));
 }
 
-// fs.rmdir
+// fs.rm
 {
   assert.throws(() => {
-    fs.rmdir(blockedFolder, (err) => {
-      assert.ifError(err);
-    });
+    fs.rmSync(blockedFolder, { recursive: true });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
@@ -153,9 +151,7 @@ const regularFile = fixtures.path('policy', 'deny', 'regular-file.md');
   // but that contains a protected file.
   // The regularFolder contains a protected file
   assert.throws(() => {
-    fs.rmdir(regularFolder, (err) => {
-      assert.ifError(err);
-    });
+    fs.rmSync(regularFolder, { recursive: true });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',

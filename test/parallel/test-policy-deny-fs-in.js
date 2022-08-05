@@ -1,4 +1,4 @@
-// Flags: --policy-deny-fs=in:.gitignore:/tmp/
+// Flags: --policy-deny-fs=in:/tmp/
 'use strict';
 
 const common = require('../common');
@@ -7,10 +7,15 @@ if (!common.hasCrypto)
 
 const assert = require('assert');
 const fs = require('fs');
+const fixtures = require('../common/fixtures');
 
-const blockedFile = '.gitignore';
+const blockedFile = fixtures.path('policy', 'deny', 'protected-file.md');
 const blockedFolder = '/tmp/';
 const regularFile = __filename;
+
+{
+  assert.ok(process.policy.deny('fs.in', [blockedFile]));
+}
 
 // fs.readFile
 {
