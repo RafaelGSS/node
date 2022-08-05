@@ -73,31 +73,20 @@ bool PolicyDenyFs::Deny(Permission perm,
   return false;
 }
 
-void PolicyDenyFs::RestrictAccess(Permission perm, const std::string& res) {
-  uv_fs_t req;
-  req.ptr = nullptr;
-  // This function has certain platform-specific caveats that were discovered
-  // when used in Node.
-  // https://docs.libuv.org/en/latest/fs.html?highlight=uv_fs_realpath#c.uv_fs_realpath
-  uv_fs_realpath(nullptr, &req, res.c_str(), nullptr);
-
-  if (req.ptr == nullptr) {
-    // TODO(rafaelgss): req.ptr is null when the path doesn't exist.
-    // This behavior is different from realpath(1)
-    return;
+void PolicyDenyFs::RestrictAccess(Permission perm, std::string res) {
+  std::filesystem::path path(res);
+  if (std::filesystem::is_directory(path)) {
+    // add wildcard when directory
+    res = path / "*";
   }
-
-  std::string resolved_path = std::string(static_cast<char*>(req.ptr));
-  std::filesystem::path path(resolved_path);
-  bool isDir = std::filesystem::is_directory(path);
   // when there are parameters deny_params_ is automatically
   // set to false
   if (perm == Permission::kFileSystemIn) {
     deny_all_in_ = false;
-    deny_in_params_.push_back(std::make_pair(resolved_path, isDir));
+    deny_in_params_.Insert(res);
   } else if (perm == Permission::kFileSystemOut) {
     deny_all_out_ = false;
-    deny_out_params_.push_back(std::make_pair(resolved_path, isDir));
+    deny_out_params_.Insert(res);
   }
 }
 
@@ -114,29 +103,83 @@ bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
       return !(deny_all_in_ && deny_all_out_);
     case Permission::kFileSystemIn:
       return !deny_all_in_ &&
-        (param.empty() || PolicyDenyFs::is_granted(deny_in_params_, param));
+        (param.empty() || !deny_in_params_.Lookup(param));
     case Permission::kFileSystemOut:
       return !deny_all_out_ &&
-        (param.empty() || PolicyDenyFs::is_granted(deny_out_params_, param));
+        (param.empty() || !deny_out_params_.Lookup(param));
     default:
       return false;
   }
 }
 
-bool PolicyDenyFs::is_granted(DenyFsParams params, const std::string& opt) {
-  char resolved_path[PATH_MAX];
-  realpath(opt.c_str(), resolved_path);
-  for (auto& param : params) {
-    // is folder
-    if (param.second) {
-      if (strstr(resolved_path, param.first.c_str()) == resolved_path) {
-        return false;
-      }
-    } else if (param.first == resolved_path) {
-      return false;
+void FreeRecursivelyNode(PolicyDenyFs::RadixTree::Node* node) {
+  if (node == nullptr) {
+    return;
+  }
+
+  if (node->children.size()) {
+    for (auto& c : node->children) {
+      FreeRecursivelyNode(c.second);
     }
   }
-  return true;
+
+  if (node->wildcard_child != nullptr) {
+    free(node->wildcard_child);
+  }
+  free(node);
+}
+
+PolicyDenyFs::RadixTree::RadixTree(): root_node_(new Node("/")) { }
+
+PolicyDenyFs::RadixTree::~RadixTree() {
+  FreeRecursivelyNode(root_node_);
+}
+
+bool PolicyDenyFs::RadixTree::Lookup(const std::string& s) {
+  PolicyDenyFs::RadixTree::Node* current_node = root_node_;
+  unsigned int parent_node_prefix_len = current_node->prefix.length();
+  auto path_len = s.length();
+
+  while (true) {
+    if (parent_node_prefix_len == path_len &&
+        s.substr(path_len - current_node->prefix.length()) ==
+            current_node->prefix) {
+      return true;
+    }
+
+    auto node = current_node->NextNode(s, parent_node_prefix_len);
+    if (node == nullptr) {
+      return false;
+    }
+
+    current_node = node;
+    if (current_node->wildcard_child != nullptr) {
+      return true;
+    }
+    parent_node_prefix_len += current_node->prefix.length();
+  }
+}
+
+void PolicyDenyFs::RadixTree::Insert(const std::string& path) {
+  PolicyDenyFs::RadixTree::Node* current_node = root_node_;
+
+  unsigned int parent_node_prefix_len = current_node->prefix.length();
+  int path_len = path.length();
+
+  for (int i = 0; i < path_len; ++i) {
+    bool is_wildcard_node = path[i] == '*';
+    bool is_last_char = i + 1 == path_len;
+
+    if (is_wildcard_node || is_last_char) {
+      std::string node_path = path.substr(parent_node_prefix_len, i);
+      current_node = current_node->CreateChild(node_path);
+    }
+
+    if (is_wildcard_node) {
+      current_node = current_node->CreateWildcardChild();
+      parent_node_prefix_len = i + i;
+    }
+  }
 }
 
 }  // namespace policy

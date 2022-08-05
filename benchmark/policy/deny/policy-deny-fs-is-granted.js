@@ -24,18 +24,18 @@ const recursivelyDenyFiles = async (dir) => {
 
 async function main(conf) {
   const benchmarkDir = path.join(__dirname, '../..');
-  // get all the benchmark files and deny access to it
+  // Get all the benchmark files and deny access to it
   await recursivelyDenyFiles(benchmarkDir);
 
   bench.start();
 
   for (let i = 0; i < conf.n; i++) {
-    // valid file in a sequence of denied files
+    // Valid file in a sequence of denied files
     process.policy.check('fs.in', benchmarkDir + '/valid-file');
-    // denied file
+    // Denied file
     process.policy.check('fs.in', __filename);
-    // valid file a granted directory
-    process.policy.check('fs.in', __filename);
+    // Valid file a granted directory
+    process.policy.check('fs.in', '/tmp/example');
   }
 
   bench.end(conf.n);
