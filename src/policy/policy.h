@@ -43,7 +43,7 @@ class Policy {
       return false;
     }
 
-    inline bool is_granted(const Permission permission, std::string res) {
+    inline bool is_granted(const Permission permission, const std::string& res = "") {
       return is_granted(permission, res.c_str());
     }
 
