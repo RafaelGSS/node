@@ -218,3 +218,13 @@ const regularFile = __filename;
     assert.ifError(err);
   });
 }
+
+// fs.rename
+{
+  assert.throws(() => {
+    fs.rename(blockedFile, 'newfile', () => {});
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemIn',
+  }));
+}

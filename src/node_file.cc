@@ -1336,6 +1336,8 @@ static void Rename(const FunctionCallbackInfo<Value>& args) {
   BufferValue old_path(isolate, args[0]);
   CHECK_NOT_NULL(*old_path);
   THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kFileSystemIn, *old_path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
       env, policy::Permission::kFileSystemOut, *old_path);
 
   BufferValue new_path(isolate, args[1]);
