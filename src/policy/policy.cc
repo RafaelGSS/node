@@ -36,7 +36,7 @@ static void Deny(const FunctionCallbackInfo<Value>& args) {
   v8::Isolate* isolate = env->isolate();
 
   CHECK(args[0]->IsString());
-  CHECK(args.Length() == 1 || args[1]->IsArray());
+  CHECK(args.Length() == 1 || (args[1]->IsUndefined() || args[1]->IsArray()));
 
   std::string deny_scope = *String::Utf8Value(isolate, args[0]);
   Permission scope = Policy::StringToPermission(deny_scope);
@@ -82,7 +82,7 @@ static void Check(const FunctionCallbackInfo<Value>& args) {
     return args.GetReturnValue().Set(false);
   }
 
-  if (args.Length() > 1) {
+  if (args.Length() > 1 && !args[1]->IsUndefined()) {
     String::Utf8Value utf8_arg(isolate, args[1]);
     if (*utf8_arg == nullptr) {
       return;

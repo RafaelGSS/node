@@ -19,7 +19,6 @@ class PolicyDenyFs final : public PolicyDeny {
   bool is_granted(Permission perm, const std::string& param) override;
 
   struct RadixTree {
-    bool inserted = false;
     struct Node {
       std::string prefix;
       std::map<char, Node*> children;
@@ -70,7 +69,18 @@ class PolicyDenyFs final : public PolicyDeny {
       Node* NextNode(std::string path, int idx) {
         auto child = children[path[idx]];
         if (!child) {
-          return wildcard_child;
+          return nullptr;
+        }
+        // match prefix
+        unsigned int prefix_len = child->prefix.length();
+        for (unsigned int i = 0; i < path.length(); ++i) {
+          if (i >= prefix_len || child->prefix[i] == '*') {
+            return child;
+          }
+
+          if (path[idx++] != child->prefix[i]) {
+            return nullptr;
+          }
         }
         return child;
       }

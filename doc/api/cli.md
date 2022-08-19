@@ -100,6 +100,48 @@ If this flag is passed, the behavior can still be set to not abort through
 [`process.setUncaughtExceptionCaptureCallback()`][] (and through usage of the
 `node:domain` module that uses it).
 
+### `--allow-spawn`
+
+<!-- YAML
+added: REPLACEME
+-->
+
+When using the [Permission System][], the process will not be able spawn any
+kind of process.
+For security reasons, the call will return in a `ERR_ACCESS_DENIED` unless the
+user explicitly pass the flag `--allow-spawn` in the main nodejs process.
+
+If the user explicitly allows to spawn a child process, then it will be the
+user's responsibility to pass along the correct arguments.
+
+Example:
+
+```js
+const childProcess = require('child_process');
+// Attempt to bypass the permission
+childProcess.spawn('node', ['-e', 'require("fs").writeFileSync("/new-file", "example")']);
+```
+
+```console
+$ node --policy-deny-fs=out index.js
+node:internal/child_process:388
+  const err = this._handle.spawn(options);
+                           ^
+Error: Access to this API has been restricted
+    at ChildProcess.spawn (node:internal/child_process:388:28)
+    at Object.spawn (node:child_process:723:9)
+    at Object.<anonymous> (/home/index.js:3:14)
+    at Module._compile (node:internal/modules/cjs/loader:1120:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1174:10)
+    at Module.load (node:internal/modules/cjs/loader:998:32)
+    at Module._load (node:internal/modules/cjs/loader:839:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)
+    at node:internal/main/run_main_module:17:47 {
+  code: 'ERR_ACCESS_DENIED',
+  permission: 'ChildProcess'
+}
+```
+
 ### `--completion-bash`
 
 <!-- YAML
@@ -1663,6 +1705,7 @@ Node.js options that are allowed are:
 
 <!-- node-options-node start -->
 
+* `--allow-spawn`
 * `--conditions`, `-C`
 * `--diagnostic-dir`
 * `--disable-proto`

@@ -884,14 +884,18 @@ Environment::Environment(IsolateData* isolate_data,
                                       "args",
                                       std::move(traced_value));
   }
+  // If any permission is set the process shouldn't be able to spawn
+  // unless explicitly allowed by the user
+  if (!options_->policy_deny_fs.empty() && !options_->allow_spawn) {
+    policy()->Deny(policy::Permission::kChildProcess, {});
+  }
 
   policy()->Apply(
         options_->policy_deny_fs,
         policy::Permission::kFileSystem);
 }
 
-Environment::Environment(IsolateData* isolate_data,
-                         Local<Context> context,
+Environment::Environment(IsolateData* isolate_data, Local<Context> context,
                          const std::vector<std::string>& args,
                          const std::vector<std::string>& exec_args,
                          const EnvSerializeInfo* env_info,
