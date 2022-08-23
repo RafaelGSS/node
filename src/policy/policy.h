@@ -7,6 +7,7 @@
 #include "v8.h"
 #include "policy/policy_deny.h"
 #include "policy/policy_deny_fs.h"
+#include "policy/policy_deny_child_process.h"
 
 #include <map>
 #include <iostream>
@@ -29,9 +30,15 @@ class Policy {
  public:
   Policy() {
     std::shared_ptr<PolicyDeny> deny_fs = std::make_shared<PolicyDenyFs>();
+    std::shared_ptr<PolicyDeny> deny_child_p =
+        std::make_shared<PolicyDenyChildProcess>();
 #define V(Name, _, __)                                                         \
   deny_policies.insert(std::make_pair(Permission::k##Name, deny_fs));
     FILESYSTEM_PERMISSIONS(V)
+#undef V
+#define V(Name, _, __)                                                         \
+  deny_policies.insert(std::make_pair(Permission::k##Name, deny_child_p));
+    CHILD_PROCESS_PERMISSIONS(V)
 #undef V
   }
 
