@@ -129,7 +129,7 @@ void FreeRecursivelyNode(PolicyDenyFs::RadixTree::Node* node) {
   free(node);
 }
 
-PolicyDenyFs::RadixTree::RadixTree(): root_node_(new Node("/")) { }
+PolicyDenyFs::RadixTree::RadixTree(): root_node_(new Node("")) { }
 
 PolicyDenyFs::RadixTree::~RadixTree() {
   FreeRecursivelyNode(root_node_);
@@ -137,13 +137,15 @@ PolicyDenyFs::RadixTree::~RadixTree() {
 
 bool PolicyDenyFs::RadixTree::Lookup(const std::string& s) {
   PolicyDenyFs::RadixTree::Node* current_node = root_node_;
+  if (current_node->children.size() == 0) {
+    return false;
+  }
+
   unsigned int parent_node_prefix_len = current_node->prefix.length();
   auto path_len = s.length();
 
   while (true) {
-    if (parent_node_prefix_len == path_len &&
-        s.substr(path_len - current_node->prefix.length()) ==
-            current_node->prefix) {
+    if (parent_node_prefix_len == path_len) {
       return true;
     }
 
@@ -166,9 +168,9 @@ void PolicyDenyFs::RadixTree::Insert(const std::string& path) {
   unsigned int parent_node_prefix_len = current_node->prefix.length();
   int path_len = path.length();
 
-  for (int i = 0; i < path_len; ++i) {
-    bool is_wildcard_node = path[i] == '*';
-    bool is_last_char = i + 1 == path_len;
+  for (int i = 1; i <= path_len; ++i) {
+    bool is_wildcard_node = path[i - 1] == '*';
+    bool is_last_char = i == path_len;
 
     if (is_wildcard_node || is_last_char) {
       std::string node_path = path.substr(parent_node_prefix_len, i);
@@ -177,7 +179,7 @@ void PolicyDenyFs::RadixTree::Insert(const std::string& path) {
 
     if (is_wildcard_node) {
       current_node = current_node->CreateWildcardChild();
-      parent_node_prefix_len = i + i;
+      parent_node_prefix_len = i;
     }
   }
 }

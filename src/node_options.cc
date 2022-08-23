@@ -385,6 +385,10 @@ EnvironmentOptionsParser::EnvironmentOptionsParser() {
             "denied permissions to the filesystem",
             &EnvironmentOptions::policy_deny_fs,
             kAllowedInEnvironment);
+  AddOption("--allow-spawn",
+            "allow spawning process when any permissions are set",
+            &EnvironmentOptions::allow_spawn,
+            kAllowedInEnvironment);
   AddOption("--experimental-repl-await",
             "experimental await keyword support in REPL",
             &EnvironmentOptions::experimental_repl_await,

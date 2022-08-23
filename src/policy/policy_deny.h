@@ -16,8 +16,11 @@ namespace policy {
   V(FileSystemIn, "fs.in", FileSystem)                                         \
   V(FileSystemOut, "fs.out", FileSystem)
 
+#define CHILD_PROCESS_PERMISSIONS(V) V(ChildProcess, "child", PermissionsRoot)
+
 #define PERMISSIONS(V)                                                         \
   FILESYSTEM_PERMISSIONS(V)                                                    \
+  CHILD_PROCESS_PERMISSIONS(V)
 
 #define V(name, _, __) k##name,
 enum class Permission {
