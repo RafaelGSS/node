@@ -389,6 +389,10 @@ EnvironmentOptionsParser::EnvironmentOptionsParser() {
             "allow spawning process when any permissions are set",
             &EnvironmentOptions::allow_spawn,
             kAllowedInEnvironment);
+  AddOption("--allow-worker",
+            "allow worker threads when any permissions are set",
+            &EnvironmentOptions::allow_worker_threads,
+            kAllowedInEnvironment);
   AddOption("--experimental-repl-await",
             "experimental await keyword support in REPL",
             &EnvironmentOptions::experimental_repl_await,

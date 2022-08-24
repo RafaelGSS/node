@@ -4,10 +4,11 @@
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
 #include "node_options.h"
-#include "v8.h"
 #include "policy/policy_deny.h"
-#include "policy/policy_deny_fs.h"
 #include "policy/policy_deny_child_process.h"
+#include "policy/policy_deny_fs.h"
+#include "policy/policy_deny_worker.h"
+#include "v8.h"
 
 #include <map>
 #include <iostream>
@@ -32,6 +33,8 @@ class Policy {
     std::shared_ptr<PolicyDeny> deny_fs = std::make_shared<PolicyDenyFs>();
     std::shared_ptr<PolicyDeny> deny_child_p =
         std::make_shared<PolicyDenyChildProcess>();
+    std::shared_ptr<PolicyDeny> deny_worker_t =
+        std::make_shared<PolicyDenyWorker>();
 #define V(Name, _, __)                                                         \
   deny_policies.insert(std::make_pair(Permission::k##Name, deny_fs));
     FILESYSTEM_PERMISSIONS(V)
@@ -39,6 +42,10 @@ class Policy {
 #define V(Name, _, __)                                                         \
   deny_policies.insert(std::make_pair(Permission::k##Name, deny_child_p));
     CHILD_PROCESS_PERMISSIONS(V)
+#undef V
+#define V(Name, _, __)                                                         \
+  deny_policies.insert(std::make_pair(Permission::k##Name, deny_worker_t));
+    WORKER_THREADS_PERMISSIONS(V)
 #undef V
   }
 

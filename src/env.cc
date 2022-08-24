@@ -884,10 +884,15 @@ Environment::Environment(IsolateData* isolate_data,
                                       "args",
                                       std::move(traced_value));
   }
-  // If any permission is set the process shouldn't be able to spawn
+  // If any permission is set the process shouldn't be able to spawn/worker
   // unless explicitly allowed by the user
-  if (!options_->policy_deny_fs.empty() && !options_->allow_spawn) {
-    policy()->Deny(policy::Permission::kChildProcess, {});
+  if (!options_->policy_deny_fs.empty()) {
+    if (!options_->allow_spawn) {
+      policy()->Deny(policy::Permission::kChildProcess, {});
+    }
+    if (!options_->allow_worker_threads) {
+      policy()->Deny(policy::Permission::kWorkerThreads, {});
+    }
   }
 
   policy()->Apply(
