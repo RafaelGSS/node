@@ -15,12 +15,11 @@ const {
 
 if (isMainThread) {
   assert.throws(() => {
-    const worker = new Worker(__filename);
-    worker.o
+    new Worker(__filename);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'ChildProcess',
+    permission: 'WorkerThreads',
   }));
 } else {
-  t.fail('it must not be called');
+  assert.fail('it should not be called');
 }

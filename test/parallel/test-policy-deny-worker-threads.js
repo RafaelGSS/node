@@ -16,7 +16,7 @@ function blockedEnv() {
     new Worker(__filename);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'ChildProcess',
+    permission: 'WorkerThreads',
   }));
 }
 
@@ -24,7 +24,7 @@ function blockedEnv() {
   if (isMainThread) {
     // doesNotThrow
     const worker = new Worker(__filename);
-    worker.on('exit', blockedEnv)
+    worker.on('exit', blockedEnv);
   } else {
     process.exit(0);
   }
