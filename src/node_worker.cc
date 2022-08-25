@@ -1,15 +1,16 @@
 #include "node_worker.h"
+#include "async_wrap-inl.h"
 #include "debug_utils-inl.h"
 #include "histogram-inl.h"
 #include "memory_tracker-inl.h"
+#include "node_buffer.h"
 #include "node_errors.h"
 #include "node_external_reference.h"
-#include "node_buffer.h"
 #include "node_options-inl.h"
 #include "node_perf.h"
 #include "node_snapshot_builder.h"
+#include "policy/policy.h"
 #include "util-inl.h"
-#include "async_wrap-inl.h"
 
 #include <memory>
 #include <string>
@@ -440,6 +441,8 @@ Worker::~Worker() {
 
 void Worker::New(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, policy::Permission::kWorkerThreads, "");
   Isolate* isolate = args.GetIsolate();
 
   CHECK(args.IsConstructCall());
