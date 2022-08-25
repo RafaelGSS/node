@@ -106,7 +106,7 @@ If this flag is passed, the behavior can still be set to not abort through
 added: REPLACEME
 -->
 
-When using the [Permission System][], the process will not be able spawn any
+When using the \[Permission System]\[], the process will not be able spawn any
 kind of process.
 For security reasons, the call will return in a `ERR_ACCESS_DENIED` unless the
 user explicitly pass the flag `--allow-spawn` in the main nodejs process.
@@ -139,6 +139,48 @@ Error: Access to this API has been restricted
     at node:internal/main/run_main_module:17:47 {
   code: 'ERR_ACCESS_DENIED',
   permission: 'ChildProcess'
+}
+```
+
+### `--allow-worker`
+
+<!-- YAML
+added: REPLACEME
+-->
+
+When using the \[Permission System]\[], the process will not be able create any
+worker threads.
+For security reasons, the call will return in a `ERR_ACCESS_DENIED` unless the
+user explicitly pass the flag `--allow-worker` in the main nodejs process.
+
+If the user explicitly allows to create worker threads, then it will be the
+user's responsibility to pass along the correct arguments.
+
+Example:
+
+```js
+const { Worker } = require('worker_threads');
+// Attempt to bypass the permission
+new Worker(__filename);
+```
+
+```console
+$ node --policy-deny-fs=out index.js
+node:internal/worker:188
+    this[kHandle] = new WorkerImpl(url,
+                    ^
+
+Error: Access to this API has been restricted
+    at new Worker (node:internal/worker:188:21)
+    at Object.<anonymous> (/home/index.js.js:3:1)
+    at Module._compile (node:internal/modules/cjs/loader:1120:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1174:10)
+    at Module.load (node:internal/modules/cjs/loader:998:32)
+    at Module._load (node:internal/modules/cjs/loader:839:12)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)
+    at node:internal/main/run_main_module:17:47 {
+  code: 'ERR_ACCESS_DENIED',
+  permission: 'WorkerThreads'
 }
 ```
 
@@ -1888,6 +1930,7 @@ Node.js options that are allowed are:
 <!-- node-options-node start -->
 
 * `--allow-spawn`
+* `--allow-worker`
 * `--conditions`, `-C`
 * `--diagnostic-dir`
 * `--disable-proto`
