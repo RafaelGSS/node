@@ -160,6 +160,8 @@ def files(action):
 
       output_lib = 'libnode.' + variables.get('shlib_suffix')
       action([output_prefix + output_lib], 'lib/' + output_lib)
+  if 'true' == variables.get('node_use_dtrace'):
+    action(['out/Release/node.d'], 'lib/dtrace/node.d')
 
       # create libnode.x that references libnode.so (C++ addons compat)
       os.system(os.path.dirname(os.path.realpath(__file__)) +

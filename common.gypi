@@ -544,6 +544,9 @@
           }],
         ],
       }],
+      ['OS=="freebsd" and node_use_dtrace=="true"', {
+        'libraries': [ '-lelf' ],
+      }],
       ['OS=="freebsd"', {
         'ldflags': [
           '-Wl,--export-dynamic',

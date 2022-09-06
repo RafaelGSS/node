@@ -75,7 +75,13 @@ static void Initialize(Local<Object> target,
   READONLY_FALSE_PROPERTY(target, "noBrowserGlobals");
 #endif  // NODE_NO_BROWSER_GLOBALS
 
-  READONLY_PROPERTY(target, "bits", Number::New(isolate, 8 * sizeof(intptr_t)));
+  READONLY_PROPERTY(target,
+                    "bits",
+                    Number::New(isolate, 8 * sizeof(intptr_t)));
+
+#if defined HAVE_DTRACE || defined HAVE_ETW
+  READONLY_TRUE_PROPERTY(target, "hasDtrace");
+#endif
 }  // InitConfig
 
 }  // namespace node
