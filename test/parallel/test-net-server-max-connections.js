@@ -32,10 +32,16 @@ const net = require('net');
 const N = 20;
 let closes = 0;
 const waits = [];
+let reqCount = 0;
 
 const server = net.createServer(common.mustCall(function(connection) {
   connection.write('hello');
-  waits.push(function() { connection.end(); });
+  const i = ++reqCount
+  waits.push(function() {
+    console.log('Closing...', i)
+    connection.end();
+    console.log('Closed...', i)
+  });
 }, N / 2));
 
 server.listen(0, function() {
