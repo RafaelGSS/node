@@ -337,6 +337,7 @@ void TCPWrap::Connect(const FunctionCallbackInfo<Value>& args,
     AsyncHooks::DefaultTriggerAsyncIdScope trigger_scope(wrap);
     ConnectWrap* req_wrap =
         new ConnectWrap(env, req_wrap_obj, AsyncWrap::PROVIDER_TCPCONNECTWRAP);
+    std::cout << "Dispatching AfterConnect..." << std::endl;
     err = req_wrap->Dispatch(uv_tcp_connect,
                              &wrap->handle_,
                              reinterpret_cast<const sockaddr*>(&addr),
