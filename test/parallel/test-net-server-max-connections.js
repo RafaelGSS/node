@@ -35,12 +35,14 @@ const waits = [];
 let reqCount = 0;
 
 const server = net.createServer(common.mustCall(function(connection) {
-  connection.write('hello');
   const i = ++reqCount
+  process.__rawDebug('Received Req...' + i)
+  connection.write('hello');
+  process.__rawDebug('Writing...' + i)
   waits.push(function() {
-    console.log('Closing...', i)
+    process.__rawDebug('Closing...' + i)
     connection.end();
-    console.log('Closed...', i)
+    process.__rawDebug('Closed...' + i)
   });
 }, N / 2));
 
