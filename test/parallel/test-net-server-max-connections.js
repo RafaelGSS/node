@@ -59,7 +59,7 @@ function makeConnection(index) {
 
   c.on('connect', function() {
     if (index + 1 < N) {
-      process._rawDebug('creating connection ' + index + 1)
+      process._rawDebug('creating connection ' + index)
       makeConnection(index + 1);
     }
 
