@@ -77,7 +77,6 @@ void ConnectionWrap<WrapType, UVType>::OnConnection(uv_stream_t* handle,
 template <typename WrapType, typename UVType>
 void ConnectionWrap<WrapType, UVType>::AfterConnect(uv_connect_t* req,
                                                     int status) {
-  std::cout << "Creating ReqWrap" << std::endl;
   BaseObjectPtr<ConnectWrap> req_wrap{static_cast<ConnectWrap*>(req->data)};
   CHECK(req_wrap);
   WrapType* wrap = static_cast<WrapType*>(req->handle->data);
