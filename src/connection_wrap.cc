@@ -92,6 +92,7 @@ void ConnectionWrap<WrapType, UVType>::AfterConnect(uv_connect_t* req,
 
   bool readable, writable;
 
+  std::cout << "Before checking status" << std::endl;
   if (status) {
     readable = writable = false;
   } else {
