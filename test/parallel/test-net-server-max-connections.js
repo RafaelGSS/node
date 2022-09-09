@@ -54,12 +54,13 @@ server.maxConnections = N / 2;
 
 
 function makeConnection(index) {
+  process._rawDebug('---- creating connection ' + index)
   const c = net.createConnection(server.address().port);
   let gotData = false;
 
   c.on('connect', function() {
+    process._rawDebug('on connect ---- ' + index)
     if (index + 1 < N) {
-      process._rawDebug('creating connection ' + index)
       makeConnection(index + 1);
     }
 
