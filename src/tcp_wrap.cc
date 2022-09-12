@@ -332,6 +332,7 @@ void TCPWrap::Connect(const FunctionCallbackInfo<Value>& args,
 
   T addr;
   int err = uv_ip_addr(*ip_address, &addr);
+  std::cout << "here we go " << err << std::endl;
 
   if (err == 0) {
     AsyncHooks::DefaultTriggerAsyncIdScope trigger_scope(wrap);
