@@ -235,6 +235,7 @@ void PipeWrap::Connect(const FunctionCallbackInfo<Value>& args) {
 
   Local<Object> req_wrap_obj = args[0].As<Object>();
   node::Utf8Value name(env->isolate(), args[1]);
+  std::cout << "Name: " << *name << std::endl;
 
   ConnectWrap* req_wrap =
       new ConnectWrap(env, req_wrap_obj, AsyncWrap::PROVIDER_PIPECONNECTWRAP);
