@@ -159,7 +159,7 @@ int ReqWrap<T>::Dispatch(LibuvFunction fn, Args... args) {
       MakeLibuvRequestCallback<T, Args>::For(this, args)...);
   if (err >= 0) {
     env()->IncreaseWaitingRequestCounter();
-    /* ClearWeak(); */
+    ClearWeak();
   }
   return err;
 }
