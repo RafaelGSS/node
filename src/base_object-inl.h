@@ -78,7 +78,7 @@ void BaseObject::OnGCCollect() {
 }
 
 void BaseObject::ClearWeak() {
-  if (has_pointer_data()) {
+  if (pointer_data_ != nullptr) {
     pointer_data()->wants_weak_jsobj = false;
   }
   persistent_handle_.ClearWeak();
@@ -108,7 +108,7 @@ void BaseObject::InternalFieldSet(v8::Local<v8::String> property,
   info.This()->SetInternalField(Field, value);
 }
 
-bool BaseObject::has_pointer_data() {
+bool BaseObject::has_pointer_data() const {
   return pointer_data_ != nullptr;
 }
 

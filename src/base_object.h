@@ -201,7 +201,7 @@ class BaseObject : public MemoryRetainer {
     BaseObject* self = nullptr;
   };
 
-  inline bool has_pointer_data();
+  inline bool has_pointer_data() const;
   // This creates a PointerData struct if none was associated with this
   // BaseObject before.
   PointerData* pointer_data();
