@@ -113,7 +113,6 @@ void ConnectionWrap<WrapType, UVType>::AfterConnect(uv_connect_t* req,
                                   "status",
                                   status);
 
-  std::cout << "Calling MakeCallback" << std::endl;
   req_wrap->MakeCallback(env->oncomplete_string(), arraysize(argv), argv);
 }
 

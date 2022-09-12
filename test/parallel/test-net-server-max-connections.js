@@ -36,13 +36,13 @@ let reqCount = 0;
 
 const server = net.createServer(common.mustCall(function(connection) {
   const i = ++reqCount
-  process._rawDebug('Received Req...' + i)
+  // process._rawDebug('Received Req...' + i)
   connection.write('hello');
-  process._rawDebug('Writing...' + i)
+  // process._rawDebug('Writing...' + i)
   waits.push(function() {
-    process._rawDebug('Closing...' + i)
+    // process._rawDebug('Closing...' + i)
     connection.end();
-    process._rawDebug('Closed...' + i)
+    // process._rawDebug('Closed...' + i)
   });
 }, N / 2));
 
@@ -59,7 +59,7 @@ function makeConnection(index) {
   let gotData = false;
 
   c.on('connect', function() {
-    process._rawDebug('on connect ---- ' + index)
+    // process._rawDebug('on connect ---- ' + index)
     if (index + 1 < N) {
       makeConnection(index + 1);
     }
