@@ -81,7 +81,7 @@ void BaseObject::ClearWeak() {
   if (has_pointer_data()) {
     pointer_data()->wants_weak_jsobj = false;
   }
-  /* persistent_handle_.ClearWeak(); */
+  persistent_handle_.ClearWeak();
 }
 
 bool BaseObject::IsWeakOrDetached() const {
@@ -108,7 +108,7 @@ void BaseObject::InternalFieldSet(v8::Local<v8::String> property,
   info.This()->SetInternalField(Field, value);
 }
 
-bool BaseObject::has_pointer_data() const {
+bool BaseObject::has_pointer_data() {
   return pointer_data_ != nullptr;
 }
 
