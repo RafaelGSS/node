@@ -78,10 +78,10 @@ void BaseObject::OnGCCollect() {
 }
 
 void BaseObject::ClearWeak() {
-  persistent_handle_.ClearWeak();
   if (has_pointer_data()) {
     pointer_data()->wants_weak_jsobj = false;
   }
+  /* persistent_handle_.ClearWeak(); */
 }
 
 bool BaseObject::IsWeakOrDetached() const {
