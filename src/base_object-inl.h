@@ -78,7 +78,7 @@ void BaseObject::OnGCCollect() {
 }
 
 void BaseObject::ClearWeak() {
-  if (pointer_data_ != nullptr) {
+  if (has_pointer_data()) {
     pointer_data()->wants_weak_jsobj = false;
   }
   persistent_handle_.ClearWeak();
