@@ -342,6 +342,7 @@ void TCPWrap::Connect(const FunctionCallbackInfo<Value>& args,
                              reinterpret_cast<const sockaddr*>(&addr),
                              AfterConnect);
     if (err) {
+      std::cout << "Deleting??" << std::endl;
       delete req_wrap;
     } else {
       int port = args[2]->Uint32Value(env->context()).FromJust();
