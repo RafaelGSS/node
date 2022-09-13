@@ -54,7 +54,7 @@ server.maxConnections = N / 2;
 
 
 function makeConnection(index) {
-  process._rawDebug('---- creating connection ' + index)
+  // process._rawDebug('---- creating connection ' + index)
   const c = net.createConnection(server.address().port);
   let gotData = false;
 
