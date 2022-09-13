@@ -345,16 +345,15 @@ void TCPWrap::Connect(const FunctionCallbackInfo<Value>& args,
       std::cout << "Deleting??" << std::endl;
       delete req_wrap;
     } else {
-      CHECK(args[2]->IsUint32());
-      int port = args[2]->Uint32Value(env->context()).FromJust();
-      CHECK(port);
-      /* TRACE_EVENT_NESTABLE_ASYNC_BEGIN2(TRACING_CATEGORY_NODE2(net, native), */
-      /*                                   "connect", */
-      /*                                   req_wrap, */
-      /*                                   "ip", */
-      /*                                   TRACE_STR_COPY(*ip_address), */
-      /*                                   "port", */
-      /*                                   port); */
+      /* CHECK(args[2]->IsUint32()); */
+      /* int port = args[2]->Uint32Value(env->context()).FromJust(); */
+      TRACE_EVENT_NESTABLE_ASYNC_BEGIN2(TRACING_CATEGORY_NODE2(net, native),
+                                        "connect",
+                                        req_wrap,
+                                        "ip",
+                                        TRACE_STR_COPY(*ip_address),
+                                        "port",
+                                        45);
     }
   }
 
