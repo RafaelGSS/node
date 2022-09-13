@@ -347,6 +347,7 @@ void TCPWrap::Connect(const FunctionCallbackInfo<Value>& args,
     } else if (args.Length() > 2 && !args[2].IsEmpty()){
       CHECK(args[2]->IsUint32());
       uint32_t port = args[2]->Uint32Value(env->context()).FromJust();
+      std::cout << "P: " << port << " | ";
       TRACE_EVENT_NESTABLE_ASYNC_BEGIN2(TRACING_CATEGORY_NODE2(net, native),
                                         "connect",
                                         req_wrap,
