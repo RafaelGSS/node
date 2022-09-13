@@ -89,6 +89,7 @@ class PolicyDenyFs final : public PolicyDeny {
     RadixTree();
     ~RadixTree();
     void Insert(const std::string& s);
+    void Remove(const std::string& s);
     bool Lookup(const std::string& s);
 
    private:
@@ -96,11 +97,12 @@ class PolicyDenyFs final : public PolicyDeny {
   };
 
  private:
+  void GrantAccess(Permission scope, std::string param);
   void RestrictAccess(Permission scope, std::string param);
   void RestrictAccess(Permission scope, const std::vector<std::string>& params);
 
-  RadixTree deny_in_params_;
-  RadixTree deny_out_params_;
+  RadixTree granted_in_fs_;
+  RadixTree granted_out_fs_;
   bool deny_all_in_;
   bool deny_all_out_;
 };
