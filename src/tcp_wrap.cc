@@ -346,15 +346,13 @@ void TCPWrap::Connect(const FunctionCallbackInfo<Value>& args,
     } else {
       CHECK(args[2]->Uint32Value(env->context()).IsJust());
       int port = args[2]->Uint32Value(env->context()).FromJust();
-      if (port) {
-        TRACE_EVENT_NESTABLE_ASYNC_BEGIN2(TRACING_CATEGORY_NODE2(net, native),
-            "connect",
-            req_wrap,
-            "ip",
-            TRACE_STR_COPY(*ip_address),
-            "port",
-            port);
-      }
+      TRACE_EVENT_NESTABLE_ASYNC_BEGIN2(TRACING_CATEGORY_NODE2(net, native),
+          "connect",
+          req_wrap,
+          "ip",
+          TRACE_STR_COPY(*ip_address),
+          "port",
+          port);
     }
   }
 
