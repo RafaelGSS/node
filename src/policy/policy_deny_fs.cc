@@ -61,8 +61,8 @@ bool PolicyDenyFs::Deny(Permission perm,
     // when deny_all_in is already true permission.deny should be idempotent
     if (deny_all_in_) return true;
 
-    RebuildTree(bkp_in_list_, granted_in_fs_, params);
-    if (bkp_in_list_.size() == 0) deny_all_in_ = true;
+    for (auto& param : params)
+      deny_in_fs_.Insert(param);
     return true;
   }
 
@@ -71,8 +71,8 @@ bool PolicyDenyFs::Deny(Permission perm,
     // when deny_all_out is already true permission.deny should be idempotent
     if (deny_all_out_) return true;
 
-    RebuildTree(bkp_out_list_, granted_out_fs_, params);
-    if (bkp_out_list_.size() == 0) deny_all_out_ = true;
+    for (auto& param : params)
+      deny_out_fs_.Insert(param);
     return true;
   }
   return false;
@@ -87,32 +87,9 @@ void PolicyDenyFs::GrantAccess(Permission perm, std::string res) {
   }
   if (perm == Permission::kFileSystemIn) {
     granted_in_fs_.Insert(res);
-    bkp_in_list_.push_back(original_path);
   } else if (perm == Permission::kFileSystemOut) {
     granted_out_fs_.Insert(res);
-    bkp_out_list_.push_back(original_path);
   }
-}
-
-void PolicyDenyFs::RebuildTree(std::vector<std::string>& bkp_list, RadixTree& tree,
-                                  const std::vector<std::string>& params) {
-  // Rebuild the tree without the items
-  bkp_list.erase(
-      std::remove_if(
-        bkp_list.begin(),
-        bkp_list.end(),
-        [params](const std::string& res) {
-        return std::find(params.begin(), params.end(), res) != params.end();
-        })
-      );
-  // TODO: make sure destructor was called
-  RadixTree granted_fs;
-  if (bkp_list.size() > 0) {
-    for (auto& param : bkp_list) {
-      granted_fs.Insert(param);
-    }
-  }
-  tree = granted_fs;
 }
 
 bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
@@ -122,10 +99,10 @@ bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
       return !(deny_all_in_ && deny_all_out_);
     case Permission::kFileSystemIn:
       return !deny_all_in_ &&
-        (param.empty() || granted_in_fs_.Lookup(param));
+        (param.empty() || (!deny_in_fs_.Lookup(param) && granted_in_fs_.Lookup(param)));
     case Permission::kFileSystemOut:
       return !deny_all_out_ &&
-        (param.empty() || granted_out_fs_.Lookup(param));
+        (param.empty() || (!deny_out_fs_.Lookup(param) && granted_out_fs_.Lookup(param)));
     default:
       return false;
   }
@@ -182,6 +159,7 @@ bool PolicyDenyFs::RadixTree::Lookup(const std::string& s) {
 }
 
 void PolicyDenyFs::RadixTree::Insert(const std::string& path) {
+  std::cout << "Inserting..." << path << std::endl;
   PolicyDenyFs::RadixTree::Node* current_node = root_node_;
 
   unsigned int parent_node_prefix_len = current_node->prefix.length();

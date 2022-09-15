@@ -1,4 +1,4 @@
-// Flags: --policy-deny-fs=in:/tmp/,/home/rafaelgss/repos/os/node/test/parallel/test-policy-deny-fs-in.js
+// Flags: --policy-deny-fs=in:/home/rafaelgss/repos/os/node/
 'use strict';
 
 const common = require('../common');

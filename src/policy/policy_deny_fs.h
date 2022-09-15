@@ -98,13 +98,19 @@ class PolicyDenyFs final : public PolicyDeny {
  private:
   void GrantAccess(Permission scope, std::string param);
   void RestrictAccess(Permission scope, const std::vector<std::string>& params);
-  void RebuildTree(std::vector<std::string>& bkp_list, RadixTree& tree,
-                                  const std::vector<std::string>& params);
-
+  // /tmp/* --grant
+  // /tmp/dsadsa/t.js denied in runtime
+  //
+  // /tmp/text.txt -- grant
+  // /tmp/text.txt -- denied in runtime
+  //
+  // fs granted on startup
   RadixTree granted_in_fs_;
-  std::vector<std::string> bkp_in_list_;
   RadixTree granted_out_fs_;
-  std::vector<std::string> bkp_out_list_;
+  // fs denied in runtime
+  RadixTree deny_in_fs_;
+  RadixTree deny_out_fs_;
+
   bool deny_all_in_;
   bool deny_all_out_;
 };
