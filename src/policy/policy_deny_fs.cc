@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 namespace node {
 
@@ -18,10 +19,10 @@ namespace policy {
 // grant = 'in:/tmp/'
 // grant = 'in:/tmp/,out:./example.js'
 void PolicyDenyFs::Apply(const std::string& deny) {
+  // all the fs is blocked by default
+  deny_all_in_ = true;
+  deny_all_out_ = true;
   for (const auto& name : SplitString(deny, ',')) {
-    // all the fs is blocked by default
-    deny_all_in_ = true;
-    deny_all_out_ = true;
     Permission perm = Permission::kPermissionsRoot;
     for (std::string& opt : SplitString(name, ':')) {
       if (perm == Permission::kPermissionsRoot) {
@@ -60,7 +61,8 @@ bool PolicyDenyFs::Deny(Permission perm,
     // when deny_all_in is already true permission.deny should be idempotent
     if (deny_all_in_) return true;
 
-    RestrictAccess(perm, params);
+    RebuildTree(bkp_in_list_, granted_in_fs_, params);
+    if (bkp_in_list_.size() == 0) deny_all_in_ = true;
     return true;
   }
 
@@ -69,7 +71,8 @@ bool PolicyDenyFs::Deny(Permission perm,
     // when deny_all_out is already true permission.deny should be idempotent
     if (deny_all_out_) return true;
 
-    RestrictAccess(perm, params);
+    RebuildTree(bkp_out_list_, granted_out_fs_, params);
+    if (bkp_out_list_.size() == 0) deny_all_out_ = true;
     return true;
   }
   return false;
@@ -77,34 +80,43 @@ bool PolicyDenyFs::Deny(Permission perm,
 
 void PolicyDenyFs::GrantAccess(Permission perm, std::string res) {
   std::filesystem::path path(res);
+  const std::string original_path = res;
   if (std::filesystem::is_directory(path)) {
     // add wildcard when directory
     res = path / "*";
   }
-
   if (perm == Permission::kFileSystemIn) {
     granted_in_fs_.Insert(res);
+    bkp_in_list_.push_back(original_path);
   } else if (perm == Permission::kFileSystemOut) {
     granted_out_fs_.Insert(res);
+    bkp_out_list_.push_back(original_path);
   }
 }
 
-void PolicyDenyFs::RestrictAccess(Permission perm,
+void PolicyDenyFs::RebuildTree(std::vector<std::string>& bkp_list, RadixTree& tree,
                                   const std::vector<std::string>& params) {
-  for (auto& param : params) {
-    RestrictAccess(perm, param);
+  // Rebuild the tree without the items
+  bkp_list.erase(
+      std::remove_if(
+        bkp_list.begin(),
+        bkp_list.end(),
+        [params](const std::string& res) {
+        return std::find(params.begin(), params.end(), res) != params.end();
+        })
+      );
+  // TODO: make sure destructor was called
+  RadixTree granted_fs;
+  if (bkp_list.size() > 0) {
+    for (auto& param : bkp_list) {
+      granted_fs.Insert(param);
+    }
   }
-}
-
-void PolicyDenyFs::RestrictAccess(Permission perm, std::string res) {
-  if (perm == Permission::kFileSystemIn) {
-    granted_in_fs_.Remove(res);
-  } else if (perm == Permission::kFileSystemOut) {
-    granted_out_fs_.Remove(res);
-  }
+  tree = granted_fs;
 }
 
 bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
+  std::cout << "Is granted..." << param <<  deny_all_in_ << std::endl;
   switch (perm) {
     case Permission::kFileSystem:
       return !(deny_all_in_ && deny_all_out_);
@@ -189,35 +201,6 @@ void PolicyDenyFs::RadixTree::Insert(const std::string& path) {
       parent_node_prefix_len = i;
     }
   }
-}
-
-void PolicyDenyFs::RadixTree::Remove(const std::string& path) {
-  PolicyDenyFs::RadixTree::Node* current_node = root_node_;
-  PolicyDenyFs::RadixTree::Node* parent_node = nullptr;
-  if (current_node->children.size() == 0) {
-    return;
-  }
-
-  unsigned int parent_node_prefix_len = current_node->prefix.length();
-  auto path_len = path.length();
-
-  while (true) {
-    if (parent_node_prefix_len == path_len && parent_node != nullptr) {
-      if (parent_node->children.size() == 1) {
-        // TODO
-      }
-    }
-
-    auto node = current_node->NextNode(path, parent_node_prefix_len);
-    if (node == nullptr) {
-      return;
-    }
-
-    parent_node = current_node;
-    current_node = node;
-    parent_node_prefix_len += current_node->prefix.length();
-  }
-
 }
 
 }  // namespace policy

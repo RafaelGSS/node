@@ -125,7 +125,16 @@ void Policy::ThrowAccessDenied(Environment* env, Permission perm) {
   env->isolate()->ThrowException(err);
 }
 
+void Policy::EnablePermissions() {
+  if (!enabled_) {
+    enabled_ = true;
+    std::cout << "warn: permissions are still experimental" << std::endl;
+    // TODO: warn log
+  }
+}
+
 void Policy::Apply(const std::string& deny, Permission scope) {
+  if (!deny.empty()) EnablePermissions();
   auto policy = deny_policies.find(scope);
   if (policy != deny_policies.end()) {
     policy->second->Apply(deny);
@@ -133,6 +142,7 @@ void Policy::Apply(const std::string& deny, Permission scope) {
 }
 
 bool Policy::Deny(Permission scope, const std::vector<std::string>& params) {
+  EnablePermissions();
   auto policy = deny_policies.find(scope);
   if (policy != deny_policies.end()) {
     return policy->second->Deny(scope, params);

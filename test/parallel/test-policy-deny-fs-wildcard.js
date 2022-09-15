@@ -13,7 +13,14 @@ const fs = require('fs');
     '/example/foo*',
     '/example/bar*',
     '/folder/*',
+    '/show',
+    '/slower',
+    '/slown',
   ]));
+
+  assert.ok(process.policy.check('fs.in', '/slow'))
+  assert.ok(process.policy.check('fs.in', '/slows'))
+  assert.ok(process.policy.check('fs.in', '/slown'))
 }
 
 {

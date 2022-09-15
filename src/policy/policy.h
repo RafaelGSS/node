@@ -29,7 +29,7 @@ namespace policy {
 
 class Policy {
  public:
-  Policy() {
+  Policy(): enabled_(false) {
     std::shared_ptr<PolicyDeny> deny_fs = std::make_shared<PolicyDenyFs>();
     std::shared_ptr<PolicyDeny> deny_child_p =
         std::make_shared<PolicyDenyChildProcess>();
@@ -50,6 +50,7 @@ class Policy {
   }
 
     inline bool is_granted(const Permission permission, const char* res) {
+      if (!enabled_) return true;
       std::cout << "Checking... " << PermissionToString(permission) << " " << res << std::endl;
       auto policy = deny_policies.find(permission);
       if (policy != deny_policies.end()) {
@@ -71,9 +72,11 @@ class Policy {
     void Apply(const std::string& deny, Permission scope);
     // Policy.Deny API
     bool Deny(Permission scope, const std::vector<std::string>& params);
+    void EnablePermissions();
 
  private:
     std::map<Permission, std::shared_ptr<PolicyDeny>> deny_policies;
+    bool enabled_;
 };
 
 }  // namespace policy
