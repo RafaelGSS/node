@@ -228,4 +228,3 @@ const regularFile = __filename;
     permission: 'FileSystemIn',
   }));
 }
-console.log('done?')
