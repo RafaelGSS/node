@@ -381,9 +381,9 @@ EnvironmentOptionsParser::EnvironmentOptionsParser() {
             kAllowedInEnvironment);
   Implies("--policy-integrity", "[has_policy_integrity_string]");
 
-  AddOption("--policy-deny-fs",
-            "denied permissions to the filesystem",
-            &EnvironmentOptions::policy_deny_fs,
+  AddOption("--allow-fs",
+            "allow permissions to the filesystem",
+            &EnvironmentOptions::allow_fs,
             kAllowedInEnvironment);
   AddOption("--allow-spawn",
             "allow spawning process when any permissions are set",

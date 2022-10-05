@@ -1,4 +1,4 @@
-// Flags: --policy-deny-fs=in:/home/rafaelgss/repos/os/node/
+// Flags: --allow-fs=read:/home/rafaelgss/repos/os/node/
 'use strict';
 
 const common = require('../common');
@@ -9,7 +9,7 @@ const assert = require('assert');
 const fs = require('fs');
 const fixtures = require('../common/fixtures');
 
-const blockedFile = fixtures.path('policy', 'deny', 'protected-file.md');
+const blockedFile = fixtures.path('permissions', 'deny', 'protected-file.md');
 const blockedFolder = '/tmp/';
 const regularFile = __filename;
 
@@ -228,3 +228,4 @@ const regularFile = __filename;
     permission: 'FileSystemIn',
   }));
 }
+console.log('done?')

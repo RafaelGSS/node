@@ -133,11 +133,11 @@ void Policy::EnablePermissions() {
   }
 }
 
-void Policy::Apply(const std::string& deny, Permission scope) {
-  if (!deny.empty()) EnablePermissions();
+void Policy::Apply(const std::string& allow, Permission scope) {
+  if (!allow.empty()) EnablePermissions();
   auto policy = deny_policies.find(scope);
   if (policy != deny_policies.end()) {
-    policy->second->Apply(deny);
+    policy->second->Apply(allow);
   }
 }
 

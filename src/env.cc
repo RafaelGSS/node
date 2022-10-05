@@ -886,7 +886,7 @@ Environment::Environment(IsolateData* isolate_data,
   }
   // If any permission is set the process shouldn't be able to spawn/worker
   // unless explicitly allowed by the user
-  if (!options_->policy_deny_fs.empty()) {
+  if (!options_->allow_fs.empty()) {
     if (!options_->allow_spawn) {
       policy()->Deny(policy::Permission::kChildProcess, {});
     }
@@ -896,7 +896,7 @@ Environment::Environment(IsolateData* isolate_data,
   }
 
   policy()->Apply(
-        options_->policy_deny_fs,
+        options_->allow_fs,
         policy::Permission::kFileSystem);
 }
 

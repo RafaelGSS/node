@@ -111,8 +111,8 @@ class PolicyDenyFs final : public PolicyDeny {
   RadixTree deny_in_fs_;
   RadixTree deny_out_fs_;
 
-  bool deny_all_in_;
-  bool deny_all_out_;
+  bool deny_all_in_ = true;
+  bool deny_all_out_ = true;
 };
 
 }  // namespace policy

@@ -18,11 +18,8 @@ namespace policy {
 // grant = 'in,out'
 // grant = 'in:/tmp/'
 // grant = 'in:/tmp/,out:./example.js'
-void PolicyDenyFs::Apply(const std::string& deny) {
-  // all the fs is blocked by default
-  deny_all_in_ = true;
-  deny_all_out_ = true;
-  for (const auto& name : SplitString(deny, ',')) {
+void PolicyDenyFs::Apply(const std::string& allow) {
+  for (const auto& name : SplitString(allow, ',')) {
     Permission perm = Permission::kPermissionsRoot;
     for (std::string& opt : SplitString(name, ':')) {
       if (perm == Permission::kPermissionsRoot) {
@@ -31,10 +28,10 @@ void PolicyDenyFs::Apply(const std::string& deny) {
           deny_all_out_ = false;
           return;
         }
-        if (opt == "in") {
+        if (opt == "read") {
           perm = Permission::kFileSystemIn;
           deny_all_in_ = false;
-        } else if (opt == "out") {
+        } else if (opt == "write") {
           perm = Permission::kFileSystemOut;
           deny_all_out_ = false;
         } else {
@@ -93,7 +90,7 @@ void PolicyDenyFs::GrantAccess(Permission perm, std::string res) {
 }
 
 bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
-  std::cout << "Is granted..." << param <<  deny_all_in_ << std::endl;
+  std::cout << "Is granted..." << param << " - deny_all_in: " << deny_all_in_;
   switch (perm) {
     case Permission::kFileSystem:
       return !(deny_all_in_ && deny_all_out_);
@@ -151,10 +148,11 @@ bool PolicyDenyFs::RadixTree::Lookup(const std::string& s) {
     }
 
     current_node = node;
-    if (current_node->wildcard_child != nullptr) {
+    parent_node_prefix_len += current_node->prefix.length();
+    if (current_node->wildcard_child != nullptr &&
+        path_len >= parent_node_prefix_len) {
       return true;
     }
-    parent_node_prefix_len += current_node->prefix.length();
   }
 }
 

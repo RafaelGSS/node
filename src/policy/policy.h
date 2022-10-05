@@ -50,11 +50,13 @@ class Policy {
   }
 
     inline bool is_granted(const Permission permission, const char* res) {
-      if (!enabled_) return true;
       std::cout << "Checking... " << PermissionToString(permission) << " " << res << std::endl;
+      if (!enabled_) return true;
       auto policy = deny_policies.find(permission);
       if (policy != deny_policies.end()) {
-        return policy->second->is_granted(permission, res);
+        auto ret = policy->second->is_granted(permission, res);
+        std::cout << " R: " << ret << std::endl;
+        return ret;
       }
       return false;
     }
