@@ -3,14 +3,14 @@
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
-#include "policy/policy_deny.h"
+#include "permissions/permission.h"
 #include <vector>
 
 namespace node {
 
-namespace policy {
+namespace permission {
 
-class PolicyDenyChildProcess final : public PolicyDeny {
+class ChildProcessPermission final : public PermissionNode {
  public:
   void Apply(const std::string& deny) override;
   bool Deny(Permission scope, const std::vector<std::string>& params) override;
@@ -19,7 +19,7 @@ class PolicyDenyChildProcess final : public PolicyDeny {
   bool deny_all;
 };
 
-}  // namespace policy
+}  // namespace permission
 
 }  // namespace node
 

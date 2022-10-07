@@ -888,16 +888,16 @@ Environment::Environment(IsolateData* isolate_data,
   // unless explicitly allowed by the user
   if (!options_->allow_fs.empty()) {
     if (!options_->allow_spawn) {
-      policy()->Deny(policy::Permission::kChildProcess, {});
+      permission()->Deny(permission::Permission::kChildProcess, {});
     }
     if (!options_->allow_worker_threads) {
-      policy()->Deny(policy::Permission::kWorkerThreads, {});
+      permission()->Deny(permission::Permission::kWorkerThreads, {});
     }
   }
 
-  policy()->Apply(
+  permission()->Apply(
         options_->allow_fs,
-        policy::Permission::kFileSystem);
+        permission::Permission::kFileSystem);
 }
 
 Environment::Environment(IsolateData* isolate_data, Local<Context> context,

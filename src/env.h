@@ -43,7 +43,7 @@
 #include "util.h"
 #include "uv.h"
 #include "v8.h"
-#include "policy/policy.h"
+#include "permissions/permission_handler.h"
 
 #include <array>
 #include <atomic>
@@ -1161,7 +1161,7 @@ class Environment : public MemoryRetainer {
   inline ImmediateInfo* immediate_info();
   inline TickInfo* tick_info();
   inline uint64_t timer_base() const;
-  inline policy::Policy* policy();
+  inline permission::PermissionHandler* permission();
   inline std::shared_ptr<KVStore> env_vars();
   inline void set_env_vars(std::shared_ptr<KVStore> env_vars);
 

@@ -1,4 +1,4 @@
-#include "policy_deny_fs.h"
+#include "fs_permission.h"
 #include "base_object-inl.h"
 #include "v8.h"
 
@@ -13,12 +13,12 @@
 
 namespace node {
 
-namespace policy {
+namespace permission {
 
-// grant = 'in,out'
-// grant = 'in:/tmp/'
-// grant = 'in:/tmp/,out:./example.js'
-void PolicyDenyFs::Apply(const std::string& allow) {
+// allow = 'read,write'
+// allow = 'read:/tmp/'
+// allow = 'read:/tmp/,out:./example.js'
+void FSPermission::Apply(const std::string& allow) {
   for (const auto& name : SplitString(allow, ',')) {
     Permission perm = Permission::kPermissionsRoot;
     for (std::string& opt : SplitString(name, ':')) {
@@ -44,7 +44,7 @@ void PolicyDenyFs::Apply(const std::string& allow) {
   }
 }
 
-bool PolicyDenyFs::Deny(Permission perm,
+bool FSPermission::Deny(Permission perm,
                         const std::vector<std::string>& params) {
   if (perm == Permission::kFileSystem) {
     deny_all_in_ = true;
@@ -75,7 +75,7 @@ bool PolicyDenyFs::Deny(Permission perm,
   return false;
 }
 
-void PolicyDenyFs::GrantAccess(Permission perm, std::string res) {
+void FSPermission::GrantAccess(Permission perm, std::string res) {
   std::filesystem::path path(res);
   const std::string original_path = res;
   if (std::filesystem::is_directory(path)) {
@@ -89,7 +89,7 @@ void PolicyDenyFs::GrantAccess(Permission perm, std::string res) {
   }
 }
 
-bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
+bool FSPermission::is_granted(Permission perm, const std::string& param = "") {
   std::cout << "Is granted..." << param << " - deny_all_in: " << deny_all_in_;
   switch (perm) {
     case Permission::kFileSystem:
@@ -105,7 +105,7 @@ bool PolicyDenyFs::is_granted(Permission perm, const std::string& param = "") {
   }
 }
 
-void FreeRecursivelyNode(PolicyDenyFs::RadixTree::Node* node) {
+void FreeRecursivelyNode(FSPermission::RadixTree::Node* node) {
   if (node == nullptr) {
     return;
   }
@@ -122,14 +122,14 @@ void FreeRecursivelyNode(PolicyDenyFs::RadixTree::Node* node) {
   free(node);
 }
 
-PolicyDenyFs::RadixTree::RadixTree(): root_node_(new Node("")) { }
+FSPermission::RadixTree::RadixTree(): root_node_(new Node("")) { }
 
-PolicyDenyFs::RadixTree::~RadixTree() {
+FSPermission::RadixTree::~RadixTree() {
   FreeRecursivelyNode(root_node_);
 }
 
-bool PolicyDenyFs::RadixTree::Lookup(const std::string& s) {
-  PolicyDenyFs::RadixTree::Node* current_node = root_node_;
+bool FSPermission::RadixTree::Lookup(const std::string& s) {
+  FSPermission::RadixTree::Node* current_node = root_node_;
   if (current_node->children.size() == 0) {
     return false;
   }
@@ -156,9 +156,9 @@ bool PolicyDenyFs::RadixTree::Lookup(const std::string& s) {
   }
 }
 
-void PolicyDenyFs::RadixTree::Insert(const std::string& path) {
+void FSPermission::RadixTree::Insert(const std::string& path) {
   std::cout << "Inserting..." << path << std::endl;
-  PolicyDenyFs::RadixTree::Node* current_node = root_node_;
+  FSPermission::RadixTree::Node* current_node = root_node_;
 
   unsigned int parent_node_prefix_len = current_node->prefix.length();
   int path_len = path.length();
@@ -179,5 +179,5 @@ void PolicyDenyFs::RadixTree::Insert(const std::string& path) {
   }
 }
 
-}  // namespace policy
+}  // namespace permission
 }  // namespace node

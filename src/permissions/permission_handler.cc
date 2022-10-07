@@ -1,4 +1,4 @@
-#include "policy.h"
+#include "permission_handler.h"
 #include "base_object-inl.h"
 #include "env-inl.h"
 #include "memory_tracker-inl.h"
@@ -25,7 +25,7 @@ using v8::Object;
 using v8::String;
 using v8::Value;
 
-namespace policy {
+namespace permission {
 
 namespace {
 
@@ -39,7 +39,7 @@ static void Deny(const FunctionCallbackInfo<Value>& args) {
   CHECK(args.Length() == 1 || (args[1]->IsUndefined() || args[1]->IsArray()));
 
   std::string deny_scope = *String::Utf8Value(isolate, args[0]);
-  Permission scope = Policy::StringToPermission(deny_scope);
+  Permission scope = Permission::StringToPermission(deny_scope);
   if (scope == Permission::kPermissionsRoot) {
     return args.GetReturnValue().Set(false);
   }
@@ -98,7 +98,7 @@ static void Check(const FunctionCallbackInfo<Value>& args) {
 
 #define V(Name, label, _)                                                      \
   if (perm == Permission::k##Name) return #Name;
-const char* Policy::PermissionToString(const Permission perm) {
+const char* PermissionHandler::PermissionToString(const Permission perm) {
   PERMISSIONS(V)
   return nullptr;
 }
@@ -106,13 +106,13 @@ const char* Policy::PermissionToString(const Permission perm) {
 
 #define V(Name, label, _)                                                      \
   if (perm == label) return Permission::k##Name;
-Permission Policy::StringToPermission(const std::string& perm) {
+Permission PermissionHandler::StringToPermission(const std::string& perm) {
   PERMISSIONS(V)
   return Permission::kPermissionsRoot;
 }
 #undef V
 
-void Policy::ThrowAccessDenied(Environment* env, Permission perm) {
+void PermissionHandler::ThrowAccessDenied(Environment* env, Permission perm) {
   Local<Value> err = ERR_ACCESS_DENIED(env->isolate());
   CHECK(err->IsObject());
   err.As<Object>()->Set(
@@ -125,7 +125,7 @@ void Policy::ThrowAccessDenied(Environment* env, Permission perm) {
   env->isolate()->ThrowException(err);
 }
 
-void Policy::EnablePermissions() {
+void PermissionHandler::EnablePermissions() {
   if (!enabled_) {
     enabled_ = true;
     std::cout << "warn: permissions are still experimental" << std::endl;
@@ -133,18 +133,18 @@ void Policy::EnablePermissions() {
   }
 }
 
-void Policy::Apply(const std::string& allow, Permission scope) {
+void PermissionHandler::Apply(const std::string& allow, Permission scope) {
   if (!allow.empty()) EnablePermissions();
-  auto policy = deny_policies.find(scope);
-  if (policy != deny_policies.end()) {
+  auto policy = perm.find(scope);
+  if (policy != perm.end()) {
     policy->second->Apply(allow);
   }
 }
 
-bool Policy::Deny(Permission scope, const std::vector<std::string>& params) {
+bool PermissionHandler::Deny(Permission scope, const std::vector<std::string>& params) {
   EnablePermissions();
-  auto policy = deny_policies.find(scope);
-  if (policy != deny_policies.end()) {
+  auto policy = perm.find(scope);
+  if (policy != perm.end()) {
     return policy->second->Deny(scope, params);
   }
   return false;
@@ -170,5 +170,5 @@ void RegisterExternalReferences(
 }  // namespace policy
 }  // namespace node
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(policy, node::policy::Initialize)
-NODE_MODULE_EXTERNAL_REFERENCE(policy, node::policy::RegisterExternalReferences)
+NODE_MODULE_CONTEXT_AWARE_INTERNAL(policy, node::permission::Initialize)
+NODE_MODULE_EXTERNAL_REFERENCE(policy, node::permission::RegisterExternalReferences)

@@ -4,10 +4,10 @@
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
 #include "node_options.h"
-#include "policy/policy_deny.h"
-#include "policy/policy_deny_child_process.h"
-#include "policy/policy_deny_fs.h"
-#include "policy/policy_deny_worker.h"
+#include "permissions/permission.h"
+#include "permissions/child_process_permission.h"
+#include "permissions/fs_permission.h"
+#include "permissions/worker_permission.h"
 #include "v8.h"
 
 #include <map>
@@ -17,34 +17,32 @@ namespace node {
 
 class Environment;
 
-namespace policy {
+namespace permission {
 
 #define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, resource_, ...)          \
   do {                                                                         \
-    if (UNLIKELY(!(env)->policy()->is_granted(perm_, resource_))) {            \
-      node::policy::Policy::ThrowAccessDenied((env), perm_);                   \
+    if (UNLIKELY(!(env)->permission()->is_granted(perm_, resource_))) {            \
+      node::permission::PermissionHandler::ThrowAccessDenied((env), perm_);                   \
       return __VA_ARGS__;                                                      \
     }                                                                          \
   } while (0)
 
-class Policy {
+class PermissionHandler {
  public:
-  Policy(): enabled_(false) {
-    std::shared_ptr<PolicyDeny> deny_fs = std::make_shared<PolicyDenyFs>();
-    std::shared_ptr<PolicyDeny> deny_child_p =
-        std::make_shared<PolicyDenyChildProcess>();
-    std::shared_ptr<PolicyDeny> deny_worker_t =
-        std::make_shared<PolicyDenyWorker>();
+  PermissionHandler(): enabled_(false) {
+    std::shared_ptr<PermissionNode> fs = std::make_shared<FSPermission>();
+    std::shared_ptr<PermissionNode> child_p = std::make_shared<ChildProcessPermission>();
+    std::shared_ptr<PermissionNode> worker_t = std::make_shared<WorkerPermission>();
 #define V(Name, _, __)                                                         \
-  deny_policies.insert(std::make_pair(Permission::k##Name, deny_fs));
+  perm.insert(std::make_pair(Permission::k##Name, fs));
     FILESYSTEM_PERMISSIONS(V)
 #undef V
 #define V(Name, _, __)                                                         \
-  deny_policies.insert(std::make_pair(Permission::k##Name, deny_child_p));
+  perm.insert(std::make_pair(Permission::k##Name, child_p));
     CHILD_PROCESS_PERMISSIONS(V)
 #undef V
 #define V(Name, _, __)                                                         \
-  deny_policies.insert(std::make_pair(Permission::k##Name, deny_worker_t));
+  perm.insert(std::make_pair(Permission::k##Name, worker_t));
     WORKER_THREADS_PERMISSIONS(V)
 #undef V
   }
@@ -52,8 +50,8 @@ class Policy {
     inline bool is_granted(const Permission permission, const char* res) {
       std::cout << "Checking... " << PermissionToString(permission) << " " << res << std::endl;
       if (!enabled_) return true;
-      auto policy = deny_policies.find(permission);
-      if (policy != deny_policies.end()) {
+      auto policy = perm.find(permission);
+      if (policy != perm.end()) {
         auto ret = policy->second->is_granted(permission, res);
         std::cout << " R: " << ret << std::endl;
         return ret;
@@ -77,7 +75,7 @@ class Policy {
     void EnablePermissions();
 
  private:
-    std::map<Permission, std::shared_ptr<PolicyDeny>> deny_policies;
+    std::map<Permission, std::shared_ptr<PermissionNode>> perm;
     bool enabled_;
 };
 

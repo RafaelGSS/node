@@ -9,7 +9,7 @@
 
 namespace node {
 
-namespace policy {
+namespace permission {
 
 #define FILESYSTEM_PERMISSIONS(V)                                              \
   V(FileSystem, "fs", PermissionsRoot)                                         \
@@ -34,7 +34,7 @@ enum class Permission {
 };
 #undef V
 
-class PolicyDeny {
+class PermissionNode {
  public:
   virtual void Apply(const std::string& deny) = 0;
   virtual bool Deny(Permission scope,
@@ -42,7 +42,7 @@ class PolicyDeny {
   virtual bool is_granted(Permission perm, const std::string& param = "") = 0;
 };
 
-}  // namespace policy
+}  // namespace permission
 
 }  // namespace node
 

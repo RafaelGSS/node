@@ -5,14 +5,14 @@
 
 #include "v8.h"
 
-#include "policy/policy_deny.h"
+#include "permissions/permission.h"
 #include <vector>
 
 namespace node {
 
-namespace policy {
+namespace permission {
 
-class PolicyDenyFs final : public PolicyDeny {
+class FSPermission final : public PermissionNode {
  public:
   void Apply(const std::string& deny) override;
   bool Deny(Permission scope, const std::vector<std::string>& params) override;
@@ -115,7 +115,7 @@ class PolicyDenyFs final : public PolicyDeny {
   bool deny_all_out_ = true;
 };
 
-}  // namespace policy
+}  // namespace permission
 
 }  // namespace node
 
