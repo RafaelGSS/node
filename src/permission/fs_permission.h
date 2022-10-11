@@ -1,11 +1,11 @@
-#ifndef SRC_POLICY_POLICY_DENY_FS_H_
-#define SRC_POLICY_POLICY_DENY_FS_H_
+#ifndef SRC_PERMISSIONS_FS_PERMISSION_H_
+#define SRC_PERMISSIONS_FS_PERMISSION_H_
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
 #include "v8.h"
 
-#include "permissions/permission.h"
+#include "permission/permission_node.h"
 #include <vector>
 
 namespace node {
@@ -15,8 +15,8 @@ namespace permission {
 class FSPermission final : public PermissionNode {
  public:
   void Apply(const std::string& deny) override;
-  bool Deny(Permission scope, const std::vector<std::string>& params) override;
-  bool is_granted(Permission perm, const std::string& param) override;
+  bool Deny(PermissionScope scope, const std::vector<std::string>& params) override;
+  bool is_granted(PermissionScope perm, const std::string& param) override;
 
   struct RadixTree {
     struct Node {
@@ -96,8 +96,8 @@ class FSPermission final : public PermissionNode {
   };
 
  private:
-  void GrantAccess(Permission scope, std::string param);
-  void RestrictAccess(Permission scope, const std::vector<std::string>& params);
+  void GrantAccess(PermissionScope scope, std::string param);
+  void RestrictAccess(PermissionScope scope, const std::vector<std::string>& params);
   // /tmp/* --grant
   // /tmp/dsadsa/t.js denied in runtime
   //
@@ -120,4 +120,4 @@ class FSPermission final : public PermissionNode {
 }  // namespace node
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
-#endif  // SRC_POLICY_POLICY_DENY_FS_H_
+#endif  // SRC_PERMISSIONS_FS_PERMISSION_H_

@@ -884,20 +884,23 @@ Environment::Environment(IsolateData* isolate_data,
                                       "args",
                                       std::move(traced_value));
   }
-  // If any permission is set the process shouldn't be able to spawn/worker
-  // unless explicitly allowed by the user
-  if (!options_->allow_fs.empty()) {
-    if (!options_->allow_spawn) {
-      permission()->Deny(permission::Permission::kChildProcess, {});
-    }
-    if (!options_->allow_worker_threads) {
-      permission()->Deny(permission::Permission::kWorkerThreads, {});
-    }
-  }
 
-  permission()->Apply(
+  if (options_->experimental_permission) {
+    // If any permission is set the process shouldn't be able to spawn/worker
+    // unless explicitly allowed by the user
+    if (!options_->allow_fs.empty()) {
+      if (!options_->allow_spawn) {
+        permission()->Deny(permission::PermissionScope::kChildProcess, {});
+      }
+      if (!options_->allow_worker_threads) {
+        permission()->Deny(permission::PermissionScope::kWorkerThreads, {});
+      }
+    }
+
+    permission()->Apply(
         options_->allow_fs,
-        permission::Permission::kFileSystem);
+        permission::PermissionScope::kFileSystem);
+  }
 }
 
 Environment::Environment(IsolateData* isolate_data, Local<Context> context,

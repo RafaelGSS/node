@@ -20,19 +20,19 @@ namespace permission {
 // allow = 'read:/tmp/,out:./example.js'
 void FSPermission::Apply(const std::string& allow) {
   for (const auto& name : SplitString(allow, ',')) {
-    Permission perm = Permission::kPermissionsRoot;
+    PermissionScope perm = PermissionScope::kPermissionsRoot;
     for (std::string& opt : SplitString(name, ':')) {
-      if (perm == Permission::kPermissionsRoot) {
+      if (perm == PermissionScope::kPermissionsRoot) {
         if (opt == "fs") {
           deny_all_in_ = false;
           deny_all_out_ = false;
           return;
         }
         if (opt == "read") {
-          perm = Permission::kFileSystemIn;
+          perm = PermissionScope::kFileSystemIn;
           deny_all_in_ = false;
         } else if (opt == "write") {
-          perm = Permission::kFileSystemOut;
+          perm = PermissionScope::kFileSystemOut;
           deny_all_out_ = false;
         } else {
           return;
@@ -44,16 +44,16 @@ void FSPermission::Apply(const std::string& allow) {
   }
 }
 
-bool FSPermission::Deny(Permission perm,
+bool FSPermission::Deny(PermissionScope perm,
                         const std::vector<std::string>& params) {
-  if (perm == Permission::kFileSystem) {
+  if (perm == PermissionScope::kFileSystem) {
     deny_all_in_ = true;
     deny_all_out_ = true;
     return true;
   }
 
   bool deny_all = params.size() == 0;
-  if (perm == Permission::kFileSystemIn) {
+  if (perm == PermissionScope::kFileSystemIn) {
     if (deny_all) deny_all_in_ = true;
     // when deny_all_in is already true permission.deny should be idempotent
     if (deny_all_in_) return true;
@@ -63,7 +63,7 @@ bool FSPermission::Deny(Permission perm,
     return true;
   }
 
-  if (perm == Permission::kFileSystemOut) {
+  if (perm == PermissionScope::kFileSystemOut) {
     if (deny_all) deny_all_out_ = true;
     // when deny_all_out is already true permission.deny should be idempotent
     if (deny_all_out_) return true;
@@ -75,29 +75,29 @@ bool FSPermission::Deny(Permission perm,
   return false;
 }
 
-void FSPermission::GrantAccess(Permission perm, std::string res) {
+void FSPermission::GrantAccess(PermissionScope perm, std::string res) {
   std::filesystem::path path(res);
   const std::string original_path = res;
   if (std::filesystem::is_directory(path)) {
     // add wildcard when directory
     res = path / "*";
   }
-  if (perm == Permission::kFileSystemIn) {
+  if (perm == PermissionScope::kFileSystemIn) {
     granted_in_fs_.Insert(res);
-  } else if (perm == Permission::kFileSystemOut) {
+  } else if (perm == PermissionScope::kFileSystemOut) {
     granted_out_fs_.Insert(res);
   }
 }
 
-bool FSPermission::is_granted(Permission perm, const std::string& param = "") {
+bool FSPermission::is_granted(PermissionScope perm, const std::string& param = "") {
   std::cout << "Is granted..." << param << " - deny_all_in: " << deny_all_in_;
   switch (perm) {
-    case Permission::kFileSystem:
+    case PermissionScope::kFileSystem:
       return !(deny_all_in_ && deny_all_out_);
-    case Permission::kFileSystemIn:
+    case PermissionScope::kFileSystemIn:
       return !deny_all_in_ &&
         (param.empty() || (!deny_in_fs_.Lookup(param) && granted_in_fs_.Lookup(param)));
-    case Permission::kFileSystemOut:
+    case PermissionScope::kFileSystemOut:
       return !deny_all_out_ &&
         (param.empty() || (!deny_out_fs_.Lookup(param) && granted_out_fs_.Lookup(param)));
     default:

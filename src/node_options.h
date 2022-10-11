@@ -118,6 +118,7 @@ class EnvironmentOptions : public Options {
   std::string experimental_policy;
   std::string experimental_policy_integrity;
   bool has_policy_integrity_string = false;
+  bool experimental_permission = false;
   std::string allow_fs;
   bool allow_spawn = false;
   bool allow_worker_threads = false;

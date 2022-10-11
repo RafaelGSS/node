@@ -9,7 +9,7 @@
 #include "node_options-inl.h"
 #include "node_perf.h"
 #include "node_snapshot_builder.h"
-#include "policy/policy.h"
+#include "permission/permission.h"
 #include "util-inl.h"
 
 #include <memory>
@@ -442,7 +442,7 @@ Worker::~Worker() {
 void Worker::New(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kWorkerThreads, "");
+      env, permission::PermissionScope::kWorkerThreads, "");
   Isolate* isolate = args.GetIsolate();
 
   CHECK(args.IsConstructCall());
