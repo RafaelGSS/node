@@ -1,7 +1,6 @@
-// Call fs.readFile over and over again really fast.
+// Call fs.readFile with permission system enabled
+// over and over again really fast.
 // Then see how many times it got called.
-// Yes, this is a silly benchmark.  Most benchmarks are silly.
-// Flags: --policy-deny-fs=in:/tmp/,.gitignore
 'use strict';
 
 const path = require('path');
@@ -14,10 +13,14 @@ tmpdir.refresh();
 const filename = path.resolve(tmpdir.path,
                               `.removeme-benchmark-garbage-${process.pid}`);
 
+const rootPath = path.resolve(__dirname, '../../')
+
 const bench = common.createBenchmark(main, {
   duration: [5],
   len: [1024, 16 * 1024 * 1024],
-  concurrent: [1, 10]
+  concurrent: [1, 10],
+}, {
+  flags: ['--experimental-permission', `--allow-fs=read:${rootPath},write:${rootPath}`]
 });
 
 function main({ len, duration, concurrent }) {

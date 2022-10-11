@@ -1,13 +1,21 @@
 'use strict';
-const common = require('../../common.js');
+const common = require('../common.js');
 const fs = require('fs/promises');
 const path = require('path');
 
 const configs = {
-  n: [1e5]
+  n: [1e5],
+  concurrent: [1, 10],
 };
 
-const options = {};
+const rootPath = path.resolve(__dirname, '../../..')
+
+const options = {
+  flags: [
+    '--experimental-permission',
+    `--allow-fs=read:${rootPath}`,
+  ]
+};
 
 const bench = common.createBenchmark(main, configs, options);
 
@@ -17,7 +25,7 @@ const recursivelyDenyFiles = async (dir) => {
     if (file.isDirectory()) {
       await recursivelyDenyFiles(path.join(dir, file.name));
     } else if (file.isFile()) {
-      process.policy.deny('fs.in', [path.join(dir, file.name)]);
+      process.permission.deny('fs.read', [path.join(dir, file.name)]);
     }
   }
 };
@@ -31,11 +39,11 @@ async function main(conf) {
 
   for (let i = 0; i < conf.n; i++) {
     // Valid file in a sequence of denied files
-    process.policy.check('fs.in', benchmarkDir + '/valid-file');
+    process.permission.check('fs.read', benchmarkDir + '/valid-file');
     // Denied file
-    process.policy.check('fs.in', __filename);
+    process.permission.check('fs.read', __filename);
     // Valid file a granted directory
-    process.policy.check('fs.in', '/tmp/example');
+    process.permission.check('fs.read', '/tmp/example');
   }
 
   bench.end(conf.n);

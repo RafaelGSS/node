@@ -90,7 +90,7 @@ void FSPermission::GrantAccess(PermissionScope perm, std::string res) {
 }
 
 bool FSPermission::is_granted(PermissionScope perm, const std::string& param = "") {
-  std::cout << "Is granted..." << param << " - deny_all_in: " << deny_all_in_;
+  /* std::cout << "Is granted..." << param << " - deny_all_in: " << deny_all_in_; */
   switch (perm) {
     case PermissionScope::kFileSystem:
       return !(deny_all_in_ && deny_all_out_);
@@ -157,7 +157,7 @@ bool FSPermission::RadixTree::Lookup(const std::string& s) {
 }
 
 void FSPermission::RadixTree::Insert(const std::string& path) {
-  std::cout << "Inserting..." << path << std::endl;
+  /* std::cout << "Inserting..." << path << std::endl; */
   FSPermission::RadixTree::Node* current_node = root_node_;
 
   unsigned int parent_node_prefix_len = current_node->prefix.length();
