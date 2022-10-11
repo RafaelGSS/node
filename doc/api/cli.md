@@ -100,6 +100,16 @@ If this flag is passed, the behavior can still be set to not abort through
 [`process.setUncaughtExceptionCaptureCallback()`][] (and through usage of the
 `node:domain` module that uses it).
 
+### `--allow-fs`
+
+<!-- YAML
+added: REPLACEME
+-->
+
+> Stability: 1 - Experimental
+
+TODO
+
 ### `--allow-spawn`
 
 <!-- YAML
@@ -123,7 +133,7 @@ childProcess.spawn('node', ['-e', 'require("fs").writeFileSync("/new-file", "exa
 ```
 
 ```console
-$ node --policy-deny-fs=out index.js
+$ node --experimental-permission --allow-fs=read index.js
 node:internal/child_process:388
   const err = this._handle.spawn(options);
                            ^
@@ -165,7 +175,7 @@ new Worker(__filename);
 ```
 
 ```console
-$ node --policy-deny-fs=out index.js
+$ node --experimental-permission --allow-fs=read index.js
 node:internal/worker:188
     this[kHandle] = new WorkerImpl(url,
                     ^
@@ -417,6 +427,14 @@ added:
 > Stability: 1 - Experimental
 
 Enable experimental support for the `https:` protocol in `import` specifiers.
+
+### `--experimental-permission`
+
+<!-- YAML
+added: REPLACEME
+-->
+
+Enable Permission System to the current environment.
 
 ### `--experimental-policy`
 
@@ -915,16 +933,6 @@ unless either the `--pending-deprecation` command-line flag, or the
 `NODE_PENDING_DEPRECATION=1` environment variable, is set. Pending deprecations
 are used to provide a kind of selective "early warning" mechanism that
 developers may leverage to detect deprecated API usage.
-
-### `--policy-deny-fs`
-
-<!-- YAML
-added: REPLACEME
--->
-
-> Stability: 1 - Experimental
-
-TODO
 
 ### `--policy-integrity=sri`
 
@@ -1749,6 +1757,7 @@ Node.js options that are allowed are:
 
 * `--allow-spawn`
 * `--allow-worker`
+* `--allow-fs`
 * `--conditions`, `-C`
 * `--diagnostic-dir`
 * `--disable-proto`
@@ -1763,6 +1772,7 @@ Node.js options that are allowed are:
 * `--experimental-loader`
 * `--experimental-modules`
 * `--experimental-network-imports`
+* `--experimental-permission`
 * `--experimental-policy`
 * `--experimental-shadow-realm`
 * `--experimental-specifier-resolution`
@@ -1799,7 +1809,6 @@ Node.js options that are allowed are:
 * `--openssl-legacy-provider`
 * `--openssl-shared-config`
 * `--pending-deprecation`
-* `--policy-deny-fs`
 * `--policy-integrity`
 * `--preserve-symlinks-main`
 * `--preserve-symlinks`
