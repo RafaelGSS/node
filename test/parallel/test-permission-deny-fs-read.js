@@ -1,4 +1,4 @@
-// Flags: --allow-fs=read:/home/rafaelgss/repos/os/node/
+// Flags: --experimental-permission --allow-fs=read:/home/rafaelgss/repos/os/node/
 'use strict';
 
 const common = require('../common');
@@ -14,7 +14,7 @@ const blockedFolder = '/tmp/';
 const regularFile = __filename;
 
 {
-  assert.ok(process.policy.deny('fs.in', [blockedFile]));
+  assert.ok(process.permission.deny('fs.read', [blockedFile]));
 }
 
 // fs.readFile

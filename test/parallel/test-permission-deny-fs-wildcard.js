@@ -8,7 +8,7 @@ const assert = require('assert');
 const fs = require('fs');
 
 {
-  assert.ok(process.policy.deny('fs.in', [
+  assert.ok(process.permission.deny('fs.read', [
     '/tmp/',
     '/example/foo*',
     '/example/bar*',
@@ -18,9 +18,9 @@ const fs = require('fs');
     '/slown',
   ]));
 
-  assert.ok(process.policy.check('fs.in', '/slow'))
-  assert.ok(process.policy.check('fs.in', '/slows'))
-  assert.ok(process.policy.check('fs.in', '/slown'))
+  assert.ok(process.permission.check('fs.read', '/slow'))
+  assert.ok(process.permission.check('fs.read', '/slows'))
+  assert.ok(process.permission.check('fs.read', '/slown'))
 }
 
 {

@@ -1,4 +1,4 @@
-// Flags: --allow-worker --policy-deny-fs=out
+// Flags: --allow-worker --allo-write=out
 'use strict';
 
 require('../common');
@@ -11,7 +11,7 @@ if (!isMainThread) {
 
 // Guarantee the initial state
 {
-  assert.ok(!process.policy.check('fs.out'));
+  assert.ok(!process.permission.check('fs.write'));
 }
 
 // When a permission is set by cli, the process shouldn't be able

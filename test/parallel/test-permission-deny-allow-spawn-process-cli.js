@@ -1,4 +1,4 @@
-// Flags: --allow-spawn --policy-deny-fs=out
+// Flags: --allow-spawn --allow-write=out
 'use strict';
 
 require('../common');
@@ -11,7 +11,7 @@ if (process.argv[2] === 'child') {
 
 // Guarantee the initial state
 {
-  assert.ok(!process.policy.check('fs.out'));
+  assert.ok(!process.permission.check('fs.write'));
 }
 
 // When a permission is set by cli, the process shouldn't be able

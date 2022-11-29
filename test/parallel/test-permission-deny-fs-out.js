@@ -8,15 +8,15 @@ const assert = require('assert');
 const fs = require('fs');
 const fixtures = require('../common/fixtures');
 
-const blockedFolder = fixtures.path('policy', 'deny', 'protected-folder');
-const blockedFile = fixtures.path('policy', 'deny', 'protected-file.md');
+const blockedFolder = fixtures.path('permission', 'deny', 'protected-folder');
+const blockedFile = fixtures.path('permission', 'deny', 'protected-file.md');
 
-const regularFolder = fixtures.path('policy', 'deny');
-const regularFile = fixtures.path('policy', 'deny', 'regular-file.md');
+const regularFolder = fixtures.path('permission', 'deny');
+const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
 
 {
-  assert.ok(process.policy.deny('fs.out', [blockedFolder]));
-  assert.ok(process.policy.deny('fs.out', [blockedFile]));
+  assert.ok(process.permission.deny('fs.write', [blockedFolder]));
+  assert.ok(process.permission.deny('fs.write', [blockedFile]));
 }
 
 // fs.writeFile
