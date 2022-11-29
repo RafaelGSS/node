@@ -17,7 +17,7 @@ namespace permission {
 
 // allow = 'read,write'
 // allow = 'read:/tmp/'
-// allow = 'read:/tmp/,out:./example.js'
+// allow = 'read:/tmp/,write:./example.js'
 void FSPermission::Apply(const std::string& allow) {
   for (const auto& name : SplitString(allow, ',')) {
     PermissionScope perm = PermissionScope::kPermissionsRoot;
@@ -31,9 +31,11 @@ void FSPermission::Apply(const std::string& allow) {
         if (opt == "read") {
           perm = PermissionScope::kFileSystemIn;
           deny_all_in_ = false;
+          allow_all_in_ = true;
         } else if (opt == "write") {
           perm = PermissionScope::kFileSystemOut;
           deny_all_out_ = false;
+          allow_all_out_ = true;
         } else {
           return;
         }
@@ -57,6 +59,7 @@ bool FSPermission::Deny(PermissionScope perm,
     if (deny_all) deny_all_in_ = true;
     // when deny_all_in is already true permission.deny should be idempotent
     if (deny_all_in_) return true;
+    allow_all_in_ = false;
 
     for (auto& param : params)
       deny_in_fs_.Insert(param);
@@ -67,6 +70,7 @@ bool FSPermission::Deny(PermissionScope perm,
     if (deny_all) deny_all_out_ = true;
     // when deny_all_out is already true permission.deny should be idempotent
     if (deny_all_out_) return true;
+    allow_all_out_ = false;
 
     for (auto& param : params)
       deny_out_fs_.Insert(param);
@@ -84,22 +88,23 @@ void FSPermission::GrantAccess(PermissionScope perm, std::string res) {
   }
   if (perm == PermissionScope::kFileSystemIn) {
     granted_in_fs_.Insert(res);
+    allow_all_in_ = false;
   } else if (perm == PermissionScope::kFileSystemOut) {
     granted_out_fs_.Insert(res);
+    allow_all_out_ = false;
   }
 }
 
 bool FSPermission::is_granted(PermissionScope perm, const std::string& param = "") {
-  /* std::cout << "Is granted..." << param << " - deny_all_in: " << deny_all_in_; */
   switch (perm) {
     case PermissionScope::kFileSystem:
       return !(deny_all_in_ && deny_all_out_);
     case PermissionScope::kFileSystemIn:
       return !deny_all_in_ &&
-        (param.empty() || (!deny_in_fs_.Lookup(param) && granted_in_fs_.Lookup(param)));
+        (allow_all_in_ || param.empty() || (!deny_in_fs_.Lookup(param) && granted_in_fs_.Lookup(param)));
     case PermissionScope::kFileSystemOut:
       return !deny_all_out_ &&
-        (param.empty() || (!deny_out_fs_.Lookup(param) && granted_out_fs_.Lookup(param)));
+        (allow_all_out_ || param.empty() || (!deny_out_fs_.Lookup(param) && granted_out_fs_.Lookup(param)));
     default:
       return false;
   }

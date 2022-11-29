@@ -113,6 +113,8 @@ class FSPermission final : public PermissionNode {
 
   bool deny_all_in_ = true;
   bool deny_all_out_ = true;
+  bool allow_all_in_ = false;
+  bool allow_all_out_ = false;
 };
 
 }  // namespace permission

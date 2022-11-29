@@ -1,4 +1,4 @@
-// Flags: --allow-spawn --allow-write=out
+// Flags: --experimental-permission --allow-spawn --allow-fs=read
 'use strict';
 
 require('../common');

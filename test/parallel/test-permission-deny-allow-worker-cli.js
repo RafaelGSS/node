@@ -1,4 +1,4 @@
-// Flags: --allow-worker --allo-write=out
+// Flags: --experimental-permission --allow-worker --allow-fs=read
 'use strict';
 
 require('../common');
