@@ -1,4 +1,4 @@
-// Flags: --experimental-permission --allow-fs=read:/home/rafaelgss/repos/os/node/
+// Flags: --experimental-permission --allow-fs=read
 'use strict';
 
 const common = require('../common');
@@ -9,12 +9,12 @@ const assert = require('assert');
 const fs = require('fs');
 const fixtures = require('../common/fixtures');
 
-const blockedFile = fixtures.path('permissions', 'deny', 'protected-file.md');
+const blockedFile = fixtures.path('permission', 'deny', 'protected-file.md');
 const blockedFolder = '/tmp/';
 const regularFile = __filename;
 
 {
-  assert.ok(process.permission.deny('fs.read', [blockedFile]));
+  assert.ok(process.permission.deny('fs.read', [blockedFile, blockedFolder]));
 }
 
 // fs.readFile
@@ -184,8 +184,9 @@ const regularFile = __filename;
   }));
 
   // doesNotThrow
-  fs.opendir(__dirname, (err) => {
+  fs.opendir(__dirname, (err, dir) => {
     assert.ifError(err);
+    dir.closeSync();
   });
 }
 

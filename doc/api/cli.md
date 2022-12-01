@@ -1755,9 +1755,9 @@ Node.js options that are allowed are:
 
 <!-- node-options-node start -->
 
+* `--allow-fs`
 * `--allow-spawn`
 * `--allow-worker`
-* `--allow-fs`
 * `--conditions`, `-C`
 * `--diagnostic-dir`
 * `--disable-proto`
