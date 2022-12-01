@@ -1,4 +1,4 @@
-// Flags: --experimental-permission
+// Flags: --experimental-permission --allow-fs=read --allow-spawn
 'use strict';
 
 const common = require('../common');
