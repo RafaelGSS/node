@@ -132,7 +132,7 @@ void Permission::EnablePermissions() {
 }
 
 void Permission::Apply(const std::string& allow, PermissionScope scope) {
-  if (!allow.empty()) EnablePermissions();
+  EnablePermissions();
   auto permission = nodes_.find(scope);
   if (permission != nodes_.end()) {
     permission->second->Apply(allow);
@@ -140,7 +140,6 @@ void Permission::Apply(const std::string& allow, PermissionScope scope) {
 }
 
 bool Permission::Deny(PermissionScope scope, const std::vector<std::string>& params) {
-  EnablePermissions();
   auto permission = nodes_.find(scope);
   if (permission != nodes_.end()) {
     return permission->second->Deny(scope, params);

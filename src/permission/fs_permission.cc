@@ -15,6 +15,15 @@ namespace node {
 
 namespace permission {
 
+std::string WildcardIfDir(std::string res) {
+  std::filesystem::path path(res);
+  if (std::filesystem::is_directory(path)) {
+    // add wildcard when directory
+    res = path / "*";
+  }
+
+  return res;
+}
 // allow = 'read,write'
 // allow = 'read:/tmp/'
 // allow = 'read:/tmp/,write:./example.js'
@@ -60,9 +69,9 @@ bool FSPermission::Deny(PermissionScope perm,
     // when deny_all_in is already true permission.deny should be idempotent
     if (deny_all_in_) return true;
     allow_all_in_ = false;
-
-    for (auto& param : params)
-      deny_in_fs_.Insert(param);
+    for (auto& param : params) {
+      deny_in_fs_.Insert(WildcardIfDir(param));
+    }
     return true;
   }
 
@@ -72,20 +81,16 @@ bool FSPermission::Deny(PermissionScope perm,
     if (deny_all_out_) return true;
     allow_all_out_ = false;
 
-    for (auto& param : params)
-      deny_out_fs_.Insert(param);
+    for (auto& param : params) {
+      deny_out_fs_.Insert(WildcardIfDir(param));
+    }
     return true;
   }
   return false;
 }
 
 void FSPermission::GrantAccess(PermissionScope perm, std::string res) {
-  std::filesystem::path path(res);
-  const std::string original_path = res;
-  if (std::filesystem::is_directory(path)) {
-    // add wildcard when directory
-    res = path / "*";
-  }
+  const std::string path = WildcardIfDir(res);
   if (perm == PermissionScope::kFileSystemIn) {
     granted_in_fs_.Insert(res);
     allow_all_in_ = false;
@@ -101,10 +106,10 @@ bool FSPermission::is_granted(PermissionScope perm, const std::string& param = "
       return !(deny_all_in_ && deny_all_out_);
     case PermissionScope::kFileSystemIn:
       return !deny_all_in_ &&
-        (allow_all_in_ || param.empty() || (!deny_in_fs_.Lookup(param) && granted_in_fs_.Lookup(param)));
+        (allow_all_in_ || param.empty() || (!deny_in_fs_.Lookup(param) && granted_in_fs_.Lookup(param, true)));
     case PermissionScope::kFileSystemOut:
       return !deny_all_out_ &&
-        (allow_all_out_ || param.empty() || (!deny_out_fs_.Lookup(param) && granted_out_fs_.Lookup(param)));
+        (allow_all_out_ || param.empty() || (!deny_out_fs_.Lookup(param) && granted_out_fs_.Lookup(param, true)));
     default:
       return false;
   }
@@ -133,10 +138,10 @@ FSPermission::RadixTree::~RadixTree() {
   FreeRecursivelyNode(root_node_);
 }
 
-bool FSPermission::RadixTree::Lookup(const std::string& s) {
+bool FSPermission::RadixTree::Lookup(const std::string& s, bool when_empty_return = false) {
   FSPermission::RadixTree::Node* current_node = root_node_;
   if (current_node->children.size() == 0) {
-    return false;
+    return when_empty_return;
   }
 
   unsigned int parent_node_prefix_len = current_node->prefix.length();
@@ -155,14 +160,13 @@ bool FSPermission::RadixTree::Lookup(const std::string& s) {
     current_node = node;
     parent_node_prefix_len += current_node->prefix.length();
     if (current_node->wildcard_child != nullptr &&
-        path_len >= parent_node_prefix_len) {
+        path_len >= (parent_node_prefix_len - 2 /* slash* */)) {
       return true;
     }
   }
 }
 
 void FSPermission::RadixTree::Insert(const std::string& path) {
-  /* std::cout << "Inserting..." << path << std::endl; */
   FSPermission::RadixTree::Node* current_node = root_node_;
 
   unsigned int parent_node_prefix_len = current_node->prefix.length();

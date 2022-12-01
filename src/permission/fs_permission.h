@@ -89,7 +89,10 @@ class FSPermission final : public PermissionNode {
     RadixTree();
     ~RadixTree();
     void Insert(const std::string& s);
-    bool Lookup(const std::string& s);
+    bool Lookup(const std::string& s) {
+      return Lookup(s, false);
+    }
+    bool Lookup(const std::string& s, bool when_empty_return);
 
    private:
     Node* root_node_;
@@ -113,6 +116,7 @@ class FSPermission final : public PermissionNode {
 
   bool deny_all_in_ = true;
   bool deny_all_out_ = true;
+
   bool allow_all_in_ = false;
   bool allow_all_out_ = false;
 };

@@ -1,12 +1,12 @@
-// Flags: --experimental-permission
+// Flags: --experimental-permission --allow-fs=read,write
 'use strict';
 
 const common = require('../common');
+
 const fs = require('fs');
 const fsPromises = require('node:fs/promises');
 const assert = require('assert');
 const fixtures = require('../common/fixtures');
-
 
 const protectedFolder = fixtures.path('permission', 'deny');
 const protectedFile = fixtures.path('permission', 'deny', 'protected-file.md');
@@ -39,8 +39,8 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
   assert.ok(process.permission.check('fs.read'));
   assert.ok(process.permission.check('fs.write'));
 
-  assert.ok(!process.permission.check('fs.read', protectedFile));
   assert.ok(process.permission.check('fs.read', regularFile));
+  assert.ok(!process.permission.check('fs.read', protectedFile));
 
   assert.ok(process.permission.check('fs.write', protectedFolder));
   assert.ok(process.permission.check('fs.write', regularFile));
@@ -81,5 +81,15 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
+  }));
+}
+
+// should not crash if wrong parameter is provided
+{
+  // array is expected as second parameter
+  assert.throws(() => {
+    process.permission.deny('fs.read', protectedFolder)
+  }, common.expectsError({
+    code: 'ERR_INVALID_ARG_TYPE',
   }));
 }

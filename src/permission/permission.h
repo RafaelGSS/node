@@ -48,13 +48,10 @@ class Permission {
   }
 
     inline bool is_granted(const PermissionScope permission, const char* res) {
-      /* std::cout << "Checking... " << PermissionToString(permission) << " " << res << std::endl; */
       if (!enabled_) return true;
       auto perm_node = nodes_.find(permission);
       if (perm_node != nodes_.end()) {
-        auto ret = perm_node->second->is_granted(permission, res);
-        /* std::cout << " R: " << ret << std::endl; */
-        return ret;
+        return perm_node->second->is_granted(permission, res);
       }
       return false;
     }
