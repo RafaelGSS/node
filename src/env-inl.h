@@ -327,8 +327,8 @@ inline TickInfo* Environment::tick_info() {
   return &tick_info_;
 }
 
-inline policy::Policy* Environment::policy() {
-  return &policy_;
+inline permission::Permission* Environment::permission() {
+  return &permission_;
 }
 
 inline uint64_t Environment::timer_base() const {

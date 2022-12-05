@@ -23,7 +23,7 @@
 #include "stream_base-inl.h"
 #include "stream_wrap.h"
 #include "util-inl.h"
-#include "policy/policy.h"
+#include "permission/permission.h"
 
 #include <cstring>
 #include <cstdlib>
@@ -148,7 +148,7 @@ class ProcessWrap : public HandleWrap {
     ProcessWrap* wrap;
     ASSIGN_OR_RETURN_UNWRAP(&wrap, args.Holder());
     THROW_IF_INSUFFICIENT_PERMISSIONS(
-        env, policy::Permission::kChildProcess, "");
+        env, permission::PermissionScope::kChildProcess, "");
 
     Local<Object> js_options =
         args[0]->ToObject(env->context()).ToLocalChecked();

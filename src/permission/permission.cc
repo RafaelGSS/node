@@ -1,4 +1,4 @@
-#include "policy.h"
+#include "permission.h"
 #include "base_object-inl.h"
 #include "env-inl.h"
 #include "memory_tracker-inl.h"
@@ -25,12 +25,12 @@ using v8::Object;
 using v8::String;
 using v8::Value;
 
-namespace policy {
+namespace permission {
 
 namespace {
 
-// policy.deny('fs.in', ['/tmp/'])
-// policy.deny('fs.in')
+// permission.deny('fs.read', ['/tmp/'])
+// permission.deny('fs.read')
 static void Deny(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   v8::Isolate* isolate = env->isolate();
@@ -39,8 +39,8 @@ static void Deny(const FunctionCallbackInfo<Value>& args) {
   CHECK(args.Length() == 1 || (args[1]->IsUndefined() || args[1]->IsArray()));
 
   std::string deny_scope = *String::Utf8Value(isolate, args[0]);
-  Permission scope = Policy::StringToPermission(deny_scope);
-  if (scope == Permission::kPermissionsRoot) {
+  PermissionScope scope = Permission::StringToPermission(deny_scope);
+  if (scope == PermissionScope::kPermissionsRoot) {
     return args.GetReturnValue().Set(false);
   }
 
@@ -61,11 +61,11 @@ static void Deny(const FunctionCallbackInfo<Value>& args) {
   }
 
   return args.GetReturnValue()
-    .Set(env->policy()->Deny(scope, params));
+    .Set(env->permission()->Deny(scope, params));
 }
 
-// policy.check('fs.in', '/tmp/')
-// policy.check('fs.in')
+// permission.check('fs.in', '/tmp/')
+// permission.check('fs.in')
 static void Check(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   v8::Isolate* isolate = env->isolate();
@@ -77,8 +77,8 @@ static void Check(const FunctionCallbackInfo<Value>& args) {
   }
 
   const std::string deny_scope = *utf8_deny_scope;
-  Permission scope = Policy::StringToPermission(deny_scope);
-  if (scope == Permission::kPermissionsRoot) {
+  PermissionScope scope = Permission::StringToPermission(deny_scope);
+  if (scope == PermissionScope::kPermissionsRoot) {
     return args.GetReturnValue().Set(false);
   }
 
@@ -88,31 +88,31 @@ static void Check(const FunctionCallbackInfo<Value>& args) {
       return;
     }
     return args.GetReturnValue()
-      .Set(env->policy()->is_granted(scope, *utf8_arg));
+      .Set(env->permission()->is_granted(scope, *utf8_arg));
   }
 
-  return args.GetReturnValue().Set(env->policy()->is_granted(scope));
+  return args.GetReturnValue().Set(env->permission()->is_granted(scope));
 }
 
 }  // namespace
 
 #define V(Name, label, _)                                                      \
-  if (perm == Permission::k##Name) return #Name;
-const char* Policy::PermissionToString(const Permission perm) {
+  if (perm == PermissionScope::k##Name) return #Name;
+const char* Permission::PermissionToString(const PermissionScope perm) {
   PERMISSIONS(V)
   return nullptr;
 }
 #undef V
 
 #define V(Name, label, _)                                                      \
-  if (perm == label) return Permission::k##Name;
-Permission Policy::StringToPermission(const std::string& perm) {
+  if (perm == label) return PermissionScope::k##Name;
+PermissionScope Permission::StringToPermission(const std::string& perm) {
   PERMISSIONS(V)
-  return Permission::kPermissionsRoot;
+  return PermissionScope::kPermissionsRoot;
 }
 #undef V
 
-void Policy::ThrowAccessDenied(Environment* env, Permission perm) {
+void Permission::ThrowAccessDenied(Environment* env, PermissionScope perm) {
   Local<Value> err = ERR_ACCESS_DENIED(env->isolate());
   CHECK(err->IsObject());
   err.As<Object>()->Set(
@@ -125,17 +125,25 @@ void Policy::ThrowAccessDenied(Environment* env, Permission perm) {
   env->isolate()->ThrowException(err);
 }
 
-void Policy::Apply(const std::string& deny, Permission scope) {
-  auto policy = deny_policies.find(scope);
-  if (policy != deny_policies.end()) {
-    policy->second->Apply(deny);
+void Permission::EnablePermissions() {
+  if (!enabled_) {
+    enabled_ = true;
   }
 }
 
-bool Policy::Deny(Permission scope, const std::vector<std::string>& params) {
-  auto policy = deny_policies.find(scope);
-  if (policy != deny_policies.end()) {
-    return policy->second->Deny(scope, params);
+void Permission::Apply(const std::string& allow, PermissionScope scope) {
+  EnablePermissions();
+  auto permission = nodes_.find(scope);
+  if (permission != nodes_.end()) {
+    permission->second->Apply(allow);
+  }
+}
+
+bool Permission::Deny(PermissionScope scope,
+                      const std::vector<std::string>& params) {
+  auto permission = nodes_.find(scope);
+  if (permission != nodes_.end()) {
+    return permission->second->Deny(scope, params);
   }
   return false;
 }
@@ -157,8 +165,9 @@ void RegisterExternalReferences(
   registry->Register(Check);
 }
 
-}  // namespace policy
+}  // namespace permission
 }  // namespace node
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(policy, node::policy::Initialize)
-NODE_MODULE_EXTERNAL_REFERENCE(policy, node::policy::RegisterExternalReferences)
+NODE_MODULE_CONTEXT_AWARE_INTERNAL(permission, node::permission::Initialize)
+NODE_MODULE_EXTERNAL_REFERENCE(permission,
+                               node::permission::RegisterExternalReferences)

@@ -4,7 +4,7 @@
 #include "node_process-inl.h"
 #include "memory_tracker-inl.h"
 #include "util.h"
-#include "policy/policy.h"
+#include "permission/permission.h"
 
 #include "tracing/trace_event.h"
 
@@ -368,7 +368,7 @@ static void OpenDir(const FunctionCallbackInfo<Value>& args) {
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
   THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, policy::Permission::kFileSystemIn, *path);
+      env, permission::PermissionScope::kFileSystemIn, *path);
 
   const enum encoding encoding = ParseEncoding(isolate, args[1], UTF8);
 

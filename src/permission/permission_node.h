@@ -1,5 +1,5 @@
-#ifndef SRC_POLICY_POLICY_DENY_H_
-#define SRC_POLICY_POLICY_DENY_H_
+#ifndef SRC_PERMISSION_PERMISSION_NODE_H_
+#define SRC_PERMISSION_PERMISSION_NODE_H_
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
@@ -9,14 +9,15 @@
 
 namespace node {
 
-namespace policy {
+namespace permission {
 
 #define FILESYSTEM_PERMISSIONS(V)                                              \
   V(FileSystem, "fs", PermissionsRoot)                                         \
-  V(FileSystemIn, "fs.in", FileSystem)                                         \
-  V(FileSystemOut, "fs.out", FileSystem)
+  V(FileSystemIn, "fs.read", FileSystem)                                       \
+  V(FileSystemOut, "fs.write", FileSystem)
 
-#define CHILD_PROCESS_PERMISSIONS(V) V(ChildProcess, "child", PermissionsRoot)
+#define CHILD_PROCESS_PERMISSIONS(V) \
+  V(ChildProcess, "child", PermissionsRoot)
 
 #define WORKER_THREADS_PERMISSIONS(V)                                          \
   V(WorkerThreads, "worker", PermissionsRoot)
@@ -27,24 +28,25 @@ namespace policy {
   WORKER_THREADS_PERMISSIONS(V)
 
 #define V(name, _, __) k##name,
-enum class Permission {
+enum class PermissionScope {
   kPermissionsRoot = -1,
   PERMISSIONS(V)
   kPermissionsCount
 };
 #undef V
 
-class PolicyDeny {
+class PermissionNode {
  public:
   virtual void Apply(const std::string& deny) = 0;
-  virtual bool Deny(Permission scope,
+  virtual bool Deny(PermissionScope scope,
                     const std::vector<std::string>& params) = 0;
-  virtual bool is_granted(Permission perm, const std::string& param = "") = 0;
+  virtual bool is_granted(PermissionScope perm,
+                          const std::string& param = "") = 0;
 };
 
-}  // namespace policy
+}  // namespace permission
 
 }  // namespace node
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
-#endif  // SRC_POLICY_POLICY_DENY_H_
+#endif  // SRC_PERMISSION_PERMISSION_NODE_H_

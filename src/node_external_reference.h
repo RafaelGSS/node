@@ -77,7 +77,7 @@ class ExternalReferenceRegistry {
   V(options)                                                                   \
   V(os)                                                                        \
   V(performance)                                                               \
-  V(policy)                                                                    \
+  V(permission)                                                                \
   V(process_methods)                                                           \
   V(process_object)                                                            \
   V(report)                                                                    \

@@ -1,22 +1,23 @@
-#ifndef SRC_POLICY_POLICY_DENY_FS_H_
-#define SRC_POLICY_POLICY_DENY_FS_H_
+#ifndef SRC_PERMISSION_FS_PERMISSION_H_
+#define SRC_PERMISSION_FS_PERMISSION_H_
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
 #include "v8.h"
 
-#include "policy/policy_deny.h"
+#include "permission/permission_node.h"
 #include <vector>
 
 namespace node {
 
-namespace policy {
+namespace permission {
 
-class PolicyDenyFs final : public PolicyDeny {
+class FSPermission final : public PermissionNode {
  public:
   void Apply(const std::string& deny) override;
-  bool Deny(Permission scope, const std::vector<std::string>& params) override;
-  bool is_granted(Permission perm, const std::string& param) override;
+  bool Deny(PermissionScope scope,
+            const std::vector<std::string>& params) override;
+  bool is_granted(PermissionScope perm, const std::string& param) override;
 
   struct RadixTree {
     struct Node {
@@ -89,25 +90,42 @@ class PolicyDenyFs final : public PolicyDeny {
     RadixTree();
     ~RadixTree();
     void Insert(const std::string& s);
-    bool Lookup(const std::string& s);
+    bool Lookup(const std::string& s) {
+      return Lookup(s, false);
+    }
+    bool Lookup(const std::string& s, bool when_empty_return);
 
    private:
     Node* root_node_;
   };
 
  private:
-  void RestrictAccess(Permission scope, std::string param);
-  void RestrictAccess(Permission scope, const std::vector<std::string>& params);
+  void GrantAccess(PermissionScope scope, std::string param);
+  void RestrictAccess(PermissionScope scope,
+                      const std::vector<std::string>& params);
+  // /tmp/* --grant
+  // /tmp/dsadsa/t.js denied in runtime
+  //
+  // /tmp/text.txt -- grant
+  // /tmp/text.txt -- denied in runtime
+  //
+  // fs granted on startup
+  RadixTree granted_in_fs_;
+  RadixTree granted_out_fs_;
+  // fs denied in runtime
+  RadixTree deny_in_fs_;
+  RadixTree deny_out_fs_;
 
-  RadixTree deny_in_params_;
-  RadixTree deny_out_params_;
-  bool deny_all_in_;
-  bool deny_all_out_;
+  bool deny_all_in_ = true;
+  bool deny_all_out_ = true;
+
+  bool allow_all_in_ = false;
+  bool allow_all_out_ = false;
 };
 
-}  // namespace policy
+}  // namespace permission
 
 }  // namespace node
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
-#endif  // SRC_POLICY_POLICY_DENY_FS_H_
+#endif  // SRC_PERMISSION_FS_PERMISSION_H_

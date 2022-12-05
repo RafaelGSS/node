@@ -12,10 +12,10 @@ const fs = require('fs');
   const { status, stdout } = spawnSync(
     process.execPath,
     [
-      '--policy-deny-fs', 'fs', '-e',
-      `console.log(process.policy.check("fs"));
-       console.log(process.policy.check("fs.in"));
-       console.log(process.policy.check("fs.out"));`,
+      '--experimental-permission', '-e',
+      `console.log(process.permission.check("fs"));
+       console.log(process.permission.check("fs.read"));
+       console.log(process.permission.check("fs.write"));`,
     ]
   );
 
@@ -30,11 +30,11 @@ const fs = require('fs');
   const { status, stdout } = spawnSync(
     process.execPath,
     [
-
-      '--policy-deny-fs', 'in', '-e',
-      `console.log(process.policy.check("fs"));
-       console.log(process.policy.check("fs.in"));
-       console.log(process.policy.check("fs.out"));`,
+      '--experimental-permission',
+      '--allow-fs', 'write', '-e',
+      `console.log(process.permission.check("fs"));
+       console.log(process.permission.check("fs.read"));
+       console.log(process.permission.check("fs.write"));`,
     ]
   );
 
@@ -49,10 +49,11 @@ const fs = require('fs');
   const { status, stdout } = spawnSync(
     process.execPath,
     [
-      '--policy-deny-fs', 'out', '-e',
-      `console.log(process.policy.check("fs"));
-       console.log(process.policy.check("fs.in"));
-       console.log(process.policy.check("fs.out"));`,
+      '--experimental-permission',
+      '--allow-fs', 'read', '-e',
+      `console.log(process.permission.check("fs"));
+       console.log(process.permission.check("fs.read"));
+       console.log(process.permission.check("fs.write"));`,
     ]
   );
 
@@ -64,27 +65,14 @@ const fs = require('fs');
 }
 
 {
-  const { status, stdout } = spawnSync(
+  const { status, stderr } = spawnSync(
     process.execPath,
     [
-      '--policy-deny-fs', 'out,in', '-e',
-      `console.log(process.policy.check("fs"));
-       console.log(process.policy.check("fs.in"));
-       console.log(process.policy.check("fs.out"));`,
+      '--experimental-permission',
+      '--allow-fs=write', '-p',
+      'fs.readFileSync(process.execPath)',
     ]
   );
-
-  const [fs, fsIn, fsOut] = stdout.toString().split('\n');
-  assert.strictEqual(fs, 'false');
-  assert.strictEqual(fsIn, 'false');
-  assert.strictEqual(fsOut, 'false');
-  assert.strictEqual(status, 0);
-}
-
-{
-  const { status, stderr } = spawnSync(
-    process.execPath,
-    ['--policy-deny-fs=in', '-p', 'fs.readFileSync(process.execPath)']);
   assert.ok(
     stderr.toString().includes('Access to this API has been restricted'),
     stderr);
@@ -94,7 +82,12 @@ const fs = require('fs');
 {
   const { status, stderr } = spawnSync(
     process.execPath,
-    ['--policy-deny-fs=fs', '-p', 'fs.readFileSync(process.execPath)']);
+    [
+      '--experimental-permission',
+      '-p',
+      'fs.readFileSync(process.execPath)',
+    ]
+  );
   assert.ok(
     stderr.toString().includes('Access to this API has been restricted'),
     stderr);
@@ -104,10 +97,15 @@ const fs = require('fs');
 {
   const { status, stderr } = spawnSync(
     process.execPath,
-    ['--policy-deny-fs=out', '-p', 'fs.writeFileSync("policy-deny-example.md", "# test")']);
+    [
+      '--experimental-permission',
+      '--allow-fs=read', '-p',
+      'fs.writeFileSync("policy-deny-example.md", "# test")',
+    ]
+  );
   assert.ok(
     stderr.toString().includes('Access to this API has been restricted'),
     stderr);
   assert.strictEqual(status, 1);
-  assert.ok(!fs.existsSync('policy-deny-example.md'));
+  assert.ok(!fs.existsSync('permission-deny-example.md'));
 }

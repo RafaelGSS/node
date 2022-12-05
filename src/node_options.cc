@@ -366,6 +366,11 @@ EnvironmentOptionsParser::EnvironmentOptionsParser() {
             "experimental ES Module import.meta.resolve() support",
             &EnvironmentOptions::experimental_import_meta_resolve,
             kAllowedInEnvironment);
+  AddOption("--experimental-permission",
+            "enable the permission system",
+            &EnvironmentOptions::experimental_permission,
+            kAllowedInEnvironment,
+            false);
   AddOption("--experimental-policy",
             "use the specified file as a "
             "security policy",
@@ -381,9 +386,9 @@ EnvironmentOptionsParser::EnvironmentOptionsParser() {
             kAllowedInEnvironment);
   Implies("--policy-integrity", "[has_policy_integrity_string]");
 
-  AddOption("--policy-deny-fs",
-            "denied permissions to the filesystem",
-            &EnvironmentOptions::policy_deny_fs,
+  AddOption("--allow-fs",
+            "allow permissions to the filesystem",
+            &EnvironmentOptions::allow_fs,
             kAllowedInEnvironment);
   AddOption("--allow-spawn",
             "allow spawning process when any permissions are set",

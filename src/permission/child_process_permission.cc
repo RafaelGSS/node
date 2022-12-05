@@ -1,4 +1,4 @@
-#include "policy_deny_child_process.h"
+#include "child_process_permission.h"
 
 #include <iostream>
 #include <string>
@@ -6,22 +6,22 @@
 
 namespace node {
 
-namespace policy {
+namespace permission {
 
-// Currently, PolicyDenyChildProcess manage a single state
+// Currently, ChildProcess manage a single state
 // Once denied, it's always denied
-void PolicyDenyChildProcess::Apply(const std::string& deny) {}
+void ChildProcessPermission::Apply(const std::string& deny) {}
 
-bool PolicyDenyChildProcess::Deny(Permission perm,
+bool ChildProcessPermission::Deny(PermissionScope perm,
                         const std::vector<std::string>& params) {
   deny_all = true;
   return true;
 }
 
-bool PolicyDenyChildProcess::is_granted(Permission perm,
+bool ChildProcessPermission::is_granted(PermissionScope perm,
                                         const std::string& param = "") {
   return deny_all == false;
 }
 
-}  // namespace policy
+}  // namespace permission
 }  // namespace node

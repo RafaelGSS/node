@@ -1,3 +1,4 @@
+// Flags: --experimental-permission --allow-fs=read
 'use strict';
 
 const common = require('../common');
@@ -8,21 +9,14 @@ if (process.argv[2] === 'child') {
   process.exit(0);
 }
 
+// Guarantee the initial state
 {
-  // doesNotThrow
-  const spawn = childProcess.spawn('node', ['--version']);
-  spawn.kill();
-  const exec = childProcess.exec('node', ['--version']);
-  exec.kill();
-  const fork = childProcess.fork(__filename, ['child']);
-  fork.kill();
-  const execFile = childProcess.execFile('node', ['--version']);
-  execFile.kill();
+  assert.ok(!process.permission.check('fs.write'));
+}
 
-  assert.ok(process.policy.deny('child'));
-
-  // When a permission is set by API, the process shouldn't be able
-  // to spawn
+// When a permission is set by cli, the process shouldn't be able
+// to spawn
+{
   assert.throws(() => {
     childProcess.spawn('node', ['--version']);
   }, common.expectsError({

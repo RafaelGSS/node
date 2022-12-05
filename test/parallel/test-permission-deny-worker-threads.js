@@ -1,3 +1,4 @@
+// Flags: --experimental-permission --allow-fs=read --allow-worker
 'use strict';
 
 const common = require('../common');
@@ -11,7 +12,7 @@ const {
 function blockedEnv() {
   // When a permission is set by API, the process shouldn't be able
   // to create worker threads
-  assert.ok(process.policy.deny('worker'));
+  assert.ok(process.permission.deny('worker'));
   assert.throws(() => {
     new Worker(__filename);
   }, common.expectsError({

@@ -1,4 +1,4 @@
-// Flags: --policy-deny-fs=out
+// Flags: --experimental-permission --allow-fs=read
 'use strict';
 
 const common = require('../common');
@@ -10,7 +10,7 @@ const {
 
 // Guarantee the initial state
 {
-  assert.ok(!process.policy.check('fs.out'));
+  assert.ok(!process.permission.check('fs.write'));
 }
 
 if (isMainThread) {

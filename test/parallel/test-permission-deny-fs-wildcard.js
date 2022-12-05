@@ -1,3 +1,4 @@
+// Flags: --experimental-permission --allow-fs=read
 'use strict';
 
 const common = require('../common');
@@ -8,12 +9,19 @@ const assert = require('assert');
 const fs = require('fs');
 
 {
-  assert.ok(process.policy.deny('fs.in', [
+  assert.ok(process.permission.deny('fs.read', [
     '/tmp/',
     '/example/foo*',
     '/example/bar*',
     '/folder/*',
+    '/show',
+    '/slower',
+    '/slown',
   ]));
+
+  assert.ok(process.permission.check('fs.read', '/slow'));
+  assert.ok(process.permission.check('fs.read', '/slows'));
+  assert.ok(!process.permission.check('fs.read', '/slown'));
 }
 
 {
