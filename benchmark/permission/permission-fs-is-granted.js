@@ -8,7 +8,7 @@ const configs = {
   concurrent: [1, 10],
 };
 
-const rootPath = path.resolve(__dirname, '../../..')
+const rootPath = path.resolve(__dirname, '../../..');
 
 const options = {
   flags: [

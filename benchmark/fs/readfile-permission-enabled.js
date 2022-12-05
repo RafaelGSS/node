@@ -13,7 +13,7 @@ tmpdir.refresh();
 const filename = path.resolve(tmpdir.path,
                               `.removeme-benchmark-garbage-${process.pid}`);
 
-const rootPath = path.resolve(__dirname, '../../')
+const rootPath = path.resolve(__dirname, '../../');
 
 const bench = common.createBenchmark(main, {
   duration: [5],

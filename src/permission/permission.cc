@@ -139,7 +139,8 @@ void Permission::Apply(const std::string& allow, PermissionScope scope) {
   }
 }
 
-bool Permission::Deny(PermissionScope scope, const std::vector<std::string>& params) {
+bool Permission::Deny(PermissionScope scope,
+                      const std::vector<std::string>& params) {
   auto permission = nodes_.find(scope);
   if (permission != nodes_.end()) {
     return permission->second->Deny(scope, params);
@@ -168,4 +169,5 @@ void RegisterExternalReferences(
 }  // namespace node
 
 NODE_MODULE_CONTEXT_AWARE_INTERNAL(permission, node::permission::Initialize)
-NODE_MODULE_EXTERNAL_REFERENCE(permission, node::permission::RegisterExternalReferences)
+NODE_MODULE_EXTERNAL_REFERENCE(permission,
+                               node::permission::RegisterExternalReferences)

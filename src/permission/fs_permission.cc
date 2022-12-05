@@ -100,16 +100,19 @@ void FSPermission::GrantAccess(PermissionScope perm, std::string res) {
   }
 }
 
-bool FSPermission::is_granted(PermissionScope perm, const std::string& param = "") {
+bool FSPermission::is_granted(PermissionScope perm,
+                              const std::string& param = "") {
   switch (perm) {
     case PermissionScope::kFileSystem:
       return !(deny_all_in_ && deny_all_out_);
     case PermissionScope::kFileSystemIn:
-      return !deny_all_in_ &&
-        (allow_all_in_ || param.empty() || (!deny_in_fs_.Lookup(param) && granted_in_fs_.Lookup(param, true)));
+      return !deny_all_in_ && (allow_all_in_ || param.empty() ||
+                               (!deny_in_fs_.Lookup(param) &&
+                                granted_in_fs_.Lookup(param, true)));
     case PermissionScope::kFileSystemOut:
-      return !deny_all_out_ &&
-        (allow_all_out_ || param.empty() || (!deny_out_fs_.Lookup(param) && granted_out_fs_.Lookup(param, true)));
+      return !deny_all_out_ && (allow_all_out_ || param.empty() ||
+                                (!deny_out_fs_.Lookup(param) &&
+                                 granted_out_fs_.Lookup(param, true)));
     default:
       return false;
   }
@@ -138,7 +141,8 @@ FSPermission::RadixTree::~RadixTree() {
   FreeRecursivelyNode(root_node_);
 }
 
-bool FSPermission::RadixTree::Lookup(const std::string& s, bool when_empty_return = false) {
+bool FSPermission::RadixTree::Lookup(const std::string& s,
+                                     bool when_empty_return = false) {
   FSPermission::RadixTree::Node* current_node = root_node_;
   if (current_node->children.size() == 0) {
     return when_empty_return;

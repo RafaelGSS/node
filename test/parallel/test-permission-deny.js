@@ -84,11 +84,11 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
   }));
 }
 
-// should not crash if wrong parameter is provided
+// Should not crash if wrong parameter is provided
 {
-  // array is expected as second parameter
+  // Array is expected as second parameter
   assert.throws(() => {
-    process.permission.deny('fs.read', protectedFolder)
+    process.permission.deny('fs.read', protectedFolder);
   }, common.expectsError({
     code: 'ERR_INVALID_ARG_TYPE',
   }));

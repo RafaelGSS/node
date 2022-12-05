@@ -1,5 +1,5 @@
-#ifndef SRC_PERMISSIONS_PERMISSION_H_
-#define SRC_PERMISSIONS_PERMISSION_H_
+#ifndef SRC_PERMISSION_PERMISSION_H_
+#define SRC_PERMISSION_PERMISSION_H_
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
@@ -21,8 +21,8 @@ namespace permission {
 
 #define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, resource_, ...)          \
   do {                                                                         \
-    if (UNLIKELY(!(env)->permission()->is_granted(perm_, resource_))) {            \
-      node::permission::Permission::ThrowAccessDenied((env), perm_);                   \
+    if (UNLIKELY(!(env)->permission()->is_granted(perm_, resource_))) {        \
+      node::permission::Permission::ThrowAccessDenied((env), perm_);           \
       return __VA_ARGS__;                                                      \
     }                                                                          \
   } while (0)
@@ -31,8 +31,10 @@ class Permission {
  public:
   Permission(): enabled_(false) {
     std::shared_ptr<PermissionNode> fs = std::make_shared<FSPermission>();
-    std::shared_ptr<PermissionNode> child_p = std::make_shared<ChildProcessPermission>();
-    std::shared_ptr<PermissionNode> worker_t = std::make_shared<WorkerPermission>();
+    std::shared_ptr<PermissionNode> child_p =
+        std::make_shared<ChildProcessPermission>();
+    std::shared_ptr<PermissionNode> worker_t =
+        std::make_shared<WorkerPermission>();
 #define V(Name, _, __)                                                         \
   nodes_.insert(std::make_pair(PermissionScope::k##Name, fs));
     FILESYSTEM_PERMISSIONS(V)
@@ -81,4 +83,4 @@ class Permission {
 }  // namespace node
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
-#endif  // SRC_PERMISSIONS_PERMISSION_H_
+#endif  // SRC_PERMISSION_PERMISSION_H_

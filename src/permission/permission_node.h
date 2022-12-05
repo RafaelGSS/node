@@ -1,5 +1,5 @@
-#ifndef SRC_PERMISSIONS_PERMISSION_NODE_H_
-#define SRC_PERMISSIONS_PERMISSION_NODE_H_
+#ifndef SRC_PERMISSION_PERMISSION_NODE_H_
+#define SRC_PERMISSION_PERMISSION_NODE_H_
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
@@ -13,7 +13,7 @@ namespace permission {
 
 #define FILESYSTEM_PERMISSIONS(V)                                              \
   V(FileSystem, "fs", PermissionsRoot)                                         \
-  V(FileSystemIn, "fs.read", FileSystem)                                         \
+  V(FileSystemIn, "fs.read", FileSystem)                                       \
   V(FileSystemOut, "fs.write", FileSystem)
 
 #define CHILD_PROCESS_PERMISSIONS(V) \
@@ -40,7 +40,8 @@ class PermissionNode {
   virtual void Apply(const std::string& deny) = 0;
   virtual bool Deny(PermissionScope scope,
                     const std::vector<std::string>& params) = 0;
-  virtual bool is_granted(PermissionScope perm, const std::string& param = "") = 0;
+  virtual bool is_granted(PermissionScope perm,
+                          const std::string& param = "") = 0;
 };
 
 }  // namespace permission
@@ -48,4 +49,4 @@ class PermissionNode {
 }  // namespace node
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
-#endif  // SRC_PERMISSIONS_PERMISSION_NODE_H_
+#endif  // SRC_PERMISSION_PERMISSION_NODE_H_

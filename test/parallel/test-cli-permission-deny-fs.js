@@ -70,7 +70,7 @@ const fs = require('fs');
     [
       '--experimental-permission',
       '--allow-fs=write', '-p',
-      'fs.readFileSync(process.execPath)'
+      'fs.readFileSync(process.execPath)',
     ]
   );
   assert.ok(
@@ -85,7 +85,7 @@ const fs = require('fs');
     [
       '--experimental-permission',
       '-p',
-      'fs.readFileSync(process.execPath)'
+      'fs.readFileSync(process.execPath)',
     ]
   );
   assert.ok(
@@ -100,7 +100,7 @@ const fs = require('fs');
     [
       '--experimental-permission',
       '--allow-fs=read', '-p',
-      'fs.writeFileSync("policy-deny-example.md", "# test")'
+      'fs.writeFileSync("policy-deny-example.md", "# test")',
     ]
   );
   assert.ok(
