@@ -152,9 +152,8 @@ void Initialize(Local<Object> target,
                        Local<Value> unused,
                        Local<Context> context,
                        void* priv) {
-  Environment* env = Environment::GetCurrent(context);
-  env->SetMethod(target, "deny", Deny);
-  env->SetMethodNoSideEffect(target, "check", Check);
+  SetMethod(context, target, "deny", Deny);
+  SetMethodNoSideEffect(context, target, "check", Check);
 
   target->SetIntegrityLevel(context, v8::IntegrityLevel::kFrozen).FromJust();
 }
@@ -168,6 +167,6 @@ void RegisterExternalReferences(
 }  // namespace permission
 }  // namespace node
 
-NODE_MODULE_CONTEXT_AWARE_INTERNAL(permission, node::permission::Initialize)
-NODE_MODULE_EXTERNAL_REFERENCE(permission,
+NODE_BINDING_CONTEXT_AWARE_INTERNAL(permission, node::permission::Initialize)
+NODE_BINDING_EXTERNAL_REFERENCE(permission,
                                node::permission::RegisterExternalReferences)
