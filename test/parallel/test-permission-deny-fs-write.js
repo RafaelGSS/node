@@ -1,4 +1,4 @@
-// Flags: --experimental-permission --allow-fs=read
+// Flags: --experimental-permission --allow-fs=read,write
 'use strict';
 
 const common = require('../common');
@@ -11,6 +11,8 @@ const fixtures = require('../common/fixtures');
 
 const blockedFolder = fixtures.path('permission', 'deny', 'protected-folder');
 const blockedFile = fixtures.path('permission', 'deny', 'protected-file.md');
+const relativeProtectedFile = './test/fixtures/permission/deny/protected-file.md';
+const relativeProtectedFolder = './test/fixtures/permission/deny/protected-folder';
 
 const regularFolder = fixtures.path('permission', 'deny');
 const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
@@ -24,6 +26,12 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
 {
   assert.throws(() => {
     fs.writeFile(blockedFile, 'example', () => {});
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemOut',
+  }));
+  assert.throws(() => {
+    fs.writeFile(relativeProtectedFile, 'example', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
@@ -42,6 +50,15 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
   assert.rejects(() => {
     return new Promise((_resolve, reject) => {
       const stream = fs.createWriteStream(blockedFile);
+      stream.on('error', reject);
+    });
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemOut',
+  }));
+  assert.rejects(() => {
+    return new Promise((_resolve, reject) => {
+      const stream = fs.createWriteStream(relativeProtectedFile);
       stream.on('error', reject);
     });
   }, common.expectsError({
@@ -68,6 +85,12 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
   }));
+  assert.throws(() => {
+    fs.utimes(relativeProtectedFile, new Date(), new Date(), () => {});
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemOut',
+  }));
 
   assert.throws(() => {
     fs.utimes(blockedFolder + '/anyfile', new Date(), new Date(), () => {});
@@ -87,6 +110,14 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
   }));
+  assert.throws(() => {
+    fs.mkdir(relativeProtectedFolder + '/any-folder', (err) => {
+      assert.ifError(err);
+    });
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemOut',
+  }));
 }
 
 // fs.rename
@@ -99,7 +130,14 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
   }));
-
+  assert.throws(() => {
+    fs.rename(relativeProtectedFile, relativeProtectedFile + 'renamed', (err) => {
+      assert.ifError(err);
+    });
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemOut',
+  }));
   assert.throws(() => {
     fs.rename(blockedFile, regularFolder + '/renamed', (err) => {
       assert.ifError(err);
@@ -127,6 +165,12 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
   }));
+  assert.throws(() => {
+    fs.copyFileSync(regularFile, relativeProtectedFolder + '/any-file');
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemOut',
+  }));
 }
 
 // fs.cp
@@ -137,12 +181,24 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
   }));
+  assert.throws(() => {
+    fs.cpSync(regularFile, relativeProtectedFolder + '/any-file');
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemOut',
+  }));
 }
 
 // fs.rm
 {
   assert.throws(() => {
     fs.rmSync(blockedFolder, { recursive: true });
+  }, common.expectsError({
+    code: 'ERR_ACCESS_DENIED',
+    permission: 'FileSystemOut',
+  }));
+  assert.throws(() => {
+    fs.rmSync(relativeProtectedFolder, { recursive: true });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemOut',
