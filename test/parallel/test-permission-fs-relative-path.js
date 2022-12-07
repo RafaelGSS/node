@@ -27,7 +27,7 @@ const relativeProtectedFile = './test/fixtures/permission/deny/protected-file.md
 }
 
 {
-  // relative path as CLI args are NOT supported yet
+  // Relative path as CLI args are NOT supported yet
   const { status, stdout } = spawnSync(
     process.execPath,
     [

@@ -152,7 +152,7 @@ bool FSPermission::RadixTree::Lookup(const std::string& s,
   auto path_len = s.length();
 
   while (true) {
-    if (parent_node_prefix_len == path_len) {
+    if (parent_node_prefix_len == path_len && current_node->IsEndNode()) {
       return true;
     }
 

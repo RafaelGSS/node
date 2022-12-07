@@ -19,6 +19,8 @@ class FSPermission final : public PermissionNode {
             const std::vector<std::string>& params) override;
   bool is_granted(PermissionScope perm, const std::string& param) override;
 
+  // For debugging purposes, use the gist function to print the whole tree
+  // https://gist.github.com/RafaelGSS/5b4f09c559a54f53f9b7c8c030744d19
   struct RadixTree {
     struct Node {
       std::string prefix;
@@ -84,6 +86,24 @@ class FSPermission final : public PermissionNode {
           }
         }
         return child;
+      }
+
+      // A node can be a *end* node and have children
+      // E.g: */slower*, */slown* are inserted:
+      // /slow
+      // ---> er
+      // ---> n
+      // If */slow* is inserted right after, it will create an
+      // empty node
+      // /slow
+      // ---> '\000' ASCII (0) || \0
+      // ---> er
+      // ---> n
+      bool IsEndNode() {
+        if (children.size() == 0) {
+          return true;
+        }
+        return children['\0'] != nullptr;
       }
     };
 
