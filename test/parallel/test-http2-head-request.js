@@ -6,12 +6,6 @@ if (!common.hasCrypto)
 const assert = require('assert');
 const http2 = require('http2');
 
-const errCheck = common.expectsError({
-  name: 'Error',
-  code: 'ERR_STREAM_WRITE_AFTER_END',
-  message: 'write after end'
-}, 1);
-
 const {
   HTTP2_HEADER_PATH,
   HTTP2_HEADER_METHOD,
@@ -25,10 +19,8 @@ server.on('stream', (stream, headers) => {
   assert.strictEqual(headers[HTTP2_HEADER_METHOD], HTTP2_METHOD_HEAD);
 
   stream.respond({ [HTTP2_HEADER_STATUS]: 200 });
-
-  // Because this is a head request, the outbound stream is closed automatically
-  stream.on('error', errCheck);
-  stream.write('data');
+  stream.on('error', common.mustNotCall());
+  stream.end();
 });
 
 
@@ -43,7 +35,7 @@ server.listen(0, () => {
 
   req.on('response', common.mustCall((headers, flags) => {
     assert.strictEqual(headers[HTTP2_HEADER_STATUS], 200);
-    assert.strictEqual(flags, 5); // The end of stream flag is set
+    assert.strictEqual(flags, 4);
   }));
   req.on('data', common.mustNotCall());
   req.on('end', common.mustCall(() => {

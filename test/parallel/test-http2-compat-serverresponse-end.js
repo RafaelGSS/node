@@ -170,7 +170,7 @@ const {
       const request = client.request(headers);
       request.on('response', mustCall((headers, flags) => {
         strictEqual(headers[HTTP2_HEADER_STATUS], HTTP_STATUS_OK);
-        strictEqual(flags, 5); // The end of stream flag is set
+        strictEqual(flags, 4);
         strictEqual(headers.foo, 'bar');
       }));
       request.on('data', mustNotCall());
@@ -235,7 +235,7 @@ const {
       const request = client.request(headers);
       request.on('response', mustCall((headers, flags) => {
         strictEqual(headers[HTTP2_HEADER_STATUS], HTTP_STATUS_OK);
-        strictEqual(flags, 5); // The end of stream flag is set
+        strictEqual(flags, 4);
         strictEqual(headers.foo, 'bar');
       }));
       request.on('data', mustNotCall());
@@ -310,7 +310,7 @@ const {
       const request = client.request(headers);
       request.on('response', mustCall((headers, flags) => {
         strictEqual(headers[HTTP2_HEADER_STATUS], HTTP_STATUS_OK);
-        strictEqual(flags, 5); // The end of stream flag is set
+        strictEqual(flags, 4);
         strictEqual(headers.foo, 'bar');
       }));
       request.on('data', mustNotCall());
