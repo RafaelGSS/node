@@ -744,13 +744,13 @@ Environment::Environment(IsolateData* isolate_data,
       }
     }
 
-    permission()->Apply(
-        options_->allow_fs,
-        permission::PermissionScope::kFileSystem);
+    permission()->Apply(options_->allow_fs,
+                        permission::PermissionScope::kFileSystem);
   }
 }
 
-Environment::Environment(IsolateData* isolate_data, Local<Context> context,
+Environment::Environment(IsolateData* isolate_data,
+                         Local<Context> context,
                          const std::vector<std::string>& args,
                          const std::vector<std::string>& exec_args,
                          const EnvSerializeInfo* env_info,

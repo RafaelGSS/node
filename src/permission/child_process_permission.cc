@@ -13,7 +13,7 @@ namespace permission {
 void ChildProcessPermission::Apply(const std::string& deny) {}
 
 bool ChildProcessPermission::Deny(PermissionScope perm,
-                        const std::vector<std::string>& params) {
+                                  const std::vector<std::string>& params) {
   deny_all = true;
   return true;
 }

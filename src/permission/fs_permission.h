@@ -5,8 +5,8 @@
 
 #include "v8.h"
 
-#include "permission/permission_node.h"
 #include <vector>
+#include "permission/permission_node.h"
 
 namespace node {
 
@@ -27,11 +27,10 @@ class FSPermission final : public PermissionNode {
       std::map<char, Node*> children;
       Node* wildcard_child;
 
-      explicit Node(const std::string& pre):
-        prefix(pre),
-        wildcard_child(nullptr) {}
+      explicit Node(const std::string& pre)
+          : prefix(pre), wildcard_child(nullptr) {}
 
-      Node(): wildcard_child(nullptr) {}
+      Node() : wildcard_child(nullptr) {}
 
       Node* CreateChild(std::string prefix) {
         char label = prefix[0];
@@ -110,9 +109,7 @@ class FSPermission final : public PermissionNode {
     RadixTree();
     ~RadixTree();
     void Insert(const std::string& s);
-    bool Lookup(const std::string& s) {
-      return Lookup(s, false);
-    }
+    bool Lookup(const std::string& s) { return Lookup(s, false); }
     bool Lookup(const std::string& s, bool when_empty_return);
 
    private:

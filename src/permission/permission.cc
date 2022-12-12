@@ -3,8 +3,8 @@
 #include "env-inl.h"
 #include "memory_tracker-inl.h"
 #include "node.h"
-#include "node_external_reference.h"
 #include "node_errors.h"
+#include "node_external_reference.h"
 
 #include "v8.h"
 
@@ -60,8 +60,7 @@ static void Deny(const FunctionCallbackInfo<Value>& args) {
     params.push_back(*utf8_arg);
   }
 
-  return args.GetReturnValue()
-    .Set(env->permission()->Deny(scope, params));
+  return args.GetReturnValue().Set(env->permission()->Deny(scope, params));
 }
 
 // permission.check('fs.in', '/tmp/')
@@ -87,8 +86,8 @@ static void Check(const FunctionCallbackInfo<Value>& args) {
     if (*utf8_arg == nullptr) {
       return;
     }
-    return args.GetReturnValue()
-      .Set(env->permission()->is_granted(scope, *utf8_arg));
+    return args.GetReturnValue().Set(
+        env->permission()->is_granted(scope, *utf8_arg));
   }
 
   return args.GetReturnValue().Set(env->permission()->is_granted(scope));
@@ -115,13 +114,14 @@ PermissionScope Permission::StringToPermission(const std::string& perm) {
 void Permission::ThrowAccessDenied(Environment* env, PermissionScope perm) {
   Local<Value> err = ERR_ACCESS_DENIED(env->isolate());
   CHECK(err->IsObject());
-  err.As<Object>()->Set(
-      env->context(),
-      env->permission_string(),
-      v8::String::NewFromUtf8(env->isolate(),
-        PermissionToString(perm),
-        v8::NewStringType::kNormal).ToLocalChecked())
-    .FromMaybe(false);  // Nothing to do about an error at this point.
+  err.As<Object>()
+      ->Set(env->context(),
+            env->permission_string(),
+            v8::String::NewFromUtf8(env->isolate(),
+                                    PermissionToString(perm),
+                                    v8::NewStringType::kNormal)
+                .ToLocalChecked())
+      .FromMaybe(false);  // Nothing to do about an error at this point.
   env->isolate()->ThrowException(err);
 }
 
@@ -149,17 +149,16 @@ bool Permission::Deny(PermissionScope scope,
 }
 
 void Initialize(Local<Object> target,
-                       Local<Value> unused,
-                       Local<Context> context,
-                       void* priv) {
+                Local<Value> unused,
+                Local<Context> context,
+                void* priv) {
   SetMethod(context, target, "deny", Deny);
   SetMethodNoSideEffect(context, target, "check", Check);
 
   target->SetIntegrityLevel(context, v8::IntegrityLevel::kFrozen).FromJust();
 }
 
-void RegisterExternalReferences(
-    ExternalReferenceRegistry* registry) {
+void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
   registry->Register(Deny);
   registry->Register(Check);
 }
@@ -169,4 +168,4 @@ void RegisterExternalReferences(
 
 NODE_BINDING_CONTEXT_AWARE_INTERNAL(permission, node::permission::Initialize)
 NODE_BINDING_EXTERNAL_REFERENCE(permission,
-                               node::permission::RegisterExternalReferences)
+                                node::permission::RegisterExternalReferences)

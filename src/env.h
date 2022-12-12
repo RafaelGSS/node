@@ -43,11 +43,11 @@
 #include "node_perf_common.h"
 #include "node_realm.h"
 #include "node_snapshotable.h"
+#include "permission/permission.h"
 #include "req_wrap.h"
 #include "util.h"
 #include "uv.h"
 #include "v8.h"
-#include "permission/permission.h"
 
 #include <array>
 #include <atomic>

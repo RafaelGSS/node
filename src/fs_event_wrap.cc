@@ -24,8 +24,8 @@
 #include "handle_wrap.h"
 #include "node.h"
 #include "node_external_reference.h"
-#include "string_bytes.h"
 #include "permission/permission.h"
+#include "string_bytes.h"
 
 namespace node {
 

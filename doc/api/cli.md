@@ -108,7 +108,31 @@ added: REPLACEME
 
 > Stability: 1 - Experimental
 
-TODO
+This flag allows the management of the filesystem permissions when using
+the [Permission Model][].
+
+The valid arguments for the `--allow-fs` flag are:
+
+* `write` - To manage `FileSystemOut` (Writing) operations.
+* `read` - To manage `FileSystemIn` (Reading) operations.
+* `fs` - To allow all the `FileSystem` operations.
+
+Example:
+
+* `--allow-fs=read:/tmp/` - It will allow `FileSystemIn` access to the `/tmp/`
+  folder.
+* `--allow-fs=read:/tmp/:/home/.gitignore` - It allows `FileSystemIn` access to
+  the `/tmp/` folder **and** the `/home/.gitignore` path.
+
+You can also mix both arguments:
+
+* `--allow-fs=write,read:/tmp/` - It will allow `FileSystemIn` access to the
+  `/tmp/` folder **and** allow **all** the `FileSystemOut` operations.
+* **Note**: It accepts wildcard parameters as well.
+  For instance: `--allow-fs=write:/home/test*` will allow everything
+  that matches the wildcard. e.g: `/home/test/file1` or `/home/test2`
+
+Relative paths are NOT supported through the CLI flag.
 
 ### `--allow-spawn`
 
@@ -116,7 +140,9 @@ TODO
 added: REPLACEME
 -->
 
-When using the \[Permission System]\[], the process will not be able spawn any
+> Stability: 1 - Experimental
+
+When using the [Permission Model][], the process will not be able spawn any
 kind of process.
 For security reasons, the call will return in a `ERR_ACCESS_DENIED` unless the
 user explicitly pass the flag `--allow-spawn` in the main nodejs process.
@@ -127,7 +153,7 @@ user's responsibility to pass along the correct arguments.
 Example:
 
 ```js
-const childProcess = require('child_process');
+const childProcess = require('node:child_process');
 // Attempt to bypass the permission
 childProcess.spawn('node', ['-e', 'require("fs").writeFileSync("/new-file", "example")']);
 ```
@@ -158,7 +184,9 @@ Error: Access to this API has been restricted
 added: REPLACEME
 -->
 
-When using the \[Permission System]\[], the process will not be able create any
+> Stability: 1 - Experimental
+
+When using the [Permission Model][], the process will not be able create any
 worker threads.
 For security reasons, the call will return in a `ERR_ACCESS_DENIED` unless the
 user explicitly pass the flag `--allow-worker` in the main nodejs process.
@@ -169,7 +197,7 @@ user's responsibility to pass along the correct arguments.
 Example:
 
 ```js
-const { Worker } = require('worker_threads');
+const { Worker } = require('node:worker_threads');
 // Attempt to bypass the permission
 new Worker(__filename);
 ```
@@ -477,7 +505,12 @@ Enable experimental support for the `https:` protocol in `import` specifiers.
 added: REPLACEME
 -->
 
-Enable Permission System to the current environment.
+Enable Permission Model to the current environment. When enabling it, all the
+following permissions will be restricted:
+
+* File System - manageable through \[`--allow-fs`]\[] flag
+* Child Process - manageable through \[`--allow-spawn`]\[] flag
+* Worker Threads - manageable through \[`--allow-worker`]\[] flag
 
 ### `--experimental-policy`
 
@@ -2419,6 +2452,7 @@ done
 [Modules loaders]: packages.md#modules-loaders
 [Node.js issue tracker]: https://github.com/nodejs/node/issues
 [OSSL_PROVIDER-legacy]: https://www.openssl.org/docs/man3.0/man7/OSSL_PROVIDER-legacy.html
+[Permission Model]: permissions.md#permission-model
 [REPL]: repl.md
 [ScriptCoverage]: https://chromedevtools.github.io/devtools-protocol/tot/Profiler#type-ScriptCoverage
 [ShadowRealm]: https://github.com/tc39/proposal-shadowrealm

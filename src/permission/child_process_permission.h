@@ -3,8 +3,8 @@
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
-#include "permission/permission_node.h"
 #include <vector>
+#include "permission/permission_node.h"
 
 namespace node {
 

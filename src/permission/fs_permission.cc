@@ -5,11 +5,11 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 namespace node {
 
@@ -130,12 +130,12 @@ void FreeRecursivelyNode(FSPermission::RadixTree::Node* node) {
   }
 
   if (node->wildcard_child != nullptr) {
-    free(node->wildcard_child);
+    delete node->wildcard_child;
   }
-  free(node);
+  delete node;
 }
 
-FSPermission::RadixTree::RadixTree(): root_node_(new Node("")) { }
+FSPermission::RadixTree::RadixTree() : root_node_(new Node("")) {}
 
 FSPermission::RadixTree::~RadixTree() {
   FreeRecursivelyNode(root_node_);

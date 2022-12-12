@@ -3,9 +3,9 @@
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
-#include "v8.h"
 #include <map>
 #include <string>
+#include "v8.h"
 
 namespace node {
 
@@ -16,8 +16,7 @@ namespace permission {
   V(FileSystemIn, "fs.read", FileSystem)                                       \
   V(FileSystemOut, "fs.write", FileSystem)
 
-#define CHILD_PROCESS_PERMISSIONS(V) \
-  V(ChildProcess, "child", PermissionsRoot)
+#define CHILD_PROCESS_PERMISSIONS(V) V(ChildProcess, "child", PermissionsRoot)
 
 #define WORKER_THREADS_PERMISSIONS(V)                                          \
   V(WorkerThreads, "worker", PermissionsRoot)
@@ -30,8 +29,7 @@ namespace permission {
 #define V(name, _, __) k##name,
 enum class PermissionScope {
   kPermissionsRoot = -1,
-  PERMISSIONS(V)
-  kPermissionsCount
+  PERMISSIONS(V) kPermissionsCount
 };
 #undef V
 

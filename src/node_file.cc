@@ -19,15 +19,15 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "node_file.h"  // NOLINT(build/include_inline)
-#include "node_file-inl.h"
 #include "aliased_buffer.h"
 #include "memory_tracker-inl.h"
 #include "node_buffer.h"
 #include "node_external_reference.h"
+#include "node_file-inl.h"
 #include "node_process-inl.h"
 #include "node_stat_watcher.h"
-#include "util-inl.h"
 #include "permission/permission.h"
+#include "util-inl.h"
 
 #include "tracing/trace_event.h"
 

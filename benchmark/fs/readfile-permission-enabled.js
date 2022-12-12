@@ -13,14 +13,12 @@ tmpdir.refresh();
 const filename = path.resolve(tmpdir.path,
                               `.removeme-benchmark-garbage-${process.pid}`);
 
-const rootPath = path.resolve(__dirname, '../../');
-
 const bench = common.createBenchmark(main, {
   duration: [5],
   len: [1024, 16 * 1024 * 1024],
   concurrent: [1, 10],
 }, {
-  flags: ['--experimental-permission', `--allow-fs=read:${rootPath},write:${rootPath}`]
+  flags: ['--experimental-permission', '--allow-fs=read,write']
 });
 
 function main({ len, duration, concurrent }) {
