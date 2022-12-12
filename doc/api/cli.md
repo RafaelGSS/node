@@ -108,7 +108,8 @@ added: REPLACEME
 
 > Stability: 1 - Experimental
 
-This flag allows the management of the filesystem permissions when using the [Permission Model][].
+This flag allows the management of the filesystem permissions when using
+the [Permission Model][].
 
 The valid arguments for the `--allow-fs` flag are:
 
@@ -116,24 +117,22 @@ The valid arguments for the `--allow-fs` flag are:
 * `read` - To manage `FileSystemIn` (Reading) operations.
 * `fs` - To allow all the `FileSystem` operations.
 
-// Explain the limitation by:
-
 Example:
 
 * `--allow-fs=read:/tmp/` - It will allow `FileSystemIn` access to the `/tmp/`
-folder.
+  folder.
 * `--allow-fs=read:/tmp/:/home/.gitignore` - It allows `FileSystemIn` access to
-the `/tmp/` folder **and** the `/home/.gitignore` path.
+  the `/tmp/` folder **and** the `/home/.gitignore` path.
 
 You can also mix both arguments:
 
 * `--allow-fs=write,read:/tmp/` - It will allow `FileSystemIn` access to the
-`/tmp/` folder **and** allow **all** the `FileSystemOut` operations.
+  `/tmp/` folder **and** allow **all** the `FileSystemOut` operations.
 * **Note**: It accepts wildcard parameters as well.
-For instance: `--allow-fs=write:/home/test*` will allow everything that matches
-the wildcard. e.g: `/home/test/file1` or `/home/test2`
+  For instance: `--allow-fs=write:/home/test*` will allow everything
+  that matches the wildcard. e.g: `/home/test/file1` or `/home/test2`
 
-Relative paths are NOT supported in through the CLI flag.
+Relative paths are NOT supported through the CLI flag.
 
 ### `--allow-spawn`
 
@@ -506,12 +505,12 @@ Enable experimental support for the `https:` protocol in `import` specifiers.
 added: REPLACEME
 -->
 
-Enable Permission Model to the current environment. When enabling it, all the following
-permissions will be restricted:
+Enable Permission Model to the current environment. When enabling it, all the
+following permissions will be restricted:
 
-* File System - manageable through [`--allow-fs`][] flag
-* Child Process - manageable through [`--allow-spawn`][] flag
-* Worker Threads - manageable through [`--allow-worker`][] flag
+* File System - manageable through \[`--allow-fs`]\[] flag
+* Child Process - manageable through \[`--allow-spawn`]\[] flag
+* Worker Threads - manageable through \[`--allow-worker`]\[] flag
 
 ### `--experimental-policy`
 
@@ -2422,6 +2421,7 @@ done
 [Modules loaders]: packages.md#modules-loaders
 [Node.js issue tracker]: https://github.com/nodejs/node/issues
 [OSSL_PROVIDER-legacy]: https://www.openssl.org/docs/man3.0/man7/OSSL_PROVIDER-legacy.html
+[Permission Model]: permissions.md#permission-model
 [REPL]: repl.md
 [ScriptCoverage]: https://chromedevtools.github.io/devtools-protocol/tot/Profiler#type-ScriptCoverage
 [ShadowRealm]: https://github.com/tc39/proposal-shadowrealm
@@ -2473,4 +2473,3 @@ done
 [timezone IDs]: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 [tracking issue for user-land snapshots]: https://github.com/nodejs/node/issues/44014
 [ways that `TZ` is handled in other environments]: https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html
-[Permission Model]: #--experimental-permission
