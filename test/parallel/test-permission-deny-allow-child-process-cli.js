@@ -1,4 +1,4 @@
-// Flags: --experimental-permission --allow-spawn --allow-fs=read
+// Flags: --experimental-permission --allow-child-process --allow-fs=read
 'use strict';
 
 require('../common');
@@ -15,7 +15,7 @@ if (process.argv[2] === 'child') {
 }
 
 // When a permission is set by cli, the process shouldn't be able
-// to spawn unless --allow-spawn is sent
+// to spawn unless --allow-child-process is sent
 {
   // doesNotThrow
   childProcess.spawnSync('node', ['--version']);

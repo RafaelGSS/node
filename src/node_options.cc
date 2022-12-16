@@ -408,9 +408,9 @@ EnvironmentOptionsParser::EnvironmentOptionsParser() {
             "allow permissions to the filesystem",
             &EnvironmentOptions::allow_fs,
             kAllowedInEnvvar);
-  AddOption("--allow-spawn",
-            "allow spawning process when any permissions are set",
-            &EnvironmentOptions::allow_spawn,
+  AddOption("--allow-child-process",
+            "allow use of child process when any permissions are set",
+            &EnvironmentOptions::allow_child_process,
             kAllowedInEnvvar);
   AddOption("--allow-worker",
             "allow worker threads when any permissions are set",

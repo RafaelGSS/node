@@ -736,7 +736,7 @@ Environment::Environment(IsolateData* isolate_data,
     // If any permission is set the process shouldn't be able to spawn/worker
     // unless explicitly allowed by the user
     if (!options_->allow_fs.empty()) {
-      if (!options_->allow_spawn) {
+      if (!options_->allow_child_process) {
         permission()->Deny(permission::PermissionScope::kChildProcess, {});
       }
       if (!options_->allow_worker_threads) {

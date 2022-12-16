@@ -464,7 +464,7 @@ will restrict access to all available permissions.
 Currently, the available permissions are:
 
 * File System - manageable through [`--allow-fs`][] flag
-* Child Process - manageable through [`--allow-spawn`][] flag
+* Child Process - manageable through [`--allow-child-process`][] flag
 * Worker Threads - manageable through [`--allow-worker`][] flag
 
 Therefore, when starting a Node.js process with `--experimental-permission`,
@@ -489,7 +489,7 @@ Error: Access to this API has been restricted
 ```
 
 Allowing access to spawning a process and creating worker threads can be done
-using the `--allow-spawn` and `--allow-worker` respectively.
+using the `--allow-child-process` and `--allow-worker` respectively.
 
 #### Runtime API
 
@@ -593,8 +593,8 @@ const fd = fs.openSync('./README.md', 'r');
 ```
 
 [Security Policy]: https://github.com/nodejs/node/blob/main/SECURITY.md
+[`--allow-child-process`]: cli.md#--allow-child-process
 [`--allow-fs`]: cli.md#--allow-fs
-[`--allow-spawn`]: cli.md#--allow-spawn
 [`--allow-worker`]: cli.md#--allow-worker
 [`--experimental-permission`]: cli.md#--experimental-permission
 [import maps]: https://url.spec.whatwg.org/#relative-url-with-fragment-string
