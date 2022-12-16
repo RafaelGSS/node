@@ -12,22 +12,22 @@ const protectedFolder = fixtures.path('permission', 'deny');
 const protectedFile = fixtures.path('permission', 'deny', 'protected-file.md');
 const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
 
-// Assert check and deny exists
+// Assert has and deny exists
 {
-  assert.ok(typeof process.permission.check === 'function');
+  assert.ok(typeof process.permission.has === 'function');
   assert.ok(typeof process.permission.deny === 'function');
 }
 
 // Guarantee the initial state when no flags
 {
-  assert.ok(process.permission.check('fs.read'));
-  assert.ok(process.permission.check('fs.write'));
+  assert.ok(process.permission.has('fs.read'));
+  assert.ok(process.permission.has('fs.write'));
 
-  assert.ok(process.permission.check('fs.read', protectedFile));
-  assert.ok(process.permission.check('fs.read', regularFile));
+  assert.ok(process.permission.has('fs.read', protectedFile));
+  assert.ok(process.permission.has('fs.read', regularFile));
 
-  assert.ok(process.permission.check('fs.write', protectedFolder));
-  assert.ok(process.permission.check('fs.write', regularFile));
+  assert.ok(process.permission.has('fs.write', protectedFolder));
+  assert.ok(process.permission.has('fs.write', regularFile));
 
   // doesNotThrow
   fs.readFileSync(protectedFile);
@@ -36,14 +36,14 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
 // Deny access to fs.read
 {
   assert.ok(process.permission.deny('fs.read', [protectedFile]));
-  assert.ok(process.permission.check('fs.read'));
-  assert.ok(process.permission.check('fs.write'));
+  assert.ok(process.permission.has('fs.read'));
+  assert.ok(process.permission.has('fs.write'));
 
-  assert.ok(process.permission.check('fs.read', regularFile));
-  assert.ok(!process.permission.check('fs.read', protectedFile));
+  assert.ok(process.permission.has('fs.read', regularFile));
+  assert.ok(!process.permission.has('fs.read', protectedFile));
 
-  assert.ok(process.permission.check('fs.write', protectedFolder));
-  assert.ok(process.permission.check('fs.write', regularFile));
+  assert.ok(process.permission.has('fs.write', protectedFolder));
+  assert.ok(process.permission.has('fs.write', regularFile));
 
   assert.rejects(() => {
     return fsPromises.readFile(protectedFile);
@@ -59,14 +59,14 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
 // Deny access to fs.write
 {
   assert.ok(process.permission.deny('fs.write', [protectedFolder]));
-  assert.ok(process.permission.check('fs.read'));
-  assert.ok(process.permission.check('fs.write'));
+  assert.ok(process.permission.has('fs.read'));
+  assert.ok(process.permission.has('fs.write'));
 
-  assert.ok(!process.permission.check('fs.read', protectedFile));
-  assert.ok(process.permission.check('fs.read', regularFile));
+  assert.ok(!process.permission.has('fs.read', protectedFile));
+  assert.ok(process.permission.has('fs.read', regularFile));
 
-  assert.ok(!process.permission.check('fs.write', protectedFolder));
-  assert.ok(!process.permission.check('fs.write', regularFile));
+  assert.ok(!process.permission.has('fs.write', protectedFolder));
+  assert.ok(!process.permission.has('fs.write', regularFile));
 
   assert.rejects(() => {
     return fsPromises

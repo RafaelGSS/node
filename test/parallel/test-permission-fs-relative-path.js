@@ -16,14 +16,14 @@ const relativeProtectedFile = './test/fixtures/permission/deny/protected-file.md
 
 {
   // permission.deny relative path should work
-  assert.ok(process.permission.check('fs.read', protectedFile));
+  assert.ok(process.permission.has('fs.read', protectedFile));
   assert.ok(process.permission.deny('fs.read', [relativeProtectedFile]));
-  assert.ok(!process.permission.check('fs.read', protectedFile));
+  assert.ok(!process.permission.has('fs.read', protectedFile));
 }
 
 {
-  // permission.check relative path should work
-  assert.ok(!process.permission.check('fs.read', relativeProtectedFile));
+  // permission.has relative path should work
+  assert.ok(!process.permission.has('fs.read', relativeProtectedFile));
 }
 
 {
@@ -37,7 +37,7 @@ const relativeProtectedFile = './test/fixtures/permission/deny/protected-file.md
       `
       const path = require("path");
       const absolutePath = path.resolve("../fixtures/permission/deny/regular-file.md");
-      console.log(process.permission.check("fs.write", absolutePath));
+      console.log(process.permission.has("fs.write", absolutePath));
        `,
     ]
   );

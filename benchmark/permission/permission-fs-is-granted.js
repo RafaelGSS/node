@@ -39,11 +39,11 @@ async function main(conf) {
 
   for (let i = 0; i < conf.n; i++) {
     // Valid file in a sequence of denied files
-    process.permission.check('fs.read', benchmarkDir + '/valid-file');
+    process.permission.has('fs.read', benchmarkDir + '/valid-file');
     // Denied file
-    process.permission.check('fs.read', __filename);
+    process.permission.has('fs.read', __filename);
     // Valid file a granted directory
-    process.permission.check('fs.read', '/tmp/example');
+    process.permission.has('fs.read', '/tmp/example');
   }
 
   bench.end(conf.n);

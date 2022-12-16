@@ -13,9 +13,9 @@ const fs = require('fs');
     process.execPath,
     [
       '--experimental-permission', '-e',
-      `console.log(process.permission.check("fs"));
-       console.log(process.permission.check("fs.read"));
-       console.log(process.permission.check("fs.write"));`,
+      `console.log(process.permission.has("fs"));
+       console.log(process.permission.has("fs.read"));
+       console.log(process.permission.has("fs.write"));`,
     ]
   );
 
@@ -32,9 +32,9 @@ const fs = require('fs');
     [
       '--experimental-permission',
       '--allow-fs', 'write', '-e',
-      `console.log(process.permission.check("fs"));
-       console.log(process.permission.check("fs.read"));
-       console.log(process.permission.check("fs.write"));`,
+      `console.log(process.permission.has("fs"));
+       console.log(process.permission.has("fs.read"));
+       console.log(process.permission.has("fs.write"));`,
     ]
   );
 
@@ -51,9 +51,9 @@ const fs = require('fs');
     [
       '--experimental-permission',
       '--allow-fs', 'read', '-e',
-      `console.log(process.permission.check("fs"));
-       console.log(process.permission.check("fs.read"));
-       console.log(process.permission.check("fs.write"));`,
+      `console.log(process.permission.has("fs"));
+       console.log(process.permission.has("fs.read"));
+       console.log(process.permission.has("fs.write"));`,
     ]
   );
 

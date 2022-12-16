@@ -63,9 +63,9 @@ static void Deny(const FunctionCallbackInfo<Value>& args) {
   return args.GetReturnValue().Set(env->permission()->Deny(scope, params));
 }
 
-// permission.check('fs.in', '/tmp/')
-// permission.check('fs.in')
-static void Check(const FunctionCallbackInfo<Value>& args) {
+// permission.has('fs.in', '/tmp/')
+// permission.has('fs.in')
+static void Has(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
   v8::Isolate* isolate = env->isolate();
   CHECK(args[0]->IsString());
@@ -153,14 +153,14 @@ void Initialize(Local<Object> target,
                 Local<Context> context,
                 void* priv) {
   SetMethod(context, target, "deny", Deny);
-  SetMethodNoSideEffect(context, target, "check", Check);
+  SetMethodNoSideEffect(context, target, "has", Has);
 
   target->SetIntegrityLevel(context, v8::IntegrityLevel::kFrozen).FromJust();
 }
 
 void RegisterExternalReferences(ExternalReferenceRegistry* registry) {
   registry->Register(Deny);
-  registry->Register(Check);
+  registry->Register(Has);
 }
 
 }  // namespace permission

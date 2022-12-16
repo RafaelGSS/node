@@ -19,9 +19,9 @@ const fs = require('fs');
     '/slown',
   ]));
 
-  assert.ok(process.permission.check('fs.read', '/slow'));
-  assert.ok(process.permission.check('fs.read', '/slows'));
-  assert.ok(!process.permission.check('fs.read', '/slown'));
+  assert.ok(process.permission.has('fs.read', '/slow'));
+  assert.ok(process.permission.has('fs.read', '/slows'));
+  assert.ok(!process.permission.has('fs.read', '/slown'));
 }
 
 {
