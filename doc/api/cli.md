@@ -142,10 +142,10 @@ added: REPLACEME
 
 > Stability: 1 - Experimental
 
-When using the [Permission Model][], the process will not be able spawn any
+When using the [Permission Model][], the process will not be able to spawn any
 kind of process.
-For security reasons, the call will return in a `ERR_ACCESS_DENIED` unless the
-user explicitly pass the flag `--allow-spawn` in the main nodejs process.
+For security reasons, the call will throw an `ERR_ACCESS_DENIED` unless the
+user explicitly pass the flag `--allow-spawn` in the main Node.js process.
 
 If the user explicitly allows to spawn a child process, then it will be the
 user's responsibility to pass along the correct arguments.
@@ -186,10 +186,10 @@ added: REPLACEME
 
 > Stability: 1 - Experimental
 
-When using the [Permission Model][], the process will not be able create any
+When using the [Permission Model][], the process will not be able to create any
 worker threads.
-For security reasons, the call will return in a `ERR_ACCESS_DENIED` unless the
-user explicitly pass the flag `--allow-worker` in the main nodejs process.
+For security reasons, the call will throw an `ERR_ACCESS_DENIED` unless the
+user explicitly pass the flag `--allow-worker` in the main Node.js process.
 
 If the user explicitly allows to create worker threads, then it will be the
 user's responsibility to pass along the correct arguments.

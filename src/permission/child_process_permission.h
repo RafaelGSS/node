@@ -15,9 +15,10 @@ class ChildProcessPermission final : public PermissionNode {
   void Apply(const std::string& deny) override;
   bool Deny(PermissionScope scope,
             const std::vector<std::string>& params) override;
-  bool is_granted(PermissionScope perm, const std::string& param) override;
+  bool is_granted(PermissionScope perm, const std::string& param = "") override;
 
-  bool deny_all;
+ private:
+  bool deny_all_;
 };
 
 }  // namespace permission

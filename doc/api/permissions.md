@@ -535,7 +535,7 @@ process.permission.check('fs.write', '/home/rafaelgss/protected-folder'); // fal
 
 #### File System Permissions
 
-To allow access to the filesystem, you need to use the flag `--alow-fs`
+To allow access to the filesystem, you need to use the flag `--allow-fs`
 
 ```console
 $ node --experimental-permission --allow-fs=read index.js

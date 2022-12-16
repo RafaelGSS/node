@@ -1882,7 +1882,7 @@ static void Open(const FunctionCallbackInfo<Value>& args) {
 
   // Open can be called either in write or read
   if (flags == O_RDWR) {
-    // TODO(rafaelgss): it can be optimized to void n*m
+    // TODO(rafaelgss): it can be optimized to avoid O(2*n)
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, permission::PermissionScope::kFileSystemIn, *path);
     THROW_IF_INSUFFICIENT_PERMISSIONS(
