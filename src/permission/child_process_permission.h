@@ -4,13 +4,13 @@
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
 #include <vector>
-#include "permission/permission_node.h"
+#include "permission/permission_base.h"
 
 namespace node {
 
 namespace permission {
 
-class ChildProcessPermission final : public PermissionNode {
+class ChildProcessPermission final : public PermissionBase {
  public:
   void Apply(const std::string& deny) override;
   bool Deny(PermissionScope scope,

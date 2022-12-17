@@ -1,5 +1,5 @@
-#ifndef SRC_PERMISSION_PERMISSION_NODE_H_
-#define SRC_PERMISSION_PERMISSION_NODE_H_
+#ifndef SRC_PERMISSION_PERMISSION_BASE_H_
+#define SRC_PERMISSION_PERMISSION_BASE_H_
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
@@ -33,7 +33,7 @@ enum class PermissionScope {
 };
 #undef V
 
-class PermissionNode {
+class PermissionBase {
  public:
   virtual void Apply(const std::string& deny) = 0;
   virtual bool Deny(PermissionScope scope,
@@ -47,4 +47,4 @@ class PermissionNode {
 }  // namespace node
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
-#endif  // SRC_PERMISSION_PERMISSION_NODE_H_
+#endif  // SRC_PERMISSION_PERMISSION_BASE_H_

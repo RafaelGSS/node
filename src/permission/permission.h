@@ -6,7 +6,7 @@
 #include "node_options.h"
 #include "permission/child_process_permission.h"
 #include "permission/fs_permission.h"
-#include "permission/permission_node.h"
+#include "permission/permission_base.h"
 #include "permission/worker_permission.h"
 #include "v8.h"
 
@@ -30,10 +30,10 @@ namespace permission {
 class Permission {
  public:
   Permission() : enabled_(false) {
-    std::shared_ptr<PermissionNode> fs = std::make_shared<FSPermission>();
-    std::shared_ptr<PermissionNode> child_p =
+    std::shared_ptr<PermissionBase> fs = std::make_shared<FSPermission>();
+    std::shared_ptr<PermissionBase> child_p =
         std::make_shared<ChildProcessPermission>();
-    std::shared_ptr<PermissionNode> worker_t =
+    std::shared_ptr<PermissionBase> worker_t =
         std::make_shared<WorkerPermission>();
 #define V(Name, _, __)                                                         \
   nodes_.insert(std::make_pair(PermissionScope::k##Name, fs));
@@ -74,7 +74,7 @@ class Permission {
   void EnablePermissions();
 
  private:
-  std::map<PermissionScope, std::shared_ptr<PermissionNode>> nodes_;
+  std::map<PermissionScope, std::shared_ptr<PermissionBase>> nodes_;
   bool enabled_;
 };
 

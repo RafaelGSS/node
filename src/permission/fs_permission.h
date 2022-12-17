@@ -6,13 +6,13 @@
 #include "v8.h"
 
 #include <vector>
-#include "permission/permission_node.h"
+#include "permission/permission_base.h"
 
 namespace node {
 
 namespace permission {
 
-class FSPermission final : public PermissionNode {
+class FSPermission final : public PermissionBase {
  public:
   void Apply(const std::string& deny) override;
   bool Deny(PermissionScope scope,
