@@ -29,25 +29,7 @@ namespace permission {
 
 class Permission {
  public:
-  Permission() : enabled_(false) {
-    std::shared_ptr<PermissionBase> fs = std::make_shared<FSPermission>();
-    std::shared_ptr<PermissionBase> child_p =
-        std::make_shared<ChildProcessPermission>();
-    std::shared_ptr<PermissionBase> worker_t =
-        std::make_shared<WorkerPermission>();
-#define V(Name, _, __)                                                         \
-  nodes_.insert(std::make_pair(PermissionScope::k##Name, fs));
-    FILESYSTEM_PERMISSIONS(V)
-#undef V
-#define V(Name, _, __)                                                         \
-  nodes_.insert(std::make_pair(PermissionScope::k##Name, child_p));
-    CHILD_PROCESS_PERMISSIONS(V)
-#undef V
-#define V(Name, _, __)                                                         \
-  nodes_.insert(std::make_pair(PermissionScope::k##Name, worker_t));
-    WORKER_THREADS_PERMISSIONS(V)
-#undef V
-  }
+  Permission();
 
   inline bool is_granted(const PermissionScope permission, const char* res) {
     if (!enabled_) return true;
