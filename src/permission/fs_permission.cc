@@ -11,19 +11,39 @@
 #include <string>
 #include <vector>
 
-namespace node {
-
-namespace permission {
-
-std::string WildcardIfDir(std::string res) {
+std::string WildcardIfDir(std::string res) noexcept {
   std::filesystem::path path(res);
-  if (std::filesystem::is_directory(path)) {
+  std::error_code ec;
+  if (std::filesystem::is_directory(path, ec)) {
     // add wildcard when directory
     res = path / "*";
   }
 
   return res;
 }
+
+void FreeRecursivelyNode(
+    node::permission::FSPermission::RadixTree::Node* node) {
+  if (node == nullptr) {
+    return;
+  }
+
+  if (node->children.size()) {
+    for (auto& c : node->children) {
+      FreeRecursivelyNode(c.second);
+    }
+  }
+
+  if (node->wildcard_child != nullptr) {
+    delete node->wildcard_child;
+  }
+  delete node;
+}
+
+namespace node {
+
+namespace permission {
+
 // allow = 'read,write'
 // allow = 'read:/tmp/'
 // allow = 'read:/tmp/,write:./example.js'
@@ -116,23 +136,6 @@ bool FSPermission::is_granted(PermissionScope perm,
     default:
       return false;
   }
-}
-
-void FreeRecursivelyNode(FSPermission::RadixTree::Node* node) {
-  if (node == nullptr) {
-    return;
-  }
-
-  if (node->children.size()) {
-    for (auto& c : node->children) {
-      FreeRecursivelyNode(c.second);
-    }
-  }
-
-  if (node->wildcard_child != nullptr) {
-    delete node->wildcard_child;
-  }
-  delete node;
 }
 
 FSPermission::RadixTree::RadixTree() : root_node_(new Node("")) {}

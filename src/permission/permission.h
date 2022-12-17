@@ -11,7 +11,7 @@
 #include "v8.h"
 
 #include <iostream>
-#include <map>
+#include <unordered_map>
 
 namespace node {
 
@@ -74,7 +74,7 @@ class Permission {
   void EnablePermissions();
 
  private:
-  std::map<PermissionScope, std::shared_ptr<PermissionBase>> nodes_;
+  std::unordered_map<PermissionScope, std::shared_ptr<PermissionBase>> nodes_;
   bool enabled_;
 };
 
