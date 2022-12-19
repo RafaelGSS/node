@@ -13,8 +13,8 @@ namespace permission {
 
 #define FILESYSTEM_PERMISSIONS(V)                                              \
   V(FileSystem, "fs", PermissionsRoot)                                         \
-  V(FileSystemIn, "fs.read", FileSystem)                                       \
-  V(FileSystemOut, "fs.write", FileSystem)
+  V(FileSystemRead, "fs.read", FileSystem)                                       \
+  V(FileSystemWrite, "fs.write", FileSystem)
 
 #define CHILD_PROCESS_PERMISSIONS(V) V(ChildProcess, "child", PermissionsRoot)
 

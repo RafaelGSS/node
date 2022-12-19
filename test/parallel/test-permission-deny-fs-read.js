@@ -1,4 +1,4 @@
-// Flags: --experimental-permission --allow-fs=read
+// Flags: --experimental-permission --allow-fs=read,write
 'use strict';
 
 const common = require('../common');
@@ -8,13 +8,15 @@ if (!common.hasCrypto)
 const assert = require('assert');
 const fs = require('fs');
 const fixtures = require('../common/fixtures');
+const tmpdir = require('../common/tmpdir');
 
 const blockedFile = fixtures.path('permission', 'deny', 'protected-file.md');
 const relativeProtectedFile = './test/fixtures/permission/deny/protected-file.md';
-const blockedFolder = '/tmp/';
+const blockedFolder = tmpdir.path + '/';
 const regularFile = __filename;
 
 {
+  tmpdir.refresh();
   assert.ok(process.permission.deny('fs.read', [blockedFile, blockedFolder]));
 }
 
@@ -24,19 +26,19 @@ const regularFile = __filename;
     fs.readFile(blockedFile, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.readFile(relativeProtectedFile, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.readFile(blockedFolder + 'anyfile', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   // doesNotThrow
@@ -52,7 +54,7 @@ const regularFile = __filename;
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   assert.rejects(() => {
@@ -62,7 +64,7 @@ const regularFile = __filename;
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   assert.rejects(() => {
@@ -72,7 +74,7 @@ const regularFile = __filename;
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 }
 
@@ -82,19 +84,19 @@ const regularFile = __filename;
     fs.stat(blockedFile, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.stat(relativeProtectedFile, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.stat(blockedFolder + 'anyfile', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   // doesNotThrow
@@ -109,19 +111,19 @@ const regularFile = __filename;
     fs.access(blockedFile, fs.constants.R_OK, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.access(relativeProtectedFile, fs.constants.R_OK, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.access(blockedFolder + 'anyfile', fs.constants.R_OK, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   // doesNotThrow
@@ -138,7 +140,7 @@ const regularFile = __filename;
     fs.readFileSync(blockedFile);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     // This operation will work fine
@@ -146,7 +148,7 @@ const regularFile = __filename;
     fs.readFileSync(relativeProtectedFile);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 }
 
@@ -156,19 +158,19 @@ const regularFile = __filename;
     fs.copyFile(blockedFile, blockedFolder + 'any-other-file', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.copyFile(relativeProtectedFile, blockedFolder + 'any-other-file', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.copyFile(blockedFile, `${__dirname}/any-other-file`, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 }
 
@@ -178,19 +180,19 @@ const regularFile = __filename;
     fs.cpSync(blockedFile, blockedFolder + 'any-other-file');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.cpSync(relativeProtectedFile, blockedFolder + 'any-other-file');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.cpSync(blockedFile, `${__dirname}/any-other-file`);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 }
 
@@ -200,19 +202,19 @@ const regularFile = __filename;
     fs.open(blockedFile, 'r', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.open(relativeProtectedFile, 'r', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.open(blockedFolder + 'anyfile', 'r', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   // doesNotThrow
@@ -229,7 +231,7 @@ const regularFile = __filename;
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   // doesNotThrow
   fs.opendir(__dirname, (err, dir) => {
@@ -244,7 +246,7 @@ const regularFile = __filename;
     fs.readdir(blockedFolder, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   // doesNotThrow
@@ -259,13 +261,13 @@ const regularFile = __filename;
     fs.watch(blockedFile, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.watch(relativeProtectedFile, () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   // doesNotThrow
@@ -280,12 +282,13 @@ const regularFile = __filename;
     fs.rename(blockedFile, 'newfile', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.rename(relativeProtectedFile, 'newfile', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 }
+tmpdir.refresh();

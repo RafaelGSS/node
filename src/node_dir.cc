@@ -368,7 +368,7 @@ static void OpenDir(const FunctionCallbackInfo<Value>& args) {
   BufferValue path(isolate, args[0]);
   CHECK_NOT_NULL(*path);
   THROW_IF_INSUFFICIENT_PERMISSIONS(
-      env, permission::PermissionScope::kFileSystemIn, *path);
+      env, permission::PermissionScope::kFileSystemRead, *path);
 
   const enum encoding encoding = ParseEncoding(isolate, args[1], UTF8);
 

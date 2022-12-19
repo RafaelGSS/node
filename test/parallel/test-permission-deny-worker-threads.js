@@ -8,8 +8,12 @@ const {
   Worker,
   isMainThread,
 } = require('worker_threads');
+const { once } = require('events');
 
-function blockedEnv() {
+async function createWorker() {
+  // doesNotThrow
+  const worker = new Worker(__filename);
+  await once(worker, 'exit');
   // When a permission is set by API, the process shouldn't be able
   // to create worker threads
   assert.ok(process.permission.deny('worker'));
@@ -21,12 +25,8 @@ function blockedEnv() {
   }));
 }
 
-{
-  if (isMainThread) {
-    // doesNotThrow
-    const worker = new Worker(__filename);
-    worker.on('exit', blockedEnv);
-  } else {
-    process.exit(0);
-  }
+if (isMainThread) {
+  createWorker();
+} else {
+  process.exit(0);
 }

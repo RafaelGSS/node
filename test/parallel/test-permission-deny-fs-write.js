@@ -28,20 +28,20 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     fs.writeFile(blockedFile, 'example', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
   assert.throws(() => {
     fs.writeFile(relativeProtectedFile, 'example', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 
   assert.throws(() => {
     fs.writeFile(blockedFolder + '/anyfile', 'example', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 }
 
@@ -54,7 +54,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
   assert.rejects(() => {
     return new Promise((_resolve, reject) => {
@@ -63,7 +63,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 
   assert.rejects(() => {
@@ -73,7 +73,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 }
 
@@ -83,20 +83,20 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     fs.utimes(blockedFile, new Date(), new Date(), () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
   assert.throws(() => {
     fs.utimes(relativeProtectedFile, new Date(), new Date(), () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 
   assert.throws(() => {
     fs.utimes(blockedFolder + '/anyfile', new Date(), new Date(), () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 }
 
@@ -108,7 +108,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
   assert.throws(() => {
     fs.mkdir(relativeProtectedFolder + '/any-folder', (err) => {
@@ -116,7 +116,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 }
 
@@ -128,7 +128,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
   assert.throws(() => {
     fs.rename(relativeProtectedFile, relativeProtectedFile + 'renamed', (err) => {
@@ -136,7 +136,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
   assert.throws(() => {
     fs.rename(blockedFile, regularFolder + '/renamed', (err) => {
@@ -144,7 +144,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 
   assert.throws(() => {
@@ -153,7 +153,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 }
 
@@ -163,13 +163,13 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     fs.copyFileSync(regularFile, blockedFolder + '/any-file');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
   assert.throws(() => {
     fs.copyFileSync(regularFile, relativeProtectedFolder + '/any-file');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 }
 
@@ -179,13 +179,13 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     fs.cpSync(regularFile, blockedFolder + '/any-file');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
   assert.throws(() => {
     fs.cpSync(regularFile, relativeProtectedFolder + '/any-file');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 }
 
@@ -195,13 +195,13 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     fs.rmSync(blockedFolder, { recursive: true });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
   assert.throws(() => {
     fs.rmSync(relativeProtectedFolder, { recursive: true });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 
   // The user shouldn't be capable to rmdir of a non-protected folder
@@ -211,6 +211,6 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     fs.rmSync(regularFolder, { recursive: true });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 }

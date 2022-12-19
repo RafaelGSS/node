@@ -49,7 +49,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     return fsPromises.readFile(protectedFile);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   // doesNotThrow
@@ -73,14 +73,14 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
      .writeFile(protectedFolder + '/new-file', 'data');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 
   assert.throws(() => {
     fs.openSync(regularFile, 'w');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemOut',
+    permission: 'FileSystemWrite',
   }));
 }
 

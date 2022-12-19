@@ -18,8 +18,8 @@ if (process.argv[2] === 'child') {
 // to spawn unless --allow-child-process is sent
 {
   // doesNotThrow
-  childProcess.spawnSync('node', ['--version']);
-  childProcess.execSync('node', ['--version']);
+  childProcess.spawnSync(process.execPath, ['--version']);
+  childProcess.execSync(process.execPath, ['--version']);
   childProcess.fork(__filename, ['child']);
-  childProcess.execFileSync('node', ['--version']);
+  childProcess.execFileSync(process.execPath, ['--version']);
 }

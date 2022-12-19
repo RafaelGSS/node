@@ -11,13 +11,13 @@ if (process.argv[2] === 'child') {
 
 {
   // doesNotThrow
-  const spawn = childProcess.spawn('node', ['--version']);
+  const spawn = childProcess.spawn(process.execPath, ['--version']);
   spawn.kill();
-  const exec = childProcess.exec('node', ['--version']);
+  const exec = childProcess.exec(process.execPath, ['--version']);
   exec.kill();
   const fork = childProcess.fork(__filename, ['child']);
   fork.kill();
-  const execFile = childProcess.execFile('node', ['--version']);
+  const execFile = childProcess.execFile(process.execPath, ['--version']);
   execFile.kill();
 
   assert.ok(process.permission.deny('child'));
@@ -25,13 +25,13 @@ if (process.argv[2] === 'child') {
   // When a permission is set by API, the process shouldn't be able
   // to spawn
   assert.throws(() => {
-    childProcess.spawn('node', ['--version']);
+    childProcess.spawn(process.execPath, ['--version']);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'ChildProcess',
   }));
   assert.throws(() => {
-    childProcess.exec('node', ['--version']);
+    childProcess.exec(process.execPath, ['--version']);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'ChildProcess',
@@ -43,7 +43,7 @@ if (process.argv[2] === 'child') {
     permission: 'ChildProcess',
   }));
   assert.throws(() => {
-    childProcess.execFile('node', ['--version']);
+    childProcess.execFile(process.execPath, ['--version']);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'ChildProcess',

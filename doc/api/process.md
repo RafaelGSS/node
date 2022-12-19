@@ -2615,7 +2615,7 @@ This API is available through the [`--experimental-permission`][] flag.
 for the current process. Additional documentation is available in the
 [Permission Model][].
 
-### `process.permission.check(scope[, reference])`
+### `process.permission.has(scope[, reference])`
 
 <!-- YAML
 added: REPLACEME
@@ -2628,7 +2628,7 @@ added: REPLACEME
 Verifies that the process is able to access the given scope and reference.
 If no reference is provided, a global scope is assumed.
 
-The reference has a meaning based on the provided resource. For example,
+The reference has a meaning based on the provided scope. For example,
 the reference when the scope is File System means files and folders.
 
 The available scopes are:
@@ -2639,9 +2639,9 @@ The available scopes are:
 
 ```js
 // Check if the process has permission to read the README file
-process.permission.check('fs.read', './README.md');
+process.permission.has('fs.read', './README.md');
 // Check if the process has read permission operations
-process.permission.check('fs.read');
+process.permission.has('fs.read');
 ```
 
 ### `process.permission.deny(scope[, reference])`
@@ -2656,13 +2656,13 @@ added: REPLACEME
 
 Deny permissions at runtime.
 
-The available scope are:
+The available scopes are:
 
 * `fs` - All File System
 * `fs.read` - File System read operations
 * `fs.write` - File System write operations
 
-The reference has a meaning based on the provided resource. For example,
+The reference has a meaning based on the provided scope. For example,
 the reference when the scope is File System means files and folders.
 
 ```js

@@ -18,13 +18,13 @@ if (process.argv[2] === 'child') {
 // to spawn
 {
   assert.throws(() => {
-    childProcess.spawn('node', ['--version']);
+    childProcess.spawn(process.execPath, ['--version']);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'ChildProcess',
   }));
   assert.throws(() => {
-    childProcess.exec('node', ['--version']);
+    childProcess.exec(process.execPath, ['--version']);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'ChildProcess',
@@ -36,7 +36,7 @@ if (process.argv[2] === 'child') {
     permission: 'ChildProcess',
   }));
   assert.throws(() => {
-    childProcess.execFile('node', ['--version']);
+    childProcess.execFile(process.execPath, ['--version']);
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'ChildProcess',

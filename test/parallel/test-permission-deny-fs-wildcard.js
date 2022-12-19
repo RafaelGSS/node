@@ -29,7 +29,7 @@ const fs = require('fs');
     fs.readFile('/tmp/foo/file', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   // doesNotThrow
   fs.readFile('/test.txt', () => {});
@@ -41,19 +41,19 @@ const fs = require('fs');
     fs.readFile('/example/foo/file', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.readFile('/example/foo2/file', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.readFile('/example/foo2', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   // doesNotThrow
@@ -66,19 +66,19 @@ const fs = require('fs');
     fs.readFile('/example/bar/file', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.readFile('/example/bar2/file', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.readFile('/example/bar', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 
   // doesNotThrow
@@ -90,18 +90,18 @@ const fs = require('fs');
     fs.readFile('/folder/a/subfolder/b', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.readFile('/folder/a/subfolder/b/c.txt', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
   assert.throws(() => {
     fs.readFile('/folder/a/foo2.js', () => {});
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
-    permission: 'FileSystemIn',
+    permission: 'FileSystemRead',
   }));
 }

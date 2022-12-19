@@ -109,10 +109,9 @@ added: REPLACEME
 > Stability: 1 - Experimental
 
 When using the [Permission Model][], the process will not be able to spawn any
-kind of process.
-For security reasons, the call will throw an `ERR_ACCESS_DENIED` unless the
-user explicitly pass the flag `--allow-child-process` in the main Node.js
-process.
+child process by default.
+Attemps to do so will throw an `ERR_ACCESS_DENIED` unless the
+user explicitly passes the `--allow-child-process` flag when starting Node.js.
 
 If the user explicitly allows to spawn a child process, then it will be the
 user's responsibility to pass along the correct arguments.
@@ -153,26 +152,26 @@ added: REPLACEME
 
 > Stability: 1 - Experimental
 
-This flag allows the management of the filesystem permissions when using
+This flag configures filesystem read/write permissions using
 the [Permission Model][].
 
 The valid arguments for the `--allow-fs` flag are:
 
-* `write` - To manage `FileSystemOut` (Writing) operations.
-* `read` - To manage `FileSystemIn` (Reading) operations.
-* `fs` - To allow all the `FileSystem` operations.
+* `write` - To manage `FileSystemWrite` (writing) operations.
+* `read` - To manage `FileSystemRead` (reading) operations.
+* `fs` - To allow the `FileSystem` operations.
 
 Example:
 
-* `--allow-fs=read:/tmp/` - It will allow `FileSystemIn` access to the `/tmp/`
+* `--allow-fs=read:/tmp/` - It will allow `FileSystemRead` access to the `/tmp/`
   folder.
-* `--allow-fs=read:/tmp/:/home/.gitignore` - It allows `FileSystemIn` access to
-  the `/tmp/` folder **and** the `/home/.gitignore` path.
+* `--allow-fs=read:/tmp/:/home/.gitignore` - It allows `FileSystemRead` access
+  to the `/tmp/` folder **and** the `/home/.gitignore` path.
 
 You can also mix both arguments:
 
-* `--allow-fs=write,read:/tmp/` - It will allow `FileSystemIn` access to the
-  `/tmp/` folder **and** allow **all** the `FileSystemOut` operations.
+* `--allow-fs=write,read:/tmp/` - It will allow `FileSystemRead` access to the
+  `/tmp/` folder **and** allow **all** the `FileSystemWrite` operations.
 * **Note**: It accepts wildcard parameters as well.
   For instance: `--allow-fs=write:/home/test*` will allow everything
   that matches the wildcard. e.g: `/home/test/file1` or `/home/test2`
@@ -506,8 +505,8 @@ Enable experimental support for the `https:` protocol in `import` specifiers.
 added: REPLACEME
 -->
 
-Enable Permission Model to the current environment. When enabling it, all the
-following permissions will be restricted:
+Enable the Permission Model for current process. When enabled, the
+following permissions are restricted:
 
 * File System - manageable through \[`--allow-fs`]\[] flag
 * Child Process - manageable through \[`--allow-child-process`]\[] flag

@@ -8,5 +8,5 @@ const assert = require('assert');
 // when using permission system
 
 process.on('warning', common.mustCall((warning) => {
-  assert.match(warning.message, /is an experimental feature/);
+  assert.match(warning.message, /Permission is an experimental feature/);
 }, 1));

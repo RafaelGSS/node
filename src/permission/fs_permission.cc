@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 
+namespace {
+
 std::string WildcardIfDir(std::string res) noexcept {
   std::filesystem::path path(res);
   std::error_code ec;
@@ -40,6 +42,8 @@ void FreeRecursivelyNode(
   delete node;
 }
 
+} // namespace
+
 namespace node {
 
 namespace permission {
@@ -58,11 +62,11 @@ void FSPermission::Apply(const std::string& allow) {
           return;
         }
         if (opt == "read") {
-          perm = PermissionScope::kFileSystemIn;
+          perm = PermissionScope::kFileSystemRead;
           deny_all_in_ = false;
           allow_all_in_ = true;
         } else if (opt == "write") {
-          perm = PermissionScope::kFileSystemOut;
+          perm = PermissionScope::kFileSystemWrite;
           deny_all_out_ = false;
           allow_all_out_ = true;
         } else {
@@ -84,7 +88,7 @@ bool FSPermission::Deny(PermissionScope perm,
   }
 
   bool deny_all = params.size() == 0;
-  if (perm == PermissionScope::kFileSystemIn) {
+  if (perm == PermissionScope::kFileSystemRead) {
     if (deny_all) deny_all_in_ = true;
     // when deny_all_in is already true permission.deny should be idempotent
     if (deny_all_in_) return true;
@@ -95,7 +99,7 @@ bool FSPermission::Deny(PermissionScope perm,
     return true;
   }
 
-  if (perm == PermissionScope::kFileSystemOut) {
+  if (perm == PermissionScope::kFileSystemWrite) {
     if (deny_all) deny_all_out_ = true;
     // when deny_all_out is already true permission.deny should be idempotent
     if (deny_all_out_) return true;
@@ -111,10 +115,10 @@ bool FSPermission::Deny(PermissionScope perm,
 
 void FSPermission::GrantAccess(PermissionScope perm, std::string res) {
   const std::string path = WildcardIfDir(res);
-  if (perm == PermissionScope::kFileSystemIn) {
+  if (perm == PermissionScope::kFileSystemRead) {
     granted_in_fs_.Insert(res);
     allow_all_in_ = false;
-  } else if (perm == PermissionScope::kFileSystemOut) {
+  } else if (perm == PermissionScope::kFileSystemWrite) {
     granted_out_fs_.Insert(res);
     allow_all_out_ = false;
   }
@@ -125,11 +129,11 @@ bool FSPermission::is_granted(PermissionScope perm,
   switch (perm) {
     case PermissionScope::kFileSystem:
       return !(deny_all_in_ && deny_all_out_);
-    case PermissionScope::kFileSystemIn:
+    case PermissionScope::kFileSystemRead:
       return !deny_all_in_ && (allow_all_in_ || param.empty() ||
                                (!deny_in_fs_.Lookup(param) &&
                                 granted_in_fs_.Lookup(param, true)));
-    case PermissionScope::kFileSystemOut:
+    case PermissionScope::kFileSystemWrite:
       return !deny_all_out_ && (allow_all_out_ || param.empty() ||
                                 (!deny_out_fs_.Lookup(param) &&
                                  granted_out_fs_.Lookup(param, true)));

@@ -13,7 +13,7 @@ be accessed by other modules.
 * [Process-based permissions](#process-based-permissions) control the Node.js
   process's access to resources such as the file system or the network.
   The resource can be entirely allowed or denied, or actions related to it can
-  be controlled; for example, you can allow file system reads while denying
+  be controlled. For example, file system reads can be allowed while denying
   writes.
 
 If you find a potential security vulnerability, please refer to our
@@ -456,19 +456,19 @@ Additionally, import maps only work on `import` so it may be desirable to add a
 
 <!-- name=permission-model -->
 
-The Node.js Permission Model is a mechanism to restrict access to specific
-resources during the program execution.
+The Node.js Permission Model is a mechanism for restricting access to specific
+resources during execution.
 The API exists behind a flag [`--experimental-permission`][] which when enabled,
 will restrict access to all available permissions.
 
-Currently, the available permissions are:
+The available permissions are:
 
-* File System - manageable through [`--allow-fs`][] flag
-* Child Process - manageable through [`--allow-child-process`][] flag
-* Worker Threads - manageable through [`--allow-worker`][] flag
+* File System - managed through the [`--allow-fs`][] flag
+* Child Process - managed through the [`--allow-child-process`][] flag
+* Worker Threads - managed through the [`--allow-worker`][] flag
 
-Therefore, when starting a Node.js process with `--experimental-permission`,
-the capabilities to access the filesystem, spawn process and,
+When starting Node.js with `--experimental-permission`,
+the ability to access the filesystem, spawn processes, and
 use `node:worker_threads` will be restricted.
 
 ```console
@@ -484,7 +484,7 @@ Error: Access to this API has been restricted
     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:76:24)
     at node:internal/main/run_main_module:23:47 {
   code: 'ERR_ACCESS_DENIED',
-  permission: 'FileSystemIn'
+  permission: 'FileSystemRead'
 }
 ```
 
@@ -494,48 +494,41 @@ using the `--allow-child-process` and `--allow-worker` respectively.
 #### Runtime API
 
 When enabling the Permission Model through the [`--experimental-permission`][]
-flag a new property `permission` is added to the `process` module.
+flag a new property `permission` is added to the `process` object.
 This property contains two functions:
 
 * `permission.deny(scope [,parameters])`
-  * `scope` {string}
-  * `parameters` {Array} array of strings
-  * Returns: {boolean} Operation result.
 
-API Call to _deny_ permissions at runtime. e.g
+API call to deny permissions at runtime ([`permission.deny()`][])
 
 ```js
 process.permission.deny('fs'); // Deny permissions to ALL fs operations
 
-// Deny permissions to ALL FileSystemOut operations
+// Deny permissions to ALL FileSystemWrite operations
 process.permission.deny('fs.write');
-// deny FileSystemOut permissions to the protected-folder
+// deny FileSystemWrite permissions to the protected-folder
 process.permission.deny('fs.write', ['/home/rafaelgss/protected-folder']);
-// Deny permissions to ALL FileSystemIn operations
+// Deny permissions to ALL FileSystemRead operations
 process.permission.deny('fs.read');
-// deny FileSystemIn permissions to the protected-folder
+// deny FileSystemRead permissions to the protected-folder
 process.permission.deny('fs.read', ['/home/rafaelgss/protected-folder']);
 ```
 
-* `permission.check(scope [,parameters])`
-  * `scope` {string}
-  * `parameters` {string}
-
-API Call to _check_ permissions at runtime.
+API call to check permissions at runtime ([`permission.has()`][])
 
 ```js
-process.permission.check('fs.write'); // true
-process.permission.check('fs.write', '/home/rafaelgss/protected-folder'); // true
+process.permission.has('fs.write'); // true
+process.permission.has('fs.write', '/home/rafaelgss/protected-folder'); // true
 
 process.permission.deny('fs.write', '/home/rafaelgss/protected-folder');
 
-process.permission.check('fs.write'); // true
-process.permission.check('fs.write', '/home/rafaelgss/protected-folder'); // false
+process.permission.has('fs.write'); // true
+process.permission.has('fs.write', '/home/rafaelgss/protected-folder'); // false
 ```
 
 #### File System Permissions
 
-To allow access to the filesystem, you need to use the flag `--allow-fs`
+To allow access to the filesystem, use the flag `--allow-fs`:
 
 ```console
 $ node --experimental-permission --allow-fs=read index.js
@@ -546,32 +539,32 @@ Hello world!
 
 The valid arguments for the `--allow-fs` flag option are:
 
-* `write` - To manage `FileSystemOut` (Writing) operations.
-* `read` - To manage `FileSystemIn` (Reading) operations.
+* `write` - To manage `FileSystemWrite` (writing) operations.
+* `read` - To manage `FileSystemRead` (reading) operations.
 * `fs` - To allow all the `FileSystem` operations.
 
 Example:
 
-* `--allow-fs=read:/tmp/` - It will allow `FileSystemIn` access to the `/tmp/`
+* `--allow-fs=read:/tmp/` - It will allow `FileSystemRead` access to the `/tmp/`
   folder.
-* `--allow-fs=read:/tmp/:/home/.gitignore` - It allows `FileSystemIn` access to
-  the `/tmp/` folder **and** the `/home/.gitignore` path.
+* `--allow-fs=read:/tmp/:/home/.gitignore` - It allows `FileSystemRead` access
+  to the `/tmp/` folder **and** the `/home/.gitignore` path.
 
 You can also mix both arguments:
 
-* `--allow-fs=write,read:/tmp/` - It will allow `FileSystemIn` access to the
-  `/tmp/` folder **and** allow **all** the `FileSystemOut` operations.
+* `--allow-fs=write,read:/tmp/` - It will allow `FileSystemRead` access to the
+  `/tmp/` folder **and** allow **all** the `FileSystemWrite` operations.
 * **Note**: It accepts wildcard parameters as well.
   For instance: `--allow-fs=write:/home/test*` will allow everything that
   matches the wildcard. e.g: `/home/test/file1` or `/home/test2`
 
 There are constraints you need to know before using this system:
 
-* Native modules are not supported by this mechanism.
-* Relative paths aren't supported yet through the CLI (`--allow-fs`).
+* Native modules are not restricted by the Permission Model.
+* Relative paths are not supported through the CLI (`--allow-fs`).
   The runtime API supports relative paths.
-* File Descriptors opened before a permission set is applied won't be
-  validated. Consider the following snippet:
+* Permission changes are not retroactively applied to existing resources.
+  Consider the following snippet:
 
 ```js
 const fs = require('node:fs');
@@ -597,6 +590,8 @@ const fd = fs.openSync('./README.md', 'r');
 [`--allow-fs`]: cli.md#--allow-fs
 [`--allow-worker`]: cli.md#--allow-worker
 [`--experimental-permission`]: cli.md#--experimental-permission
+[`permission.deny()`]: process.md#processpermissiondenyscope-reference
+[`permission.has()`]: process.md#processpermissionhasscope-reference
 [import maps]: https://url.spec.whatwg.org/#relative-url-with-fragment-string
 [relative-url string]: https://url.spec.whatwg.org/#relative-url-with-fragment-string
 [special schemes]: https://url.spec.whatwg.org/#special-scheme
