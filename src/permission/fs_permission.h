@@ -5,6 +5,7 @@
 
 #include "v8.h"
 
+#include <unordered_map>
 #include <vector>
 #include "permission/permission_base.h"
 
@@ -24,7 +25,7 @@ class FSPermission final : public PermissionBase {
   struct RadixTree {
     struct Node {
       std::string prefix;
-      std::map<char, Node*> children;
+      std::unordered_map<char, Node*> children;
       Node* wildcard_child;
 
       explicit Node(const std::string& pre)
@@ -68,11 +69,16 @@ class FSPermission final : public PermissionBase {
         return wildcard_child;
       }
 
-      Node* NextNode(std::string path, int idx) {
-        auto child = children[path[idx]];
-        if (!child) {
+      Node* NextNode(const std::string& path, unsigned int idx) {
+        if (idx >= path.length()) {
           return nullptr;
         }
+
+        auto it = children.find(path[idx]);
+        if (it == children.end()) {
+          return nullptr;
+        }
+        auto child = it->second;
         // match prefix
         unsigned int prefix_len = child->prefix.length();
         for (unsigned int i = 0; i < path.length(); ++i) {

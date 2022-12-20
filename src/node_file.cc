@@ -1891,10 +1891,11 @@ static void Open(const FunctionCallbackInfo<Value>& args) {
         env, permission::PermissionScope::kFileSystemRead, *path);
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, permission::PermissionScope::kFileSystemWrite, *path);
-  } else if ((flags & ~(O_RDONLY | O_SYNC)) == 0) {
+  } else if ((flags & ~(UV_FS_O_RDONLY | UV_FS_O_SYNC)) == 0) {
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, permission::PermissionScope::kFileSystemRead, *path);
-  } else if ((flags & (O_APPEND | O_TRUNC | O_CREAT | O_WRONLY)) != 0) {
+  } else if ((flags & (UV_FS_O_APPEND | UV_FS_O_TRUNC | UV_FS_O_CREAT |
+                       UV_FS_O_WRONLY)) != 0) {
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, permission::PermissionScope::kFileSystemWrite, *path);
   }
@@ -1944,10 +1945,11 @@ static void OpenFileHandle(const FunctionCallbackInfo<Value>& args) {
         env, permission::PermissionScope::kFileSystemRead, *path);
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, permission::PermissionScope::kFileSystemWrite, *path);
-  } else if ((flags & ~(O_RDONLY | O_SYNC)) == 0) {
+  } else if ((flags & ~(UV_FS_O_RDONLY | UV_FS_O_SYNC)) == 0) {
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, permission::PermissionScope::kFileSystemRead, *path);
-  } else if ((flags & (O_APPEND | O_TRUNC | O_CREAT | O_WRONLY)) != 0) {
+  } else if ((flags & (UV_FS_O_APPEND | UV_FS_O_TRUNC | UV_FS_O_CREAT |
+                       UV_FS_O_WRONLY)) != 0) {
     THROW_IF_INSUFFICIENT_PERMISSIONS(
         env, permission::PermissionScope::kFileSystemWrite, *path);
   }
