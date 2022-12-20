@@ -13,14 +13,20 @@
 
 namespace {
 
-std::string WildcardIfDir(std::string res) noexcept {
-  std::filesystem::path path(res);
-  std::error_code ec;
-  if (std::filesystem::is_directory(path, ec)) {
-    // add wildcard when directory
-    res = path / "*";
+std::string WildcardIfDir(const std::string& res) noexcept {
+  uv_fs_t req;
+  int rc = uv_fs_stat(nullptr, &req, res.c_str(), nullptr);
+  if (rc == 0) {
+    const uv_stat_t* const s = static_cast<const uv_stat_t*>(req.ptr);
+    if (s->st_mode & S_IFDIR) {
+      // add wildcard when directory
+      if (res.back() == '/') {
+        return res + "*";
+      }
+      return res + "/*";
+    }
   }
-
+  uv_fs_req_cleanup(&req);
   return res;
 }
 
