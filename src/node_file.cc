@@ -1218,8 +1218,12 @@ static void Symlink(const FunctionCallbackInfo<Value>& args) {
 
   BufferValue target(isolate, args[0]);
   CHECK_NOT_NULL(*target);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, permission::PermissionScope::kFileSystemRead, *target);
   BufferValue path(isolate, args[1]);
   CHECK_NOT_NULL(*path);
+  THROW_IF_INSUFFICIENT_PERMISSIONS(
+      env, permission::PermissionScope::kFileSystemWrite, *path);
 
   CHECK(args[2]->IsInt32());
   int flags = args[2].As<Int32>()->Value();
