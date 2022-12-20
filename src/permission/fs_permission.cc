@@ -42,7 +42,7 @@ void FreeRecursivelyNode(
   delete node;
 }
 
-} // namespace
+}  // namespace
 
 namespace node {
 
