@@ -22,7 +22,8 @@ namespace permission {
 #define THROW_IF_INSUFFICIENT_PERMISSIONS(env, perm_, resource_, ...)          \
   do {                                                                         \
     if (UNLIKELY(!(env)->permission()->is_granted(perm_, resource_))) {        \
-      node::permission::Permission::ThrowAccessDenied((env), perm_);           \
+      node::permission::Permission::ThrowAccessDenied(                         \
+          (env), perm_, resource_);                                            \
       return __VA_ARGS__;                                                      \
     }                                                                          \
   } while (0)
@@ -47,7 +48,9 @@ class Permission {
 
   static PermissionScope StringToPermission(const std::string& perm);
   static const char* PermissionToString(PermissionScope perm);
-  static void ThrowAccessDenied(Environment* env, PermissionScope perm);
+  static void ThrowAccessDenied(Environment* env,
+                                PermissionScope perm,
+                                const std::string& res);
 
   // CLI Call
   void Apply(const std::string& deny, PermissionScope scope);

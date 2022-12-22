@@ -259,6 +259,7 @@
   V(rename_string, "rename")                                                   \
   V(replacement_string, "replacement")                                         \
   V(require_string, "require")                                                 \
+  V(resource_string, "resource")                                               \
   V(retry_string, "retry")                                                     \
   V(salt_length_string, "saltLength")                                          \
   V(scheme_string, "scheme")                                                   \

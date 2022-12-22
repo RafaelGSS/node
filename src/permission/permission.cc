@@ -20,7 +20,6 @@ using v8::Context;
 using v8::FunctionCallbackInfo;
 using v8::Integer;
 using v8::Local;
-using v8::Nothing;
 using v8::Object;
 using v8::String;
 using v8::Value;
@@ -131,7 +130,9 @@ Permission::Permission() : enabled_(false) {
 #undef V
 }
 
-void Permission::ThrowAccessDenied(Environment* env, PermissionScope perm) {
+void Permission::ThrowAccessDenied(Environment* env,
+                                   PermissionScope perm,
+                                   const std::string& res) {
   Local<Value> err = ERR_ACCESS_DENIED(env->isolate());
   CHECK(err->IsObject());
   err.As<Object>()
@@ -141,7 +142,14 @@ void Permission::ThrowAccessDenied(Environment* env, PermissionScope perm) {
                                     PermissionToString(perm),
                                     v8::NewStringType::kNormal)
                 .ToLocalChecked())
-      .FromMaybe(false);  // Nothing to do about an error at this point.
+      .FromMaybe(false);
+  err.As<Object>()
+      ->Set(env->context(),
+            env->resource_string(),
+            v8::String::NewFromUtf8(
+                env->isolate(), res.c_str(), v8::NewStringType::kNormal)
+                .ToLocalChecked())
+      .FromMaybe(false);
   env->isolate()->ThrowException(err);
 }
 
