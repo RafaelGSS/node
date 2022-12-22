@@ -11,12 +11,19 @@ if (process.features.inspector) {
   requiresArgument('--inspect-port=');
   requiresArgument('--debug-port');
   requiresArgument('--debug-port=');
-  requiresArgument('--allow-fs-read=');
-  requiresArgument('--allow-fs-read');
-  requiresArgument('--allow-fs-write=');
-  requiresArgument('--allow-fs-write');
 }
 requiresArgument('--eval');
+
+requiresPairArgument('--allow-fs-read=*', '--experimental-permission');
+requiresPairArgument('--allow-fs-write=*', '--experimental-permission');
+
+function requiresPairArgument(option, requiredOption) {
+  const r = spawnSync(process.execPath, [option], { encoding: 'utf8' });
+  assert.strictEqual(r.status, 1);
+
+  const message = `Option "${option}" cannot be used without the option "${requiredOption}"`;
+  assert.match(r.stderr, new RegExp(message));
+}
 
 function requiresArgument(option) {
   const r = spawnSync(process.execPath, [option], { encoding: 'utf8' });

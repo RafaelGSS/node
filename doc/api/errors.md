@@ -1810,6 +1810,12 @@ An import assertion is not supported by this version of Node.js.
 An option pair is incompatible with each other and cannot be used at the same
 time.
 
+<a id="ERR_INCOMPATIBLE_OPTION_WITHOUT_PAIR"></a>
+
+### `ERR_INCOMPATIBLE_OPTION_WITHOUT_PAIR`
+
+An option is incompatible without its pair and cannot be used without it.
+
 <a id="ERR_INPUT_TYPE_NOT_ALLOWED"></a>
 
 ### `ERR_INPUT_TYPE_NOT_ALLOWED`
