@@ -733,9 +733,10 @@ Environment::Environment(IsolateData* isolate_data,
   }
 
   if (options_->experimental_permission) {
+    permission()->EnablePermissions();
     // If any permission is set the process shouldn't be able to spawn/worker
     // unless explicitly allowed by the user
-    if (!options_->allow_fs.empty()) {
+    if (!options_->allow_fs_read.empty() || !options_->allow_fs_write.empty()) {
       if (!options_->allow_child_process) {
         permission()->Deny(permission::PermissionScope::kChildProcess, {});
       }
@@ -744,8 +745,15 @@ Environment::Environment(IsolateData* isolate_data,
       }
     }
 
-    permission()->Apply(options_->allow_fs,
-                        permission::PermissionScope::kFileSystem);
+    if (!options_->allow_fs_read.empty()) {
+      permission()->Apply(options_->allow_fs_read,
+                          permission::PermissionScope::kFileSystemRead);
+    }
+
+    if (!options_->allow_fs_write.empty()) {
+      permission()->Apply(options_->allow_fs_write,
+                          permission::PermissionScope::kFileSystemWrite);
+    }
   }
 }
 

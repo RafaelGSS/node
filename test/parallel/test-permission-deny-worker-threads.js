@@ -1,4 +1,4 @@
-// Flags: --experimental-permission --allow-fs=read --allow-worker
+// Flags: --experimental-permission --allow-fs-read=* --allow-worker
 'use strict';
 
 const common = require('../common');

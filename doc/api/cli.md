@@ -125,7 +125,7 @@ childProcess.spawn('node', ['-e', 'require("fs").writeFileSync("/new-file", "exa
 ```
 
 ```console
-$ node --experimental-permission --allow-fs=read index.js
+$ node --experimental-permission --allow-fs-read=* index.js
 node:internal/child_process:388
   const err = this._handle.spawn(options);
                            ^
@@ -144,7 +144,7 @@ Error: Access to this API has been restricted
 }
 ```
 
-### `--allow-fs`
+### `--allow-fs-read`
 
 <!-- YAML
 added: REPLACEME
@@ -152,29 +152,35 @@ added: REPLACEME
 
 > Stability: 1 - Experimental
 
-This flag configures filesystem read/write permissions using
+This flag configures filesystem read permissions using
 the [Permission Model][].
 
-The valid arguments for the `--allow-fs` flag are:
+The valid arguments for the `--allow-fs-read` flag are:
 
-* `write` - To manage `FileSystemWrite` (writing) operations.
-* `read` - To manage `FileSystemRead` (reading) operations.
-* `fs` - To allow the `FileSystem` operations.
+* `*` - To allow the `FileSystemRead` operations.
+* Paths delimited by comma (,) to manage `FileSystemRead` (reading) operations.
 
-Example:
+Examples can be found in the [File System Permissions][] documentation.
 
-* `--allow-fs=read:/tmp/` - It will allow `FileSystemRead` access to the `/tmp/`
-  folder.
-* `--allow-fs=read:/tmp/:/home/.gitignore` - It allows `FileSystemRead` access
-  to the `/tmp/` folder **and** the `/home/.gitignore` path.
+Relative paths are NOT supported through the CLI flag.
 
-You can also mix both arguments:
+### `--allow-fs-write`
 
-* `--allow-fs=write,read:/tmp/` - It will allow `FileSystemRead` access to the
-  `/tmp/` folder **and** allow **all** the `FileSystemWrite` operations.
-* **Note**: It accepts wildcard parameters as well.
-  For instance: `--allow-fs=write:/home/test*` will allow everything
-  that matches the wildcard. e.g: `/home/test/file1` or `/home/test2`
+<!-- YAML
+added: REPLACEME
+-->
+
+> Stability: 1 - Experimental
+
+This flag configures filesystem write permissions using
+the [Permission Model][].
+
+The valid arguments for the `--allow-fs-write` flag are:
+
+* `*` - To allow the `FileSystemWrite` operations.
+* Paths delimited by comma (,) to manage `FileSystemWrite` (writing) operations.
+
+Examples can be found in the [File System Permissions][] documentation.
 
 Relative paths are NOT supported through the CLI flag.
 
@@ -203,7 +209,7 @@ new Worker(__filename);
 ```
 
 ```console
-$ node --experimental-permission --allow-fs=read index.js
+$ node --experimental-permission --allow-fs-read=* index.js
 node:internal/worker:188
     this[kHandle] = new WorkerImpl(url,
                     ^
@@ -508,7 +514,8 @@ added: REPLACEME
 Enable the Permission Model for current process. When enabled, the
 following permissions are restricted:
 
-* File System - manageable through \[`--allow-fs`]\[] flag
+* File System - manageable through
+  \[`--allow-fs-read`]\[],\[`allow-fs-write`]\[] flags
 * Child Process - manageable through \[`--allow-child-process`]\[] flag
 * Worker Threads - manageable through \[`--allow-worker`]\[] flag
 
@@ -2001,7 +2008,8 @@ Node.js options that are allowed are:
 <!-- node-options-node start -->
 
 * `--allow-child-process`
-* `--allow-fs`
+* `--allow-fs-read`
+* `--allow-fs-write`
 * `--allow-worker`
 * `--conditions`, `-C`
 * `--diagnostic-dir`
@@ -2449,6 +2457,7 @@ done
 [ECMAScript module]: esm.md#modules-ecmascript-modules
 [ECMAScript module loader]: esm.md#loaders
 [Fetch API]: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+[File System Permissions]: permissions.md#file-system-permissions
 [Modules loaders]: packages.md#modules-loaders
 [Node.js issue tracker]: https://github.com/nodejs/node/issues
 [OSSL_PROVIDER-legacy]: https://www.openssl.org/docs/man3.0/man7/OSSL_PROVIDER-legacy.html

@@ -461,11 +461,8 @@ resources during execution.
 The API exists behind a flag [`--experimental-permission`][] which when enabled,
 will restrict access to all available permissions.
 
-The available permissions are:
-
-* File System - managed through the [`--allow-fs`][] flag
-* Child Process - managed through the [`--allow-child-process`][] flag
-* Worker Threads - managed through the [`--allow-worker`][] flag
+The available permissions are documented by the [`--experimental-permission`][]
+flag.
 
 When starting Node.js with `--experimental-permission`,
 the ability to access the filesystem, spawn processes, and
@@ -489,7 +486,7 @@ Error: Access to this API has been restricted
 ```
 
 Allowing access to spawning a process and creating worker threads can be done
-using the `--allow-child-process` and `--allow-worker` respectively.
+using the [`--allow-child-process`][] and [`--allow-worker`][] respectively.
 
 #### Runtime API
 
@@ -528,35 +525,34 @@ process.permission.has('fs.write', '/home/rafaelgss/protected-folder'); // false
 
 #### File System Permissions
 
-To allow access to the filesystem, use the flag `--allow-fs`:
+To allow access to the filesystem, use the [`--allow-fs-read`][] and
+[`--allow-fs-write`][] flags:
 
 ```console
-$ node --experimental-permission --allow-fs=read index.js
+$ node --experimental-permission --allow-fs-read=* --allow-fs-write=* index.js
 Hello world!
 (node:19836) ExperimentalWarning: Permission is an experimental feature
 (Use `node --trace-warnings ...` to show where the warning was created)
 ```
 
-The valid arguments for the `--allow-fs` flag option are:
+The valid arguments for both flags are:
 
-* `write` - To manage `FileSystemWrite` (writing) operations.
-* `read` - To manage `FileSystemRead` (reading) operations.
-* `fs` - To allow all the `FileSystem` operations.
+* `*` - To allow the all operations to given scope (read/write).
+* Paths delimited by comma (,) to manage reading/writing operations.
 
 Example:
 
-* `--allow-fs=read:/tmp/` - It will allow `FileSystemRead` access to the `/tmp/`
+* `--allow-fs-read=*` - It will allow all `FileSystemRead` operations.
+* `--allow-fs-write=*` - It will allow all `FileSystemWrite` operations.
+* `--allow-fs-write=/tmp/` - It will allow `FileSystemWrite` access to the `/tmp/`
   folder.
-* `--allow-fs=read:/tmp/:/home/.gitignore` - It allows `FileSystemRead` access
+* `--allow-fs-read=/tmp/,/home/.gitignore` - It allows `FileSystemRead` access
   to the `/tmp/` folder **and** the `/home/.gitignore` path.
 
-You can also mix both arguments:
+Wildcards are supported too:
 
-* `--allow-fs=write,read:/tmp/` - It will allow `FileSystemRead` access to the
-  `/tmp/` folder **and** allow **all** the `FileSystemWrite` operations.
-* **Note**: It accepts wildcard parameters as well.
-  For instance: `--allow-fs=write:/home/test*` will allow everything that
-  matches the wildcard. e.g: `/home/test/file1` or `/home/test2`
+* `--allow-fs-read:/home/test*` will allow read access to everything
+  that matches the wildcard. e.g: `/home/test/file1` or `/home/test2`
 
 There are constraints you need to know before using this system:
 
@@ -587,7 +583,8 @@ const fd = fs.openSync('./README.md', 'r');
 
 [Security Policy]: https://github.com/nodejs/node/blob/main/SECURITY.md
 [`--allow-child-process`]: cli.md#--allow-child-process
-[`--allow-fs`]: cli.md#--allow-fs
+[`--allow-fs-read`]: cli.md#--allow-fs-read
+[`--allow-fs-write`]: cli.md#--allow-fs-write
 [`--allow-worker`]: cli.md#--allow-worker
 [`--experimental-permission`]: cli.md#--experimental-permission
 [`permission.deny()`]: process.md#processpermissiondenyscope-reference

@@ -54,34 +54,21 @@ namespace node {
 
 namespace permission {
 
-// allow = 'read,write'
-// allow = 'read:/tmp/'
-// allow = 'read:/tmp/,write:./example.js'
-void FSPermission::Apply(const std::string& allow) {
-  for (const auto& name : SplitString(allow, ',')) {
-    PermissionScope perm = PermissionScope::kPermissionsRoot;
-    for (std::string& opt : SplitString(name, ':')) {
-      if (perm == PermissionScope::kPermissionsRoot) {
-        if (opt == "fs") {
-          deny_all_in_ = false;
-          deny_all_out_ = false;
-          return;
-        }
-        if (opt == "read") {
-          perm = PermissionScope::kFileSystemRead;
-          deny_all_in_ = false;
-          allow_all_in_ = true;
-        } else if (opt == "write") {
-          perm = PermissionScope::kFileSystemWrite;
-          deny_all_out_ = false;
-          allow_all_out_ = true;
-        } else {
-          return;
-        }
+// allow = '*'
+// allow = '/tmp/,/home/example.js'
+void FSPermission::Apply(const std::string& allow, PermissionScope scope) {
+  for (const auto& res : SplitString(allow, ',')) {
+    if (res == "*") {
+      if (scope == PermissionScope::kFileSystemRead) {
+        deny_all_in_ = false;
+        allow_all_in_ = true;
       } else {
-        GrantAccess(perm, opt);
+        deny_all_out_ = false;
+        allow_all_out_ = true;
       }
+      return;
     }
+    GrantAccess(scope, res);
   }
 }
 

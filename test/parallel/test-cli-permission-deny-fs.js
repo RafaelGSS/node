@@ -31,7 +31,7 @@ const fs = require('fs');
     process.execPath,
     [
       '--experimental-permission',
-      '--allow-fs', 'write', '-e',
+      '--allow-fs-write', '*', '-e',
       `console.log(process.permission.has("fs"));
        console.log(process.permission.has("fs.read"));
        console.log(process.permission.has("fs.write"));`,
@@ -50,7 +50,7 @@ const fs = require('fs');
     process.execPath,
     [
       '--experimental-permission',
-      '--allow-fs', 'read', '-e',
+      '--allow-fs-read', '*', '-e',
       `console.log(process.permission.has("fs"));
        console.log(process.permission.has("fs.read"));
        console.log(process.permission.has("fs.write"));`,
@@ -69,7 +69,7 @@ const fs = require('fs');
     process.execPath,
     [
       '--experimental-permission',
-      '--allow-fs=write', '-p',
+      '--allow-fs-write=*', '-p',
       'fs.readFileSync(process.execPath)',
     ]
   );
@@ -99,7 +99,7 @@ const fs = require('fs');
     process.execPath,
     [
       '--experimental-permission',
-      '--allow-fs=read', '-p',
+      '--allow-fs-read=*', '-p',
       'fs.writeFileSync("policy-deny-example.md", "# test")',
     ]
   );

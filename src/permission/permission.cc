@@ -152,10 +152,9 @@ void Permission::EnablePermissions() {
 }
 
 void Permission::Apply(const std::string& allow, PermissionScope scope) {
-  EnablePermissions();
   auto permission = nodes_.find(scope);
   if (permission != nodes_.end()) {
-    permission->second->Apply(allow);
+    permission->second->Apply(allow, scope);
   }
 }
 

@@ -1,4 +1,4 @@
-// Flags: --experimental-permission --allow-fs=read
+// Flags: --experimental-permission --allow-fs-read=*
 'use strict';
 
 const common = require('../common');
@@ -32,7 +32,8 @@ const relativeProtectedFile = './test/fixtures/permission/deny/protected-file.md
     process.execPath,
     [
       '--experimental-permission',
-      '--allow-fs', 'read,write:../fixtures/permission/deny/regular-file.md',
+      '--allow-fs-read', '*',
+      '--allow-fs-write', '../fixtures/permission/deny/regular-file.md',
       '-e',
       `
       const path = require("path");

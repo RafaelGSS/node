@@ -404,9 +404,13 @@ EnvironmentOptionsParser::EnvironmentOptionsParser() {
             &EnvironmentOptions::experimental_policy_integrity,
             kAllowedInEnvvar);
   Implies("--policy-integrity", "[has_policy_integrity_string]");
-  AddOption("--allow-fs",
-            "allow permissions to the filesystem",
-            &EnvironmentOptions::allow_fs,
+  AddOption("--allow-fs-read",
+            "allow permissions to read the filesystem",
+            &EnvironmentOptions::allow_fs_read,
+            kAllowedInEnvvar);
+  AddOption("--allow-fs-write",
+            "allow permissions to write in the filesystem",
+            &EnvironmentOptions::allow_fs_write,
             kAllowedInEnvvar);
   AddOption("--allow-child-process",
             "allow use of child process when any permissions are set",

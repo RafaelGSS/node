@@ -1,4 +1,4 @@
-// Flags: --experimental-permission --allow-child-process --allow-fs=read
+// Flags: --experimental-permission --allow-child-process --allow-fs-read=*
 'use strict';
 
 require('../common');
