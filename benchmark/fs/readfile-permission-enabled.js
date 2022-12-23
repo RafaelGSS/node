@@ -19,7 +19,7 @@ const bench = common.createBenchmark(main, {
   len: [1024, 16 * 1024 * 1024],
   concurrent: [1, 10],
 }, {
-  flags: ['--experimental-permission', '--allow-fs=read,write']
+  flags: ['--experimental-permission', '--allow-fs-read=*', '--allow-fs-write=*']
 });
 
 function main({ len, duration, concurrent, encoding }) {

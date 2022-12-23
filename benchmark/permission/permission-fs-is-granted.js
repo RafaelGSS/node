@@ -13,7 +13,7 @@ const rootPath = path.resolve(__dirname, '../../..');
 const options = {
   flags: [
     '--experimental-permission',
-    `--allow-fs=read:${rootPath}`,
+    `--allow-fs-read=${rootPath}`,
   ]
 };
 
