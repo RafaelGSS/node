@@ -14,14 +14,14 @@ if (process.features.inspector) {
 }
 requiresArgument('--eval');
 
-requiresPairArgument('--allow-fs-read=*', '--experimental-permission');
-requiresPairArgument('--allow-fs-write=*', '--experimental-permission');
+missingOption('--allow-fs-read=*', '--experimental-permission');
+missingOption('--allow-fs-write=*', '--experimental-permission');
 
-function requiresPairArgument(option, requiredOption) {
+function missingOption(option, requiredOption) {
   const r = spawnSync(process.execPath, [option], { encoding: 'utf8' });
   assert.strictEqual(r.status, 1);
 
-  const message = `Option "${option}" cannot be used without the option "${requiredOption}"`;
+  const message = `${requiredOption} is required`;
   assert.match(r.stderr, new RegExp(message));
 }
 
