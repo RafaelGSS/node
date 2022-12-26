@@ -559,6 +559,8 @@ There are constraints you need to know before using this system:
 * Native modules are not restricted by the Permission Model.
 * Relative paths are not supported through the CLI (`--allow-fs`).
   The runtime API supports relative paths.
+* The model does not inherit to a child node process.
+* The model does not inherit to a worker thread.
 * Permission changes are not retroactively applied to existing resources.
   Consider the following snippet:
 

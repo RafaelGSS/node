@@ -113,9 +113,6 @@ child process by default.
 Attemps to do so will throw an `ERR_ACCESS_DENIED` unless the
 user explicitly passes the `--allow-child-process` flag when starting Node.js.
 
-If the user explicitly allows to spawn a child process, then it will be the
-user's responsibility to pass along the correct arguments.
-
 Example:
 
 ```js
@@ -193,12 +190,9 @@ added: REPLACEME
 > Stability: 1 - Experimental
 
 When using the [Permission Model][], the process will not be able to create any
-worker threads.
+worker threads by default.
 For security reasons, the call will throw an `ERR_ACCESS_DENIED` unless the
 user explicitly pass the flag `--allow-worker` in the main Node.js process.
-
-If the user explicitly allows to create worker threads, then it will be the
-user's responsibility to pass along the correct arguments.
 
 Example:
 
