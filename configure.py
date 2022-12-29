@@ -704,6 +704,12 @@ parser.add_argument('--enable-asan',
     default=None,
     help='compile for Address Sanitizer to find memory bugs')
 
+parser.add_argument('--enable-ub',
+    action='store_true',
+    dest='enable_ub',
+    default=None,
+    help='compile for Undefined Behavior Sanitizer')
+
 parser.add_argument('--enable-static',
     action='store_true',
     dest='enable_static',
@@ -1401,6 +1407,7 @@ def configure_node(o):
     o['variables']['library_files'] = options.linked_module
 
   o['variables']['asan'] = int(options.enable_asan or 0)
+  o['variables']['ub'] = int(options.enable_ub or 0)
 
   if options.coverage:
     o['variables']['coverage'] = 'true'

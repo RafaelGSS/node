@@ -351,6 +351,16 @@
         'cflags!': [ '-fomit-frame-pointer' ],
         'ldflags': [ '-fsanitize=address' ],
       }],
+      ['asan == 1 and OS != "mac" and OS != "zos"', {
+        'cflags+': [
+          '-fno-omit-frame-pointer',
+          '-fsanitize=address',
+          '-fsanitize-address-use-after-scope',
+        ],
+        'defines': [ 'LEAK_SANITIZER', 'V8_USE_ADDRESS_SANITIZER' ],
+        'cflags!': [ '-fomit-frame-pointer' ],
+        'ldflags': [ '-fsanitize=address' ],
+      }],
       ['asan == 1 and OS == "mac"', {
         'xcode_settings': {
           'OTHER_CFLAGS+': [
@@ -366,6 +376,23 @@
         'target_conditions': [
           ['_type!="static_library"', {
             'xcode_settings': {'OTHER_LDFLAGS': ['-fsanitize=address']},
+          }],
+        ],
+      }],
+      ['ub == 1 and OS == "mac"', {
+        'xcode_settings': {
+          'OTHER_CFLAGS+': [
+            '-fno-omit-frame-pointer',
+            '-gline-tables-only',
+            '-fsanitize=undefined'
+          ],
+          'OTHER_CFLAGS!': [
+            '-fomit-frame-pointer',
+          ],
+        },
+        'target_conditions': [
+          ['_type!="static_library"', {
+            'xcode_settings': {'OTHER_LDFLAGS': ['-fsanitize=undefined']},
           }],
         ],
       }],
