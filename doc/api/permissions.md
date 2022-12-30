@@ -11,7 +11,7 @@ be accessed by other modules.
   dependencies, for example.
 
 * [Process-based permissions](#process-based-permissions) control the Node.js
-  process's access to resources such as the file system or the network.
+  process's access to resources (for now, only file system).
   The resource can be entirely allowed or denied, or actions related to it can
   be controlled. For example, file system reads can be allowed while denying
   writes.
@@ -557,7 +557,7 @@ Wildcards are supported too:
 There are constraints you need to know before using this system:
 
 * Native modules are not restricted by the Permission Model.
-* Relative paths are not supported through the CLI (`--allow-fs`).
+* Relative paths are not supported through the CLI (`--allow-fs-*`).
   The runtime API supports relative paths.
 * The model does not inherit to a child node process.
 * The model does not inherit to a worker thread.

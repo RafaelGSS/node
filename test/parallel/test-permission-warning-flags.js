@@ -22,6 +22,6 @@ for (const flag of warnFlags) {
   );
 
   const flagWarn = stderr.toString().split('\n')[2];
-  assert.match(flagWarn, new RegExp(`SecurityWarning: The flag ${flag} must be used under extremely cautious`));
+  assert.match(flagWarn, new RegExp(`SecurityWarning: The flag ${flag} must be used with extreme caution`));
   assert.strictEqual(status, 0);
 }
