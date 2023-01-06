@@ -2626,7 +2626,9 @@ added: REPLACEME
 * Returns: {boolean}
 
 Verifies that the process is able to access the given scope and reference.
-If no reference is provided, a global scope is assumed.
+If no reference is provided, a global scope is assumed, for instance,
+`process.permission.has('fs.read')` will check if the process has ALL
+file system read permissions.
 
 The reference has a meaning based on the provided scope. For example,
 the reference when the scope is File System means files and folders.
