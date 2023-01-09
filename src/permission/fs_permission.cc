@@ -1,5 +1,6 @@
 #include "fs_permission.h"
 #include "base_object-inl.h"
+#include "util.h"
 #include "v8.h"
 
 #include <fcntl.h>
@@ -20,10 +21,10 @@ std::string WildcardIfDir(const std::string& res) noexcept {
     const uv_stat_t* const s = static_cast<const uv_stat_t*>(req.ptr);
     if (s->st_mode & S_IFDIR) {
       // add wildcard when directory
-      if (res.back() == '/') {
+      if (res.back() == node::kPathSeparator) {
         return res + "*";
       }
-      return res + "/*";
+      return res + node::kPathSeparator + "*";
     }
   }
   uv_fs_req_cleanup(&req);
@@ -46,6 +47,26 @@ void FreeRecursivelyNode(
     delete node->wildcard_child;
   }
   delete node;
+}
+
+bool is_tree_granted(
+    node::permission::FSPermission::RadixTree* deny_tree,
+    node::permission::FSPermission::RadixTree* granted_tree,
+    const std::string& param) {
+#ifdef _WIN32
+  // is UNC file path
+  if (param.rfind("\\\\", 0) == 0) {
+    // return lookup with normalized param
+    int starting_pos = 4;  // "\\?\"
+    if (param.rfind("\\\\?\\UNC\\") == 0) {
+      starting_pos += 4;  // "UNC\"
+    }
+    const std::string normalized = param.substr(starting_pos);
+    return !deny_tree->Lookup(normalized) &&
+           granted_tree->Lookup(normalized, true);
+  }
+#endif
+  return !deny_tree->Lookup(param) && granted_tree->Lookup(param, true);
 }
 
 }  // namespace
@@ -123,13 +144,13 @@ bool FSPermission::is_granted(PermissionScope perm,
     case PermissionScope::kFileSystem:
       return !(deny_all_in_ && deny_all_out_);
     case PermissionScope::kFileSystemRead:
-      return !deny_all_in_ && (allow_all_in_ || param.empty() ||
-                               (!deny_in_fs_.Lookup(param) &&
-                                granted_in_fs_.Lookup(param, true)));
+      return !deny_all_in_ &&
+             (allow_all_in_ || param.empty() ||
+              is_tree_granted(&deny_in_fs_, &granted_in_fs_, param));
     case PermissionScope::kFileSystemWrite:
-      return !deny_all_out_ && (allow_all_out_ || param.empty() ||
-                                (!deny_out_fs_.Lookup(param) &&
-                                 granted_out_fs_.Lookup(param, true)));
+      return !deny_all_out_ &&
+             (allow_all_out_ || param.empty() ||
+              is_tree_granted(&deny_out_fs_, &granted_out_fs_, param));
     default:
       return false;
   }
