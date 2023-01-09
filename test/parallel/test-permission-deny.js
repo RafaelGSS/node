@@ -50,7 +50,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemRead',
-  }));
+  })).then(common.mustCall());
 
   // doesNotThrow
   fs.openSync(regularFile, 'w');
@@ -74,7 +74,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemWrite',
-  }));
+  })).then(common.mustCall());
 
   assert.throws(() => {
     fs.openSync(regularFile, 'w');

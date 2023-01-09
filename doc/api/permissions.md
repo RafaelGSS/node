@@ -494,7 +494,7 @@ When enabling the Permission Model through the [`--experimental-permission`][]
 flag a new property `permission` is added to the `process` object.
 This property contains two functions:
 
-* `permission.deny(scope [,parameters])`
+##### `permission.deny(scope [,parameters])`
 
 API call to deny permissions at runtime ([`permission.deny()`][])
 
@@ -510,6 +510,8 @@ process.permission.deny('fs.read');
 // deny FileSystemRead permissions to the protected-folder
 process.permission.deny('fs.read', ['/home/rafaelgss/protected-folder']);
 ```
+
+##### `permission.has(scope ,parameters)`
 
 API call to check permissions at runtime ([`permission.has()`][])
 

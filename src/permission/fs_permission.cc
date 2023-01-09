@@ -49,10 +49,9 @@ void FreeRecursivelyNode(
   delete node;
 }
 
-bool is_tree_granted(
-    node::permission::FSPermission::RadixTree* deny_tree,
-    node::permission::FSPermission::RadixTree* granted_tree,
-    const std::string& param) {
+bool is_tree_granted(node::permission::FSPermission::RadixTree* deny_tree,
+                     node::permission::FSPermission::RadixTree* granted_tree,
+                     const std::string& param) {
 #ifdef _WIN32
   // is UNC file path
   if (param.rfind("\\\\", 0) == 0) {

@@ -62,7 +62,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemWrite',
     resource: blockedFile,
-  }));
+  })).then(common.mustCall());
   assert.rejects(() => {
     return new Promise((_resolve, reject) => {
       const stream = fs.createWriteStream(relativeProtectedFile);
@@ -72,7 +72,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemWrite',
     resource: absoluteProtectedFile,
-  }));
+  })).then(common.mustCall());
 
   assert.rejects(() => {
     return new Promise((_resolve, reject) => {
@@ -83,7 +83,7 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemWrite',
     resource: blockedFolder + '/example',
-  }));
+  })).then(common.mustCall());
 }
 
 // fs.utimes

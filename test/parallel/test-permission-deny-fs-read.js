@@ -61,7 +61,7 @@ const regularFile = __filename;
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemRead',
     resource: blockedFile,
-  }));
+  })).then(common.mustCall());
 
   assert.rejects(() => {
     return new Promise((_resolve, reject) => {
@@ -72,7 +72,7 @@ const regularFile = __filename;
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemRead',
     resource: absoluteProtectedFile,
-  }));
+  })).then(common.mustCall());
 
   assert.rejects(() => {
     return new Promise((_resolve, reject) => {
@@ -83,7 +83,7 @@ const regularFile = __filename;
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemRead',
     resource: blockedFile,
-  }));
+  })).then(common.mustCall());
 }
 
 // fs.stat
