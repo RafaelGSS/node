@@ -2,8 +2,6 @@
 'use strict';
 
 const common = require('../common');
-if (!common.hasCrypto)
-  common.skip('missing crypto');
 
 const assert = require('assert');
 const fs = require('fs');
@@ -218,14 +216,14 @@ const regularFile = fixtures.path('permission', 'deny', 'regular-file.md');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemWrite',
-    resource: blockedFolder + '/protected-file.md',
+    resource: blockedFolder,
   }));
   assert.throws(() => {
     fs.rmSync(relativeProtectedFolder, { recursive: true });
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemWrite',
-    resource: absoluteProtectedFolder + '/protected-file.md',
+    resource: absoluteProtectedFolder,
   }));
 
   // The user shouldn't be capable to rmdir of a non-protected folder

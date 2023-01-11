@@ -2,15 +2,13 @@
 'use strict';
 
 const common = require('../common');
-if (!common.hasCrypto)
-  common.skip('missing crypto');
 
 const assert = require('assert');
 const fs = require('fs');
 const fixtures = require('../common/fixtures');
 const path = require('path');
 const tmpdir = require('../common/tmpdir');
-tmpdir.refresh();
+tmpdir.refresh(true);
 
 const blockedFile = fixtures.path('permission', 'deny', 'protected-file.md');
 const blockedFolder = tmpdir.path + '/';

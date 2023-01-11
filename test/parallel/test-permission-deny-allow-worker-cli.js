@@ -11,7 +11,7 @@ if (!isMainThread) {
 
 // Guarantee the initial state
 {
-  assert.ok(!process.permission.has('fs.write'));
+  assert.ok(process.permission.has('worker'));
 }
 
 // When a permission is set by cli, the process shouldn't be able

@@ -58,8 +58,8 @@
   V(options)                                                                   \
   V(os)                                                                        \
   V(performance)                                                               \
-  V(pipe_wrap)                                                                 \
   V(permission)                                                                \
+  V(pipe_wrap)                                                                 \
   V(process_wrap)                                                              \
   V(process_methods)                                                           \
   V(report)                                                                    \

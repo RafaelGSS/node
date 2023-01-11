@@ -110,7 +110,7 @@ added: REPLACEME
 
 When using the [Permission Model][], the process will not be able to spawn any
 child process by default.
-Attemps to do so will throw an `ERR_ACCESS_DENIED` unless the
+Attempts to do so will throw an `ERR_ACCESS_DENIED` unless the
 user explicitly passes the `--allow-child-process` flag when starting Node.js.
 
 Example:

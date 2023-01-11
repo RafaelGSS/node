@@ -2,8 +2,6 @@
 'use strict';
 
 const common = require('../common');
-if (!common.hasCrypto)
-  common.skip('missing crypto');
 
 const assert = require('assert');
 const fs = require('fs');
@@ -200,14 +198,15 @@ const regularFile = __filename;
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemRead',
-    resource: blockedFile,
+    // cpSync calls statSync before reading blockedFile
+    resource: path.resolve(blockedFolder),
   }));
   assert.throws(() => {
     fs.cpSync(relativeProtectedFile, blockedFolder + 'any-other-file');
   }, common.expectsError({
     code: 'ERR_ACCESS_DENIED',
     permission: 'FileSystemRead',
-    resource: absoluteProtectedFile,
+    resource: path.resolve(blockedFolder),
   }));
   assert.throws(() => {
     fs.cpSync(blockedFile, `${__dirname}/any-other-file`);

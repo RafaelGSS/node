@@ -11,7 +11,7 @@ if (process.argv[2] === 'child') {
 
 // Guarantee the initial state
 {
-  assert.ok(!process.permission.has('fs.write'));
+  assert.ok(!process.permission.has('child'));
 }
 
 // When a permission is set by cli, the process shouldn't be able

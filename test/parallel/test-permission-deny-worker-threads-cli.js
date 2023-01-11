@@ -10,7 +10,7 @@ const {
 
 // Guarantee the initial state
 {
-  assert.ok(!process.permission.has('fs.write'));
+  assert.ok(!process.permission.has('worker'));
 }
 
 if (isMainThread) {

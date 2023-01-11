@@ -7,7 +7,9 @@
 
 #include <unordered_map>
 #include <vector>
+#include <iostream>
 #include "permission/permission_base.h"
+#include "util.h"
 
 namespace node {
 
@@ -84,6 +86,13 @@ class FSPermission final : public PermissionBase {
         for (unsigned int i = 0; i < path.length(); ++i) {
           if (i >= prefix_len || child->prefix[i] == '*') {
             return child;
+          }
+
+          // Handle optional trailing
+          // path = /home/subdirectory
+          // child = subdirectory/*
+          if (idx >= path.length() && child->prefix[i] == node::kPathSeparator) {
+            continue;
           }
 
           if (path[idx++] != child->prefix[i]) {

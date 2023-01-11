@@ -2,8 +2,6 @@
 'use strict';
 
 const common = require('../common');
-if (!common.hasCrypto)
-  common.skip('missing crypto');
 
 const assert = require('assert');
 const fs = require('fs');
@@ -17,11 +15,15 @@ const fs = require('fs');
     '/show',
     '/slower',
     '/slown',
+    '/home/foo/*',
   ]));
 
   assert.ok(process.permission.has('fs.read', '/slow'));
   assert.ok(process.permission.has('fs.read', '/slows'));
   assert.ok(!process.permission.has('fs.read', '/slown'));
+  assert.ok(!process.permission.has('fs.read', '/home/foo'));
+  assert.ok(!process.permission.has('fs.read', '/home/foo/'));
+  assert.ok(process.permission.has('fs.read', '/home/fo'));
 }
 
 {
