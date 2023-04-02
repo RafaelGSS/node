@@ -21,20 +21,20 @@ if (!common.isWindows) {
 }
 
 {
-  const { stdout, status } = spawnSync(process.execPath, [
-    '--experimental-permission', '--allow-fs-write', '\\\\?\\C:\\', '-e',
-    'console.log(process.permission.has("fs.write", "\\\\?\\C:\\"))',
+  const { stdout, status, stderr } = spawnSync(process.execPath, [
+    '--experimental-permission', '--allow-fs-write="\\\\?\\C:\\"', '-e',
+    'console.log(process.permission.has("fs.write", "C:\\\\"))',
   ]);
-  assert.strictEqual(stdout.toString(), 'true\n');
+  assert.strictEqual(stdout.toString(), 'false\n', stderr.toString());
   assert.strictEqual(status, 0);
 }
 
 {
-  // UNC aren't supported so far
-  const { stdout, status } = spawnSync(process.execPath, [
+  const { stdout, status, stderr } = spawnSync(process.execPath, [
     '--experimental-permission', '--allow-fs-write', 'C:\\', '-e',
-    'console.log(process.permission.has("fs.write", "\\\\?\\C:\\"))',
+    `const path = require('path');
+     console.log(process.permission.has('fs.write', path.toNamespacedPath('C:\\\\')))`,
   ]);
-  assert.strictEqual(stdout.toString(), 'false\n');
+  assert.strictEqual(stdout.toString(), 'true\n', stderr.toString());
   assert.strictEqual(status, 0);
 }

@@ -42,9 +42,9 @@ if (common.isWindows) {
         assert.ok(!process.permission.has('fs.read', abs('slow')));
         assert.ok(!process.permission.has('fs.read', abs('slows')));
         assert.ok(process.permission.has('fs.read', abs('slown')));
-        assert.ok(process.permission.has('fs.read', abs('home\\foo')));
-        assert.ok(process.permission.has('fs.read', abs('home\\foo\\')));
-        assert.ok(!process.permission.has('fs.read', abs('home\\fo')));
+        assert.ok(process.permission.has('fs.read', abs('home\\\\foo')));
+        assert.ok(process.permission.has('fs.read', abs('home\\\\foo\\\\')));
+        assert.ok(!process.permission.has('fs.read', abs('home\\\\fo')));
       `,
     ]
   );
