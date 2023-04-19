@@ -4,7 +4,7 @@ const common = require('../common.js');
 
 const bench = common.createBenchmark(main, {
   n: [100000],
-  method: ['trace', 'isTraceCategoryEnabled'],
+  method: ['trace'],
 }, {
   flags: [
     '--expose-internals',

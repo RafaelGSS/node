@@ -6,8 +6,8 @@ const path = require('path');
 
 const bench = common.createBenchmark(main, {
   n: [10],
-  dir: [ 'lib', 'test/parallel'],
-  withFileTypes: ['true', 'false'],
+  dir: ['test/parallel'],
+  withFileTypes: ['false'],
 });
 
 function main({ n, dir, withFileTypes }) {

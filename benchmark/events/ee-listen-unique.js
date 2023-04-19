@@ -3,7 +3,7 @@ const common = require('../common.js');
 const { EventEmitter } = require('events');
 
 const bench = common.createBenchmark(main, {
-  events: [1, 2, 3, 5, 10, 20],
+  events: [5],
   n: [1e6],
 });
 

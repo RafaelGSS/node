@@ -2,9 +2,9 @@
 const common = require('../common.js');
 
 const bench = common.createBenchmark(main, {
-  pieces: [4, 16],
-  pieceSize: [1, 16, 256],
-  withTotalLength: [0, 1],
+  pieces: [16],
+  pieceSize: [16],
+  withTotalLength: [0],
   n: [8e5],
 });
 

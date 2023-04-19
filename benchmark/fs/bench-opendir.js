@@ -6,9 +6,9 @@ const path = require('path');
 
 const bench = common.createBenchmark(main, {
   n: [100],
-  dir: [ 'lib', 'test/parallel'],
-  mode: [ 'async', 'sync', 'callback' ],
-  bufferSize: [ 4, 32, 1024 ],
+  dir: ['test/parallel'],
+  mode: ['async'],
+  bufferSize: [32, 1024 ],
 });
 
 async function main({ n, dir, mode, bufferSize }) {

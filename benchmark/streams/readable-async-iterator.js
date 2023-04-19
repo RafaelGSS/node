@@ -5,7 +5,7 @@ const Readable = require('stream').Readable;
 
 const bench = common.createBenchmark(main, {
   n: [1e5],
-  sync: ['yes', 'no'],
+  sync: ['yes'],
 });
 
 async function main({ n, sync }) {

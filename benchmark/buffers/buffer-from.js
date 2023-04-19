@@ -5,17 +5,9 @@ const assert = require('assert');
 const bench = common.createBenchmark(main, {
   source: [
     'array',
-    'arraybuffer',
-    'arraybuffer-middle',
-    'buffer',
     'string',
-    'string-utf8',
-    'string-base64',
-    'object',
-    'uint8array',
-    'uint16array',
   ],
-  len: [100, 2048],
+  len: [2048],
   n: [8e5],
 });
 

@@ -5,7 +5,7 @@ const lookup = require('dns').lookup;
 
 const bench = common.createBenchmark(main, {
   name: ['127.0.0.1', '::1'],
-  all: ['true', 'false'],
+  all: ['false'],
   n: [5e6],
 });
 

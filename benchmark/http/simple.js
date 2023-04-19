@@ -4,11 +4,11 @@ const common = require('../common.js');
 const bench = common.createBenchmark(main, {
   // Unicode confuses ab on os x.
   type: ['bytes', 'buffer'],
-  len: [4, 1024, 102400],
-  chunks: [1, 4],
-  c: [50, 500],
-  chunkedEnc: [1, 0],
-  duration: 5,
+  len: [1024],
+  chunks: [4],
+  c: [100],
+  chunkedEnc: [0],
+  duration: 10,
 });
 
 function main({ type, len, chunks, c, chunkedEnc, duration }) {

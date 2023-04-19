@@ -3,9 +3,9 @@
 const common = require('../common.js');
 
 const bench = common.createBenchmark(main, {
-  encoding: ['', 'utf8', 'ascii', 'latin1', 'hex', 'UCS-2'],
-  args: [0, 1, 3],
-  len: [1, 64, 1024],
+  encoding: ['utf8', 'ascii', 'latin1', 'hex', 'UCS-2'],
+  args: [0],
+  len: [1024],
   n: [1e6],
 }, {
   combinationFilter: (p) => {

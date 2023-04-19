@@ -8,7 +8,7 @@ const relative_path = path.relative(__dirname, '../../lib/');
 
 const bench = common.createBenchmark(main, {
   n: [1e4],
-  pathType: ['relative', 'resolved'],
+  pathType: ['relative'],
 });
 
 
