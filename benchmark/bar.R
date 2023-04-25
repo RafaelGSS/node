@@ -11,10 +11,22 @@ if (!is.null(args.options$help) ||
    (!is.null(args.options$plot) && args.options$plot == TRUE)) {
   stop("usage: cat file.csv | Rscript compare.R
   --help           show this message
+  --labelNew       to add a label to the 'new' binary when saving the plot
+  --labelOld       to add a label to the 'old' binary when saving the plot
   --plot filename  save plot to filename");
 }
 
 plot.filename = args.options$plot;
+labelNewBinary = "new";
+labelOldBinary = "old";
+
+if (!is.null(args.options$labelNew)) {
+  labelNewBinary = args.options$labelNew;
+}
+
+if (!is.null(args.options$labelOld)) {
+  labelOldBinary = args.options$labelOld;
+}
 
 dat = read.csv(
   file('stdin'),
@@ -28,7 +40,8 @@ dat$name = paste0(dat$filename, ' ', dat$configuration);
 # Create a box plot
 if (!is.null(plot.filename)) {
   p = ggplot(data=dat, aes(x=nameTwoLines, y=rate, fill=binary));
-  p = p + geom_bar(stat="identity", position=position_dodge());
+  p = p + geom_bar(stat="summary", position=position_dodge());
+  p = p + scale_fill_discrete(labels=c(labelNewBinary, labelOldBinary))
   p = p + ylab("rate of operations (higher is better)");
   p = p + xlab("benchmark");
   p = p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5));
