@@ -117,7 +117,8 @@ namespace permission {
 
 // allow = '*'
 // allow = '/tmp/,/home/example.js'
-void FSPermission::Apply(const std::vector<std::string>& allow,
+void FSPermission::Apply(Environment* env,
+                         const std::vector<std::string>& allow,
                          PermissionScope scope) {
   for (const std::string& res : allow) {
     if (res == "*") {
@@ -130,7 +131,7 @@ void FSPermission::Apply(const std::vector<std::string>& allow,
       }
       return;
     }
-    GrantAccess(scope, res);
+    GrantAccess(scope, PathResolve(env, {res}));
   }
 }
 
