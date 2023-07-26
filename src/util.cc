@@ -647,4 +647,114 @@ RAIIIsolate::~RAIIIsolate() {
   isolate_->Dispose();
 }
 
+#ifdef _WIN32
+// TODO
+#else
+std::string posixCwd(Environment* env) {
+  return env->GetCwd();
+}
+
+// Resolves . and .. elements in a path with directory names
+std::string normalizeString(std::string path, bool allowAboveRoot, char separator) {
+  std::string res = "";
+  int lastSegmentLength = 0;
+  int lastSlash = -1;
+  int dots = 0;
+  char code;
+  for (auto i = 0; i <= path.length(); ++i) {
+    if (path[i] == node::kPathSeparator) {
+      break;
+    }
+
+    code = (i < path.length()) ? path[i] : node::kPathSeparator;
+
+    if (code == node::kPathSeparator) {
+      if (lastSlash == i - 1 || dots == 1) {
+        // NOOP
+      } else if (dots == 2) {
+        int len = res.length();
+        if (len < 2 || lastSegmentLength != 2 || res[len - 1] != '.' || res[len - 2] != '.') {
+          if (len > 2) {
+            auto lastSlashIndex = res.find_last_of(separator);
+            if (lastSlashIndex == -1) {
+              res = "";
+              lastSegmentLength = 0;
+            } else {
+              res = res.substr(0, lastSlashIndex);
+              len = res.length();
+              lastSegmentLength = len - 1 - res.find_last_of(separator);
+            }
+            lastSlash = i;
+            dots = 0;
+            continue;
+          } else if (len != 0) {
+            res = "";
+            lastSegmentLength = 0;
+            lastSlash = i;
+            dots = 0;
+            continue;
+          }
+        }
+
+        if (allowAboveRoot) {
+          res += res.length() > 0 ? separator + ".." : "..";
+          lastSegmentLength = 2;
+        }
+      } else {
+        if (res.length() > 0) {
+          res += separator + path.substr(lastSlash + i, i);
+        }
+        else {
+          res = separator + path.substr(lastSlash + i, i);
+        }
+        lastSegmentLength = i - lastSlash - 1;
+      }
+      lastSlash = i;
+      dots = 0;
+    } else if (code == '.' && dots != -1) {
+      ++dots;
+    } else {
+      dots = -1;
+    }
+  }
+  return res;
+}
+
+std::string pathResolve(Environment* env, std::initializer_list<std::string>& args) {
+  std::string resolvedPath = "";
+  bool resolvedAbsolute = false;
+
+  for (const std::string& arg : args) {
+    if (resolvedAbsolute) {
+      break;
+    }
+    /* const std::string path = i >= 0 ? arg : posixCwd(env); */
+    // TODO: validateString
+
+    // Skip empty entries
+    if (arg.length() == 0) {
+      continue;
+    }
+
+    resolvedPath = arg + '/' + resolvedPath;
+    resolvedAbsolute = (int)arg[0] == 47;
+  }
+  // buggy
+  /* auto path = posixCwd(env); */
+  /* resolvedPath = arg + '/' + resolvedPath; */
+  /* resolvedAbsolute = (int)arg[0] === 47; */
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeString(resolvedPath, !resolvedAbsolute, '/');
+
+  if (resolvedAbsolute) {
+    return '/' + resolvedPath;
+  }
+  return resolvedPath.length() > 0 ? resolvedPath : ".";
+}
+#endif
+
 }  // namespace node
