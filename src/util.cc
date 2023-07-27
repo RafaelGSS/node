@@ -720,7 +720,7 @@ std::string normalizeString(std::string path, bool allowAboveRoot, char separato
   return res;
 }
 
-std::string pathResolve(Environment* env, std::initializer_list<std::string>& args) {
+std::string PathResolve(const std::initializer_list<std::string>& args) {
   std::string resolvedPath = "";
   bool resolvedAbsolute = false;
 

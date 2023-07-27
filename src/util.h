@@ -971,6 +971,9 @@ class RAIIIsolate {
   v8::Isolate* isolate_;
 };
 
+
+std::string PathResolve(const std::initializer_list<const std::string>& args);
+
 }  // namespace node
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
