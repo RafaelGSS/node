@@ -1,7 +1,7 @@
 #include "fs_permission.h"
 #include "base_object-inl.h"
 #include "debug_utils-inl.h"
-#include "util.h"
+#include "util-inl.h"
 #include "v8.h"
 
 #include <fcntl.h>
@@ -135,7 +135,7 @@ void FSPermission::Apply(const std::string& allow, PermissionScope scope) {
 
 void FSPermission::GrantAccess(PermissionScope perm, const std::string& res) {
   std::cout << "Attempt to resolve: " << res << std::endl;
-  std::cout << "Result: " << PathResolve({ "/tmp/../etc" }) << std::endl;
+  std::cout << "Result: " << node::path::PathResolve("/tmp/../etc") << std::endl;
 
   const std::string path = WildcardIfDir(res);
   if (perm == PermissionScope::kFileSystemRead) {
