@@ -28,7 +28,6 @@
 #include <cstring>
 #include <locale>
 #include "util.h"
-#include <string>
 
 // These are defined by <sys/byteorder.h> or <netinet/in.h> on some systems.
 // To avoid warnings, undefine them before redefining them.
@@ -616,104 +615,6 @@ constexpr FastStringKey::FastStringKey(std::string_view name)
 constexpr std::string_view FastStringKey::as_string_view() const {
   return name_;
 }
-
-namespace path {
-
-std::string normalizeString(const std::string path, bool allowAboveRoot, const std::string separator) {
-  std::string res = "";
-  int lastSegmentLength = 0;
-  int lastSlash = -1;
-  int dots = 0;
-  char code;
-  for (std::string::size_type i = 0; i <= path.length(); ++i) {
-    if (path[i] == node::kPathSeparator) {
-      break;
-    }
-
-    code = (i < path.length()) ? path[i] : node::kPathSeparator;
-
-    if (code == node::kPathSeparator) {
-      if (lastSlash == (int)(i - 1) || dots == 0) {
-        // NOOP
-      } else if (dots == 2) {
-        int len = res.length();
-        if (len < 2 || lastSegmentLength != 2 || res[len - 1] != '.' || res[len - 2] != '.') {
-          if (len > 2) {
-            auto lastSlashIndex = res.find_last_of(separator);
-            if (lastSlashIndex == std::string::npos) {
-              res = "";
-              lastSegmentLength = 0;
-            } else {
-              res = res.substr(0, lastSlashIndex);
-              len = res.length();
-              lastSegmentLength = len - 1 - res.find_last_of(separator);
-            }
-            lastSlash = i;
-            dots = 0;
-            continue;
-          } else if (len != 0) {
-            res = "";
-            lastSegmentLength = 0;
-            lastSlash = i;
-            dots = 0;
-            continue;
-          }
-        }
-
-        if (allowAboveRoot) {
-          res += res.length() > 0 ? separator + ".." : "..";
-          lastSegmentLength = 2;
-        }
-      } else {
-        if (res.length() > 0) {
-          res += separator + path.substr(lastSlash + i, i);
-        }
-        else {
-          res = separator + path.substr(lastSlash + i, i);
-        }
-        lastSegmentLength = i - lastSlash - 1;
-      }
-      lastSlash = i;
-      dots = 0;
-    } else if (code == '.' && dots != -1) {
-      ++dots;
-    } else {
-      dots = -1;
-    }
-  }
-  return res;
-}
-
-template<typename... Args>
-std::string PathResolve(const Args&... args) {
-    std::string resolvedPath = "";
-    bool resolvedAbsolute = false;
-
-    // Pack the arguments into an array
-    const std::string paths[] = {args...};
-    const size_t numArgs = sizeof...(args);
-
-    for (int i = numArgs - 1; i >= -1 && !resolvedAbsolute; i--) {
-        const std::string& path = (i >= 0) ? paths[i] : "";
-        /* validateString(path, "paths[" + std::to_string(i) + "]"); */
-
-        // Skip empty entries
-        if (!path.empty()) {
-            resolvedPath = path + "/" + resolvedPath;
-            resolvedAbsolute = (path[0] == '/');
-        }
-    }
-
-    // Normalize the path
-    resolvedPath = normalizeString(resolvedPath, !resolvedAbsolute, '/');
-
-    if (resolvedAbsolute) {
-        return "/" + resolvedPath;
-    }
-    return (!resolvedPath.empty()) ? resolvedPath : ".";
-}
-
-} // namespace path
 
 }  // namespace node
 
