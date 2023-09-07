@@ -618,13 +618,13 @@ constexpr std::string_view FastStringKey::as_string_view() const {
 
 namespace path {
 
-std::string normalizeString(std::string path, bool allowAboveRoot, char separator) {
+std::string normalizeString(std::string path, bool allowAboveRoot, const std::string separator) {
   std::string res = "";
   int lastSegmentLength = 0;
   int lastSlash = -1;
   int dots = 0;
   char code;
-  for (auto i = 0; i <= path.length(); ++i) {
+  for (unsigned long i = 0; i <= path.length(); ++i) {
     if (path[i] == node::kPathSeparator) {
       break;
     }
