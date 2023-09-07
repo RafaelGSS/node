@@ -28,6 +28,7 @@
 #include <cstring>
 #include <locale>
 #include "util.h"
+#include <string>
 
 // These are defined by <sys/byteorder.h> or <netinet/in.h> on some systems.
 // To avoid warnings, undefine them before redefining them.
@@ -618,13 +619,13 @@ constexpr std::string_view FastStringKey::as_string_view() const {
 
 namespace path {
 
-std::string normalizeString(std::string path, bool allowAboveRoot, const std::string separator) {
+std::string normalizeString(const std::string path, bool allowAboveRoot, const std::string separator) {
   std::string res = "";
   int lastSegmentLength = 0;
   int lastSlash = -1;
   int dots = 0;
   char code;
-  for (unsigned long i = 0; i <= path.length(); ++i) {
+  for (std::string::size_type i = 0; i <= path.length(); ++i) {
     if (path[i] == node::kPathSeparator) {
       break;
     }
@@ -632,14 +633,14 @@ std::string normalizeString(std::string path, bool allowAboveRoot, const std::st
     code = (i < path.length()) ? path[i] : node::kPathSeparator;
 
     if (code == node::kPathSeparator) {
-      if (lastSlash == i - 1 || dots == 1) {
+      if (lastSlash == (int)(i - 1) || dots == 0) {
         // NOOP
       } else if (dots == 2) {
         int len = res.length();
         if (len < 2 || lastSegmentLength != 2 || res[len - 1] != '.' || res[len - 2] != '.') {
           if (len > 2) {
             auto lastSlashIndex = res.find_last_of(separator);
-            if (lastSlashIndex == -1) {
+            if (lastSlashIndex == std::string::npos) {
               res = "";
               lastSegmentLength = 0;
             } else {
