@@ -655,7 +655,7 @@ std::string NormalizeString(const std::string path, bool allowAboveRoot, const s
   int dots = 0;
   char code;
   const auto pathLen = path.length();
-  for (std::string::size_type i = 0; i <= pathLen; ++i) {
+  for (int i = 0; i <= pathLen; ++i) {
     if (i < pathLen) {
       code = path[i];
     } else if (path[i] == node::kPathSeparator) {
