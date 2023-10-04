@@ -116,7 +116,7 @@ namespace permission {
 
 // allow = '*'
 // allow = '/tmp/,/home/example.js'
-void FSPermission::Apply(const std::string& allow, PermissionScope scope) {
+void FSPermission::Apply(Environment* env, const std::string& allow, PermissionScope scope) {
   using std::string_view_literals::operator""sv;
   for (const std::string_view res : SplitString(allow, ","sv)) {
     if (res == "*"sv) {
@@ -129,13 +129,15 @@ void FSPermission::Apply(const std::string& allow, PermissionScope scope) {
       }
       return;
     }
-    GrantAccess(scope, std::string(res.data(), res.size()));
+    GrantAccess(
+        scope,
+        PathResolve(env, { { res.data(), res.size() } })
+    );
   }
 }
 
 void FSPermission::GrantAccess(PermissionScope perm, const std::string& res) {
-  std::cout << "Attempt to resolve: " << res << std::endl;
-  std::cout << "Result: " << PathResolve({"/tmp/../etc"}) << std::endl;
+  std::cout << "Result: " << res << std::endl;
 
   const std::string path = WildcardIfDir(res);
   if (perm == PermissionScope::kFileSystemRead) {

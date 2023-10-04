@@ -10,6 +10,8 @@
 
 namespace node {
 
+class Environment;
+
 namespace permission {
 
 #define FILESYSTEM_PERMISSIONS(V)                                              \
@@ -39,7 +41,7 @@ enum class PermissionScope {
 
 class PermissionBase {
  public:
-  virtual void Apply(const std::string& allow, PermissionScope scope) = 0;
+  virtual void Apply(Environment* env, const std::string& allow, PermissionScope scope) = 0;
   virtual bool is_granted(PermissionScope perm,
                           const std::string_view& param = "") = 0;
 };

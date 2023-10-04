@@ -49,7 +49,7 @@ class Permission {
                                 const std::string_view& res);
 
   // CLI Call
-  void Apply(const std::string& allow, PermissionScope scope);
+  void Apply(Environment* env, const std::string& allow, PermissionScope scope);
   void EnablePermissions();
 
  private:

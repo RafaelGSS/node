@@ -971,9 +971,9 @@ class RAIIIsolate {
   v8::Isolate* isolate_;
 };
 
-inline std::string NormalizeString(const std::string path, bool allowAboveRoot, const std::string separator);
+std::string NormalizeString(const std::string path, bool allowAboveRoot, const std::string separator);
 
-std::string PathResolve(const std::vector<std::string_view>& args);
+std::string PathResolve(Environment* env, const std::vector<std::string_view>& args);
 
 }  // namespace node
 

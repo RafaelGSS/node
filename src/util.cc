@@ -648,18 +648,21 @@ RAIIIsolate::~RAIIIsolate() {
 }
 
 
-inline std::string NormalizeString(const std::string path, bool allowAboveRoot, const std::string separator) {
+std::string NormalizeString(const std::string path, bool allowAboveRoot, const std::string separator) {
   std::string res = "";
   int lastSegmentLength = 0;
   int lastSlash = -1;
   int dots = 0;
   char code;
-  for (std::string::size_type i = 0; i <= path.length(); ++i) {
-    if (path[i] == node::kPathSeparator) {
+  const auto pathLen = path.length();
+  for (std::string::size_type i = 0; i <= pathLen; ++i) {
+    if (i < pathLen) {
+      code = path[i];
+    } else if (path[i] == node::kPathSeparator) {
       break;
+    } else {
+      code = node::kPathSeparator;
     }
-
-    code = (i < path.length()) ? path[i] : node::kPathSeparator;
 
     if (code == node::kPathSeparator) {
       if (lastSlash == (int)(i - 1) || dots == 0) {
@@ -695,10 +698,9 @@ inline std::string NormalizeString(const std::string path, bool allowAboveRoot, 
         }
       } else {
         if (res.length() > 0) {
-          res += separator + path.substr(lastSlash + i, i);
-        }
-        else {
-          res = separator + path.substr(lastSlash + i, i);
+          res += separator + path.substr(lastSlash + 1, i - 1);
+        } else {
+          res = path.substr(lastSlash + 1, i - 1);
         }
         lastSegmentLength = i - lastSlash - 1;
       }
@@ -710,31 +712,33 @@ inline std::string NormalizeString(const std::string path, bool allowAboveRoot, 
       dots = -1;
     }
   }
+
+  std::cout << "Res is: " << res << std::endl;
   return res;
 }
 
-std::string PathResolve(const std::vector<std::string_view>& paths) {
+// posix
+std::string PathResolve(Environment* env, const std::vector<std::string_view>& paths) {
     std::string resolvedPath = "";
     bool resolvedAbsolute = false;
 
-    const size_t numArgs = sizeof...(args);
+    const size_t numArgs = paths.size();
 
     for (int i = numArgs - 1; i >= -1 && !resolvedAbsolute; i--) {
-        const std::string& path = (i >= 0) ? paths[i] : "";
-        /* validateString(path, "paths[" + std::to_string(i) + "]"); */
+      const std::string& path = (i >= 0) ? std::string(paths[i]) : env->GetCwd();
+      /* validateString(path, "paths[" + std::to_string(i) + "]"); */
 
-        // Skip empty entries
-        if (!path.empty()) {
-            resolvedPath = path + "/" + resolvedPath;
-            resolvedAbsolute = (path[0] == '/');
-        }
+      if (!path.empty()) {
+        resolvedPath = std::string(path + "/" + resolvedPath);
+        resolvedAbsolute = (path[0] == '/');
+      }
     }
 
     // Normalize the path
     resolvedPath = NormalizeString(resolvedPath, !resolvedAbsolute, "/");
 
     if (resolvedAbsolute) {
-        return "/" + resolvedPath;
+      return "/" + resolvedPath;
     }
     return (!resolvedPath.empty()) ? resolvedPath : ".";
 }
