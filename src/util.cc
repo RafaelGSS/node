@@ -698,9 +698,9 @@ std::string NormalizeString(const std::string path, bool allowAboveRoot, const s
         }
       } else {
         if (res.length() > 0) {
-          res += separator + path.substr(lastSlash + 1, i - 1);
+          res += separator + path.substr(lastSlash + 1, i - (lastSlash + 1));
         } else {
-          res = path.substr(lastSlash + 1, i - 1);
+          res = path.substr(lastSlash + 1, i - (lastSlash + 1));
         }
         lastSegmentLength = i - lastSlash - 1;
       }
