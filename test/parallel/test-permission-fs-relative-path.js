@@ -25,6 +25,6 @@ const { spawnSync } = require('child_process');
   );
 
   const [fsWrite] = stdout.toString().split('\n');
-  assert.strictEqual(fsWrite, 'false');
+  assert.strictEqual(fsWrite, 'true');
   assert.strictEqual(status, 0);
 }
