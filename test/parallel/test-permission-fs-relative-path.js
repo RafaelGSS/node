@@ -8,7 +8,7 @@ const assert = require('assert');
 const { spawnSync } = require('child_process');
 
 {
-  // Relative path as CLI args are NOT supported yet
+  // Relative path as CLI args are supported
   const { status, stdout } = spawnSync(
     process.execPath,
     [

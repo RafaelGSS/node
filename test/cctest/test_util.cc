@@ -3,16 +3,20 @@
 #include "gtest/gtest.h"
 #include "simdutf.h"
 #include "util-inl.h"
+#include "node_test_fixture.h"
 
 using node::Calloc;
 using node::Malloc;
 using node::MaybeStackBuffer;
+using node::PathResolve;
 using node::SPrintF;
 using node::StringEqualNoCase;
 using node::StringEqualNoCaseN;
 using node::ToLower;
 using node::UncheckedCalloc;
 using node::UncheckedMalloc;
+
+class UtilTest : public EnvironmentTestFixture {};
 
 TEST(UtilTest, ListHead) {
   struct Item { node::ListNode<Item> node_; };
@@ -298,4 +302,45 @@ TEST(UtilTest, SPrintF) {
 
   const std::string with_zero = std::string("a") + '\0' + 'b';
   EXPECT_EQ(SPrintF("%s", with_zero), with_zero);
+}
+
+TEST(UtilTest, PathResolve) {
+#ifdef _WIN32
+  // TODO: figure out how to get env
+  EXPECT_EQ(PathResolve(nullptr, {"c:/blah\\blah", "d:/games", "c:../a"}),
+            "c:\\blah\\a");
+  EXPECT_EQ(PathResolve(nullptr, {"c:/ignore", "d:\\a/b\\c/d", "\\e.exe"}),
+            "d:\\e.exe");
+  EXPECT_EQ(PathResolve(nullptr, {"c:/ignore", "c:/some/file"}),
+            "c:\\some\\file");
+  EXPECT_EQ(PathResolve(nullptr, {"d:/ignore", "d:some/dir//"}),
+            "d:\\ignore\\some\\dir");
+  //  EXPECT_EQ(PathResolve(nullptr, {"."}), process.cwd());  // TODO: figure
+  //  out how to get cwd
+  EXPECT_EQ(PathResolve(nullptr, {"//server/share", "..", "relative\\"}),
+            "\\\\server\\share\\relative");
+  EXPECT_EQ(PathResolve(nullptr, {"c:/", "//"}), "c:\\");
+  EXPECT_EQ(PathResolve(nullptr, {"c:/", "//dir"}), "c:\\dir");
+  EXPECT_EQ(PathResolve(nullptr, {"c:/", "//server/share"}),
+            "\\\\server\\share\\");
+  EXPECT_EQ(PathResolve(nullptr, {"c:/", "//server//share"}),
+            "\\\\server\\share\\");
+  EXPECT_EQ(PathResolve(nullptr, {"c:/", "///some//dir"}), "c:\\some\\dir");
+  EXPECT_EQ(
+      PathResolve(nullptr, {"C:\\foo\\tmp.3\\", "..\\tmp.3\\cycles\\root.js"}),
+      "C:\\foo\\tmp.3\\cycles\\root.js");
+#else
+  const v8::HandleScope handle_scope(isolate_);
+  Argv argv;
+  Env env{handle_scope, argv, node::EnvironmentFlags::kNoBrowserGlobals};
+  // TODO: change nullptr to actual environment when working
+  EXPECT_EQ(PathResolve(env, {"/var/lib", "../", "file/"}), "/var/file");
+  EXPECT_EQ(PathResolve(nullptr, {"/var/lib", "/../", "file/"}), "/file");
+  // EXPECT_EQ(PathResolve(nullptr, {"a/b/c/", "../../.."}), posixyCwd); //
+  // TODO: figure out how to get posixyCwd EXPECT_EQ(PathResolve(nullptr,
+  // {"."}), posixyCwd);
+  EXPECT_EQ(PathResolve(nullptr, {"/some/dir", ".", "/absolute/"}), "/absolute");
+  EXPECT_EQ(PathResolve(nullptr, {"/foo/tmp.3/", "../tmp.3/cycles/root.js"}),
+            "/foo/tmp.3/cycles/root.js");
+#endif
 }
