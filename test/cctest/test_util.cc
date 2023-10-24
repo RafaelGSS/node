@@ -4,6 +4,7 @@
 #include "simdutf.h"
 #include "util-inl.h"
 #include "node_test_fixture.h"
+#include "node_options.h"
 
 using node::Calloc;
 using node::Malloc;
@@ -18,7 +19,7 @@ using node::UncheckedMalloc;
 
 class UtilTest : public EnvironmentTestFixture {};
 
-TEST(UtilTest, ListHead) {
+TEST_F(UtilTest, ListHead) {
   struct Item { node::ListNode<Item> node_; };
   typedef node::ListHead<Item, &Item::node_> List;
 
@@ -72,7 +73,7 @@ TEST(UtilTest, ListHead) {
   EXPECT_FALSE(list.begin() != list.end());
 }
 
-TEST(UtilTest, StringEqualNoCase) {
+TEST_F(UtilTest, StringEqualNoCase) {
   EXPECT_FALSE(StringEqualNoCase("a", "b"));
   EXPECT_TRUE(StringEqualNoCase("", ""));
   EXPECT_TRUE(StringEqualNoCase("equal", "equal"));
@@ -82,7 +83,7 @@ TEST(UtilTest, StringEqualNoCase) {
   EXPECT_FALSE(StringEqualNoCase("equals", "equal"));
 }
 
-TEST(UtilTest, StringEqualNoCaseN) {
+TEST_F(UtilTest, StringEqualNoCaseN) {
   EXPECT_FALSE(StringEqualNoCaseN("a", "b", strlen("a")));
   EXPECT_TRUE(StringEqualNoCaseN("", "", strlen("")));
   EXPECT_TRUE(StringEqualNoCaseN("equal", "equal", strlen("equal")));
@@ -96,7 +97,7 @@ TEST(UtilTest, StringEqualNoCaseN) {
   EXPECT_FALSE(StringEqualNoCaseN("abc\0abc", "abcd\0efg", strlen("abcdefgh")));
 }
 
-TEST(UtilTest, ToLower) {
+TEST_F(UtilTest, ToLower) {
   EXPECT_EQ('0', ToLower('0'));
   EXPECT_EQ('a', ToLower('a'));
   EXPECT_EQ('a', ToLower('A'));
@@ -109,28 +110,28 @@ TEST(UtilTest, ToLower) {
     free(pointer);                                                             \
   } while (0)
 
-TEST(UtilTest, Malloc) {
+TEST_F(UtilTest, Malloc) {
   TEST_AND_FREE(Malloc<char>, 0);
   TEST_AND_FREE(Malloc<char>, 1);
   TEST_AND_FREE(Malloc, 0);
   TEST_AND_FREE(Malloc, 1);
 }
 
-TEST(UtilTest, Calloc) {
+TEST_F(UtilTest, Calloc) {
   TEST_AND_FREE(Calloc<char>, 0);
   TEST_AND_FREE(Calloc<char>, 1);
   TEST_AND_FREE(Calloc, 0);
   TEST_AND_FREE(Calloc, 1);
 }
 
-TEST(UtilTest, UncheckedMalloc) {
+TEST_F(UtilTest, UncheckedMalloc) {
   TEST_AND_FREE(UncheckedMalloc<char>, 0);
   TEST_AND_FREE(UncheckedMalloc<char>, 1);
   TEST_AND_FREE(UncheckedMalloc, 0);
   TEST_AND_FREE(UncheckedMalloc, 1);
 }
 
-TEST(UtilTest, UncheckedCalloc) {
+TEST_F(UtilTest, UncheckedCalloc) {
   TEST_AND_FREE(UncheckedCalloc<char>, 0);
   TEST_AND_FREE(UncheckedCalloc<char>, 1);
   TEST_AND_FREE(UncheckedCalloc, 0);
@@ -216,7 +217,7 @@ static void MaybeStackBufferBasic() {
   free(rawbuf);
 }
 
-TEST(UtilTest, MaybeStackBuffer) {
+TEST_F(UtilTest, MaybeStackBuffer) {
   MaybeStackBufferBasic<uint8_t>();
   MaybeStackBufferBasic<uint16_t>();
 
@@ -257,7 +258,7 @@ TEST(UtilTest, MaybeStackBuffer) {
   }
 }
 
-TEST(UtilTest, SPrintF) {
+TEST_F(UtilTest, SPrintF) {
   // %d, %u and %s all do the same thing. The actual C++ type is used to infer
   // the right representation.
   EXPECT_EQ(SPrintF("%s", false), "false");
@@ -304,43 +305,39 @@ TEST(UtilTest, SPrintF) {
   EXPECT_EQ(SPrintF("%s", with_zero), with_zero);
 }
 
-TEST(UtilTest, PathResolve) {
+TEST_F(UtilTest, PathResolve) {
 #ifdef _WIN32
-  // TODO: figure out how to get env
-  EXPECT_EQ(PathResolve(nullptr, {"c:/blah\\blah", "d:/games", "c:../a"}),
+  EXPECT_EQ(PathResolve(*env, {"c:/blah\\blah", "d:/games", "c:../a"}),
             "c:\\blah\\a");
-  EXPECT_EQ(PathResolve(nullptr, {"c:/ignore", "d:\\a/b\\c/d", "\\e.exe"}),
+  EXPECT_EQ(PathResolve(*env, {"c:/ignore", "d:\\a/b\\c/d", "\\e.exe"}),
             "d:\\e.exe");
-  EXPECT_EQ(PathResolve(nullptr, {"c:/ignore", "c:/some/file"}),
+  EXPECT_EQ(PathResolve(*env, {"c:/ignore", "c:/some/file"}),
             "c:\\some\\file");
-  EXPECT_EQ(PathResolve(nullptr, {"d:/ignore", "d:some/dir//"}),
+  EXPECT_EQ(PathResolve(*env, {"d:/ignore", "d:some/dir//"}),
             "d:\\ignore\\some\\dir");
-  //  EXPECT_EQ(PathResolve(nullptr, {"."}), process.cwd());  // TODO: figure
-  //  out how to get cwd
-  EXPECT_EQ(PathResolve(nullptr, {"//server/share", "..", "relative\\"}),
+  EXPECT_EQ(PathResolve(*env, {"."}), (*env)->GetCwd());
+  EXPECT_EQ(PathResolve(*env, {"//server/share", "..", "relative\\"}),
             "\\\\server\\share\\relative");
-  EXPECT_EQ(PathResolve(nullptr, {"c:/", "//"}), "c:\\");
-  EXPECT_EQ(PathResolve(nullptr, {"c:/", "//dir"}), "c:\\dir");
-  EXPECT_EQ(PathResolve(nullptr, {"c:/", "//server/share"}),
+  EXPECT_EQ(PathResolve(*env, {"c:/", "//"}), "c:\\");
+  EXPECT_EQ(PathResolve(*env, {"c:/", "//dir"}), "c:\\dir");
+  EXPECT_EQ(PathResolve(*env, {"c:/", "//server/share"}),
             "\\\\server\\share\\");
-  EXPECT_EQ(PathResolve(nullptr, {"c:/", "//server//share"}),
+  EXPECT_EQ(PathResolve(*env, {"c:/", "//server//share"}),
             "\\\\server\\share\\");
-  EXPECT_EQ(PathResolve(nullptr, {"c:/", "///some//dir"}), "c:\\some\\dir");
+  EXPECT_EQ(PathResolve(*env, {"c:/", "///some//dir"}), "c:\\some\\dir");
   EXPECT_EQ(
-      PathResolve(nullptr, {"C:\\foo\\tmp.3\\", "..\\tmp.3\\cycles\\root.js"}),
+      PathResolve(*env, {"C:\\foo\\tmp.3\\", "..\\tmp.3\\cycles\\root.js"}),
       "C:\\foo\\tmp.3\\cycles\\root.js");
 #else
   const v8::HandleScope handle_scope(isolate_);
   Argv argv;
   Env env{handle_scope, argv, node::EnvironmentFlags::kNoBrowserGlobals};
-  // TODO: change nullptr to actual environment when working
-  EXPECT_EQ(PathResolve(env, {"/var/lib", "../", "file/"}), "/var/file");
-  EXPECT_EQ(PathResolve(nullptr, {"/var/lib", "/../", "file/"}), "/file");
-  // EXPECT_EQ(PathResolve(nullptr, {"a/b/c/", "../../.."}), posixyCwd); //
-  // TODO: figure out how to get posixyCwd EXPECT_EQ(PathResolve(nullptr,
-  // {"."}), posixyCwd);
-  EXPECT_EQ(PathResolve(nullptr, {"/some/dir", ".", "/absolute/"}), "/absolute");
-  EXPECT_EQ(PathResolve(nullptr, {"/foo/tmp.3/", "../tmp.3/cycles/root.js"}),
+  EXPECT_EQ(PathResolve(*env, {"/var/lib", "../", "file/"}), "/var/file");
+  EXPECT_EQ(PathResolve(*env, {"/var/lib", "/../", "file/"}), "/file");
+  EXPECT_EQ(PathResolve(*env, {"a/b/c/", "../../.."}), (*env)->GetCwd()); //
+  EXPECT_EQ(PathResolve(*env, {"."}), (*env)->GetCwd());
+  EXPECT_EQ(PathResolve(*env, {"/some/dir", ".", "/absolute/"}), "/absolute");
+  EXPECT_EQ(PathResolve(*env, {"/foo/tmp.3/", "../tmp.3/cycles/root.js"}),
             "/foo/tmp.3/cycles/root.js");
 #endif
 }
