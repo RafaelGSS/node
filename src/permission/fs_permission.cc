@@ -116,7 +116,9 @@ namespace permission {
 
 // allow = '*'
 // allow = '/tmp/,/home/example.js'
-void FSPermission::Apply(Environment* env, const std::string& allow, PermissionScope scope) {
+void FSPermission::Apply(Environment* env,
+                         const std::string& allow,
+                         PermissionScope scope) {
   using std::string_view_literals::operator""sv;
   for (const std::string_view res : SplitString(allow, ","sv)) {
     if (res == "*"sv) {
@@ -129,10 +131,7 @@ void FSPermission::Apply(Environment* env, const std::string& allow, PermissionS
       }
       return;
     }
-    GrantAccess(
-        scope,
-        PathResolve(env, { { res.data(), res.size() } })
-    );
+    GrantAccess(scope, PathResolve(env, {{res.data(), res.size()}}));
   }
 }
 

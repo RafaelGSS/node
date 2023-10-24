@@ -1,10 +1,10 @@
 #include "debug_utils-inl.h"
 #include "env-inl.h"
 #include "gtest/gtest.h"
+#include "node_options.h"
+#include "node_test_fixture.h"
 #include "simdutf.h"
 #include "util-inl.h"
-#include "node_test_fixture.h"
-#include "node_options.h"
 
 using node::Calloc;
 using node::Malloc;
@@ -311,8 +311,7 @@ TEST_F(UtilTest, PathResolve) {
             "c:\\blah\\a");
   EXPECT_EQ(PathResolve(*env, {"c:/ignore", "d:\\a/b\\c/d", "\\e.exe"}),
             "d:\\e.exe");
-  EXPECT_EQ(PathResolve(*env, {"c:/ignore", "c:/some/file"}),
-            "c:\\some\\file");
+  EXPECT_EQ(PathResolve(*env, {"c:/ignore", "c:/some/file"}), "c:\\some\\file");
   EXPECT_EQ(PathResolve(*env, {"d:/ignore", "d:some/dir//"}),
             "d:\\ignore\\some\\dir");
   EXPECT_EQ(PathResolve(*env, {"."}), (*env)->GetCwd());
@@ -334,7 +333,7 @@ TEST_F(UtilTest, PathResolve) {
   Env env{handle_scope, argv, node::EnvironmentFlags::kNoBrowserGlobals};
   EXPECT_EQ(PathResolve(*env, {"/var/lib", "../", "file/"}), "/var/file");
   EXPECT_EQ(PathResolve(*env, {"/var/lib", "/../", "file/"}), "/file");
-  EXPECT_EQ(PathResolve(*env, {"a/b/c/", "../../.."}), (*env)->GetCwd()); //
+  EXPECT_EQ(PathResolve(*env, {"a/b/c/", "../../.."}), (*env)->GetCwd());  //
   EXPECT_EQ(PathResolve(*env, {"."}), (*env)->GetCwd());
   EXPECT_EQ(PathResolve(*env, {"/some/dir", ".", "/absolute/"}), "/absolute");
   EXPECT_EQ(PathResolve(*env, {"/foo/tmp.3/", "../tmp.3/cycles/root.js"}),

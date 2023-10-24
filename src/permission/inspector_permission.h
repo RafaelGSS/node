@@ -12,7 +12,9 @@ namespace permission {
 
 class InspectorPermission final : public PermissionBase {
  public:
-  void Apply(Environment* env, const std::string& allow, PermissionScope scope) override;
+  void Apply(Environment* env,
+             const std::string& allow,
+             PermissionScope scope) override;
   bool is_granted(PermissionScope perm,
                   const std::string_view& param = "") override;
 

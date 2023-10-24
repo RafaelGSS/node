@@ -661,7 +661,9 @@ bool IsPathSeparator(const char c) {
 }
 #endif
 
-std::string NormalizeString(const std::string path, bool allowAboveRoot, const std::string separator) {
+std::string NormalizeString(const std::string path,
+                            bool allowAboveRoot,
+                            const std::string separator) {
   std::string res = "";
   int lastSegmentLength = 0;
   int lastSlash = -1;
@@ -678,11 +680,12 @@ std::string NormalizeString(const std::string path, bool allowAboveRoot, const s
     }
 
     if (IsPathSeparator(code)) {
-      if (lastSlash == (int)(i - 1) || dots == 1) {
+      if (lastSlash == static_cast<int>(i - 1) || dots == 1) {
         // NOOP
       } else if (dots == 2) {
         int len = res.length();
-        if (len < 2 || lastSegmentLength != 2 || res[len - 1] != '.' || res[len - 2] != '.') {
+        if (len < 2 || lastSegmentLength != 2 || res[len - 1] != '.' ||
+            res[len - 2] != '.') {
           if (len > 2) {
             auto lastSlashIndex = res.find_last_of(separator);
             if (lastSlashIndex == std::string::npos) {
@@ -736,7 +739,8 @@ bool IsWindowsDeviceRoot(const char c) {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-std::string PathResolve(Environment* env, const std::vector<std::string_view>& paths) {
+std::string PathResolve(Environment* env,
+                        const std::vector<std::string_view>& paths) {
   std::string resolvedDevice = "";
   std::string resolvedTail = "";
   bool resolvedAbsolute = false;
@@ -755,11 +759,13 @@ std::string PathResolve(Environment* env, const std::vector<std::string_view>& p
       // absolute path, get cwd for that drive, or the process cwd if
       // the drive cwd is not available. We're sure the device is not
       // a UNC path at this points, because UNC paths are always absolute.
-      path = env->GetCwd(); // FIXME: how can I get envvar?
+      path = env->GetCwd();  // FIXME: how can I get envvar?
 
       // Verify that a cwd was found and that it actually points
       // to our drive. If not, default to the drive's root.
-      if (path.empty() || (ToLower(path.substr(0, 2)) != ToLower(resolvedDevice) && path[2] == '/')) {
+      if (path.empty() ||
+          (ToLower(path.substr(0, 2)) != ToLower(resolvedDevice) &&
+           path[2] == '/')) {
         path = resolvedDevice + "\\";
       }
     }
@@ -772,7 +778,7 @@ std::string PathResolve(Environment* env, const std::vector<std::string_view>& p
 
     // Try to match a root
     if (len == 1) {
-      if(IsPathSeparator(code)) {
+      if (IsPathSeparator(code)) {
         // `path` contains just a path separator
         rootEnd = 1;
         isAbsolute = true;
@@ -829,7 +835,7 @@ std::string PathResolve(Environment* env, const std::vector<std::string_view>& p
 
     if (!device.empty()) {
       if (!resolvedDevice.empty()) {
-        if(ToLower(device) != ToLower(resolvedDevice)) {
+        if (ToLower(device) != ToLower(resolvedDevice)) {
           // This path points to another device so it is not applicable
           continue;
         }
@@ -870,28 +876,29 @@ std::string PathResolve(Environment* env, const std::vector<std::string_view>& p
 }
 #else
 // posix
-std::string PathResolve(Environment* env, const std::vector<std::string_view>& paths) {
-    std::string resolvedPath = "";
-    bool resolvedAbsolute = false;
-    const size_t numArgs = paths.size();
+std::string PathResolve(Environment* env,
+                        const std::vector<std::string_view>& paths) {
+  std::string resolvedPath = "";
+  bool resolvedAbsolute = false;
+  const size_t numArgs = paths.size();
 
-    for (int i = numArgs - 1; i >= -1 && !resolvedAbsolute; i--) {
-      const std::string& path = (i >= 0) ? std::string(paths[i]) : env->GetCwd();
-      /* validateString(path, "paths[" + std::to_string(i) + "]"); */
+  for (int i = numArgs - 1; i >= -1 && !resolvedAbsolute; i--) {
+    const std::string& path = (i >= 0) ? std::string(paths[i]) : env->GetCwd();
+    /* validateString(path, "paths[" + std::to_string(i) + "]"); */
 
-      if (!path.empty()) {
-        resolvedPath = std::string(path + "/" + resolvedPath);
-        resolvedAbsolute = (path[0] == '/');
-      }
+    if (!path.empty()) {
+      resolvedPath = std::string(path + "/" + resolvedPath);
+      resolvedAbsolute = (path[0] == '/');
     }
+  }
 
-    // Normalize the path
-    resolvedPath = NormalizeString(resolvedPath, !resolvedAbsolute, "/");
+  // Normalize the path
+  resolvedPath = NormalizeString(resolvedPath, !resolvedAbsolute, "/");
 
-    if (resolvedAbsolute) {
-      return "/" + resolvedPath;
-    }
-    return (!resolvedPath.empty()) ? resolvedPath : ".";
+  if (resolvedAbsolute) {
+    return "/" + resolvedPath;
+  }
+  return (!resolvedPath.empty()) ? resolvedPath : ".";
 }
 #endif
 }  // namespace node
