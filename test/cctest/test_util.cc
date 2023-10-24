@@ -306,6 +306,9 @@ TEST_F(UtilTest, SPrintF) {
 }
 
 TEST_F(UtilTest, PathResolve) {
+  const v8::HandleScope handle_scope(isolate_);
+  Argv argv;
+  Env env{handle_scope, argv, node::EnvironmentFlags::kNoBrowserGlobals};
 #ifdef _WIN32
   EXPECT_EQ(PathResolve(*env, {"c:/blah\\blah", "d:/games", "c:../a"}),
             "c:\\blah\\a");
@@ -328,9 +331,6 @@ TEST_F(UtilTest, PathResolve) {
       PathResolve(*env, {"C:\\foo\\tmp.3\\", "..\\tmp.3\\cycles\\root.js"}),
       "C:\\foo\\tmp.3\\cycles\\root.js");
 #else
-  const v8::HandleScope handle_scope(isolate_);
-  Argv argv;
-  Env env{handle_scope, argv, node::EnvironmentFlags::kNoBrowserGlobals};
   EXPECT_EQ(PathResolve(*env, {"/var/lib", "../", "file/"}), "/var/file");
   EXPECT_EQ(PathResolve(*env, {"/var/lib", "/../", "file/"}), "/file");
   EXPECT_EQ(PathResolve(*env, {"a/b/c/", "../../.."}), (*env)->GetCwd());  //
