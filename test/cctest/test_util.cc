@@ -333,7 +333,7 @@ TEST_F(UtilTest, PathResolve) {
 #else
   EXPECT_EQ(PathResolve(*env, {"/var/lib", "../", "file/"}), "/var/file");
   EXPECT_EQ(PathResolve(*env, {"/var/lib", "/../", "file/"}), "/file");
-  EXPECT_EQ(PathResolve(*env, {"a/b/c/", "../../.."}), (*env)->GetCwd());  //
+  EXPECT_EQ(PathResolve(*env, {"a/b/c/", "../../.."}), (*env)->GetCwd());
   EXPECT_EQ(PathResolve(*env, {"."}), (*env)->GetCwd());
   EXPECT_EQ(PathResolve(*env, {"/some/dir", ".", "/absolute/"}), "/absolute");
   EXPECT_EQ(PathResolve(*env, {"/foo/tmp.3/", "../tmp.3/cycles/root.js"}),
