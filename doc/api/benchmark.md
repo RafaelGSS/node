@@ -28,7 +28,12 @@ import benchmark from 'benchmark';
 const benchmark = require('benchmark');
 ```
 
-// TODO intro
+The following example illustrates how benchmarks are written using the
+`benchmark` module.
+
+```js
+
+```
 
 ## `bench(name[, options][, fn])`
 
@@ -41,25 +46,10 @@ added: REPLACEME
 * `options` {Object} Configuration options for the benchmark. The following
   properties are supported:
   * `minTime` {number}
-    **Default:** `0.05`.
+    **Default:** `0.05` seconds.
   * `maxTime` {number}
-    **Default:** `0.5`.
+    **Default:** `0.5` seconds.
 * `fn` {Function|AsyncFunction}
-* Returns: {void}
-
-## `run()`
-
-<!-- YAML
-added: REPLACEME
--->
-
-* `options` {Object} Configuration options for the benchmark. The following
-  properties are supported:
-  * `minTime` {number}
-    **Default:** `0.05`.
-  * `maxTime` {number}
-    **Default:** `0.5`.
-* `fn` {Function|AsyncFunction}
-* Returns: {Promise} Resolved with `undefined` once the test completes.
+* Returns: {Promise} Resolved with `undefined` once the benchmark completes.
 
 // TODO
