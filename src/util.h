@@ -971,6 +971,14 @@ class RAIIIsolate {
   v8::Isolate* isolate_;
 };
 
+class Environment;
+
+#ifdef _WIN32
+bool IsWindowsDeviceRoot(const char c);
+#endif
+
+bool IsPathSeparator(const char c);
+
 std::string NormalizeString(const std::string path,
                             bool allowAboveRoot,
                             const std::string separator);
