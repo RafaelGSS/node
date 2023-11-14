@@ -760,8 +760,9 @@ std::string PathResolve(Environment* env,
       // the drive cwd is not available. We're sure the device is not
       // a UNC path at this points, because UNC paths are always absolute.
       std::string resolvedDevicePath;
-      credentials::SafeGetenv("=" + resolvedDevice);
-      path = resolvedDevicePath || env->GetCwd();
+      const std::string envvar = "=" + resolvedDevice;
+      credentials::SafeGetenv(envvar.c_str(), &resolvedDevicePath);
+      path = resolvedDevicePath.empty() ? env->GetCwd() : resolvedDevicePath;
 
       // Verify that a cwd was found and that it actually points
       // to our drive. If not, default to the drive's root.
