@@ -900,7 +900,7 @@ std::string PathResolve(Environment* env,
     if (resolvedAbsolute) {
       if (!resolvedDevice.empty()) {
         break;
-      } 
+      }
     } else {
       resolvedTail = path.substr(rootEnd) + "\\" + resolvedTail;
       resolvedAbsolute = isAbsolute;
