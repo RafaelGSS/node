@@ -996,17 +996,6 @@ class RAIIIsolate {
   v8::Isolate::Scope isolate_scope_;
 };
 
-class Environment;
-
-bool IsPathSeparator(const char c) noexcept;
-
-std::string NormalizeString(const std::string_view path,
-                            bool allowAboveRoot,
-                            const std::string_view separator);
-
-std::string PathResolve(Environment* env,
-                        const std::vector<std::string_view>& args);
-
 }  // namespace node
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS

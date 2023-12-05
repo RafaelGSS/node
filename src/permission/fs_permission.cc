@@ -1,7 +1,7 @@
 #include "fs_permission.h"
 #include "base_object-inl.h"
 #include "debug_utils-inl.h"
-#include "util.h"
+#include "path.h"
 #include "v8.h"
 
 #include <fcntl.h>
