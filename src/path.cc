@@ -1,6 +1,7 @@
 #include "path.h"
 #include <string>
 #include <vector>
+#include "env-inl.h"
 #include "node_internals.h"
 #include "util.h"
 
