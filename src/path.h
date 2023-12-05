@@ -3,8 +3,8 @@
 
 #if defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace node {
 
@@ -18,7 +18,7 @@ std::string NormalizeString(const std::string_view path,
 
 std::string PathResolve(Environment* env,
                         const std::vector<std::string_view>& args);
-} // namespace node
+}  // namespace node
 
 #endif  // defined(NODE_WANT_INTERNALS) && NODE_WANT_INTERNALS
 

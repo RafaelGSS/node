@@ -1,6 +1,8 @@
 #include "path.h"
 #include <string>
 #include <vector>
+#include "node_internals.h"
+#include "util.h"
 
 namespace node {
 
@@ -266,4 +268,4 @@ std::string PathResolve(Environment* env,
 }
 #endif  // _WIN32
 
-} // namespace node
+}  // namespace node
