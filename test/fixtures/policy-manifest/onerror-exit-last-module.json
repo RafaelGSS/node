@@ -1,0 +1,17 @@
+{
+  "onerror": "exit",
+  "resources": {
+    "./main-module-proto-bypass-last-module.js": {
+      "integrity": true,
+      "dependencies": {
+        "./valid-module": true
+      }
+    },
+    "./valid-module.js": {
+      "integrity": true,
+      "dependencies": {
+        "os": true
+      }
+    }
+  }
+}
