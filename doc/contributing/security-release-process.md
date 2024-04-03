@@ -61,11 +61,6 @@ The current security stewards are documented in the main Node.js
     * List vulnerabilities in order of descending severity
     * Use the "summary" feature in HackerOne to sync post-release content
       and CVE requests. Example [2038134](https://hackerone.com/bugs?subject=nodejs\&report_id=2038134)
-    * Ask the HackerOne reporter if they would like to be credited on the
-      security release blog page:
-      ```text
-      Thank you to <name> for reporting this vulnerability.
-      ```
 
 * [ ] Get agreement on the planned date for the release: _**RELEASE DATE**_
 
