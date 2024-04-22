@@ -54,16 +54,21 @@ bool is_tree_granted(
     const node::permission::FSPermission::RadixTree* granted_tree,
     const std::string_view& param) {
 #ifdef _WIN32
-  // is UNC file path
-  if (param.rfind("\\\\", 0) == 0) {
-    // return lookup with normalized param
-    size_t starting_pos = 4;  // "\\?\"
-    if (param.rfind("\\\\?\\UNC\\") == 0) {
-      starting_pos += 4;  // "UNC\"
-    }
-    auto normalized = param.substr(starting_pos);
-    return granted_tree->Lookup(normalized, true);
+  std::string normalized = param;
+  // Remove leading "\\?\" from UNC path
+  if (normalized.substr(0, 4) == "\\\\?\\") {
+    normalized.erase(0, 4);
   }
+
+  // Remove leading "UNC\" from UNC path
+  if (normalized.substr(0, 4) == "UNC\\") {
+    normalized.erase(0, 4);
+  }
+  // Remove leading "//" from UNC path
+  if (normalized.substr(0, 2) == "//") {
+    normalized.erase(0, 2);
+  }
+  return granted_tree->Lookup(normalized, true);
 #endif
   return granted_tree->Lookup(param, true);
 }
