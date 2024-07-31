@@ -49,7 +49,7 @@ if (format === 'csv') {
   const filename = benchmarks[i];
   const scriptPath = path.resolve(__dirname, filename);
 
-  const args = cli.test ? ['--test'] : cli.optional.set;
+  const args = cli.test ? ['--test'] : [...cli.optional.set];
   const cpuCore = cli.getCpuCoreSetting();
   let child;
   if (cpuCore !== null) {
@@ -57,9 +57,11 @@ if (format === 'csv') {
       stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
     });
   } else {
+    console.log(args)
     child = fork(
       scriptPath,
       args,
+      { execArgv: ['-r', path.join(__filename, '../../a.js'), '--experimental-sqlite', '--no-warnings'] }
     );
   }
 
