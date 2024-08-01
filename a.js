@@ -1,13 +1,18 @@
 const fs = require('node:fs')
+const path = require('node:path');
 const Mod = require('module');
 
-const dir = fs.readdirSync('./lib')
+const benchmarkFolder = path.join(__dirname, './benchmark');
+const dir = fs.readdirSync('./lib');
 
-const allModuleExports = {}
+const allModuleExports = {};
 
 function getCallSite() {
   const originalStackFormatter = Error.prepareStackTrace;
-  Error.prepareStackTrace = (err, stack) => `${stack[0].getFileName()}`;
+  Error.prepareStackTrace = (err, stack) => {
+    return `${stack[2].getFileName()}:${stack[2].getLineNumber()}`;
+  }
+
   const err = new Error();
   // With the V8 Error API, the stack is not formatted until it is accessed
   err.stack;
@@ -26,12 +31,18 @@ function fetchModules (allModuleExports) {
           const originalFn = exports[fnKey];
           allModuleExports[moduleName][fnKey] = function () {
             const callerStr = getCallSite();
-            if (callerStr.includes('/home/rafaelgss/repos/os/node/benchmark')) {
-              if (!this[fnKey]._called) this[fnKey]._called = 0;
-              this[fnKey]._called++;
+            if (callerStr.startsWith(benchmarkFolder) &&
+              callerStr.replace(benchmarkFolder, '').match(/^\/.+\/.+/)) {
+              if (!allModuleExports[moduleName][fnKey]._called) {
+                allModuleExports[moduleName][fnKey]._called = 0;
+              }
+              allModuleExports[moduleName][fnKey]._called++;
 
-              if (!this[fnKey]._calls) this[fnKey]._calls = [];
-              this[fnKey]._calls.push(callerStr);
+
+              if (!allModuleExports[moduleName][fnKey]._calls) {
+                allModuleExports[moduleName][fnKey]._calls = [];
+              }
+              allModuleExports[moduleName][fnKey]._calls.push(callerStr);
             }
             return originalFn.apply(exports, arguments);
           }
@@ -58,11 +69,13 @@ Mod.prototype.require = function (id) {
 };
 
 process.on('beforeExit', () => {
+  // console.log(allModuleExports['node:assert']['deepEqual'])
   for (const module of Object.keys(allModuleExports)) {
-    for (const fn of Object.keys(module)) {
-      if (fn._called) {
-        console.log(fn.toString(), 'has been called', fn._called);
-        console.log(fn._calls)
+    for (const fn of Object.keys(allModuleExports[module])) {
+      if (allModuleExports[module][fn]?._called) {
+        const _fn = allModuleExports[module][fn];
+        console.log(fn, 'has been called', _fn._called);
+        console.log(_fn._calls)
       }
     }
   }
