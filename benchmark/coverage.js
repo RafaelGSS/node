@@ -1,16 +1,21 @@
-const fs = require('node:fs')
+const fs = require('node:fs');
 const path = require('node:path');
-const Mod = require('module');
+const Mod = require('node:module');
 
-const benchmarkFolder = path.join(__dirname, './benchmark');
-const dir = fs.readdirSync('./lib');
+const benchmarkFolder = __dirname;
+const dir = fs.readdirSync(path.join(__dirname, '../lib'));
 
 const allModuleExports = {};
 
 function getCallSite() {
   const originalStackFormatter = Error.prepareStackTrace;
   Error.prepareStackTrace = (err, stack) => {
-    return `${stack[2].getFileName()}:${stack[2].getLineNumber()}`;
+    // Some benchmarks change the stackTraceLimit if so, get the last line
+    // TODO: check if it matches the benchmark folder
+    if (stack.length >= 2) {
+      return `${stack[2].getFileName()}:${stack[2].getLineNumber()}`;
+    }
+    return stack;
   }
 
   const err = new Error();
@@ -28,10 +33,16 @@ function fetchModules (allModuleExports) {
       allModuleExports[moduleName] = Object.assign({}, exports);
       for (const fnKey of Object.keys(exports)) {
         if (typeof exports[fnKey] === 'function' && !fnKey.startsWith('_')) {
+          if (exports[fnKey].toString().match(/^class/)) {
+            // Skip classes
+            // console.warn(`Skipping... ${fnKey}`);
+            // delete allModuleExports[moduleName][fnKey];
+            continue;
+          }
           const originalFn = exports[fnKey];
           allModuleExports[moduleName][fnKey] = function () {
             const callerStr = getCallSite();
-            if (callerStr.startsWith(benchmarkFolder) &&
+            if (callerStr && callerStr.startsWith(benchmarkFolder) &&
               callerStr.replace(benchmarkFolder, '').match(/^\/.+\/.+/)) {
               if (!allModuleExports[moduleName][fnKey]._called) {
                 allModuleExports[moduleName][fnKey]._called = 0;
@@ -69,13 +80,16 @@ Mod.prototype.require = function (id) {
 };
 
 process.on('beforeExit', () => {
-  // console.log(allModuleExports['node:assert']['deepEqual'])
   for (const module of Object.keys(allModuleExports)) {
     for (const fn of Object.keys(allModuleExports[module])) {
       if (allModuleExports[module][fn]?._called) {
         const _fn = allModuleExports[module][fn];
-        console.log(fn, 'has been called', _fn._called);
-        console.log(_fn._calls)
+        process.send({
+          type: 'coverage',
+          module,
+          fn,
+          times: _fn._called
+        });
       }
     }
   }

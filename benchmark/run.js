@@ -1,7 +1,8 @@
 'use strict';
 
-const path = require('path');
+const path = require('node:path');
 const { spawn, fork } = require('node:child_process');
+const fs = require('node:fs');
 const CLI = require('./_cli.js');
 
 const cli = new CLI(`usage: ./node run.js [options] [--] <category> ...
@@ -16,6 +17,8 @@ const cli = new CLI(`usage: ./node run.js [options] [--] <category> ...
   --format [simple|csv]     optional value that specifies the output format
   test                      only run a single configuration from the options
                             matrix
+  coverage                  generate a coverage report for the nodejs
+                            benchmark suite
   all                       each benchmark category is run one after the other
 
   Examples:
@@ -41,8 +44,34 @@ if (!validFormats.includes(format)) {
   return;
 }
 
-if (format === 'csv') {
+if (format === 'csv' && !cli.coverage) {
   console.log('"filename", "configuration", "rate", "time"');
+}
+
+function fetchModules () {
+  const dir = fs.readdirSync(path.join(__dirname, '../lib'));
+  const allModuleExports = {};
+  for (const f of dir) {
+    if (f.endsWith('.js') && !f.startsWith('_')) {
+      const moduleName = `node:${f.slice(0, f.length - 3)}`
+      const exports = require(moduleName);
+      allModuleExports[moduleName] = {}
+      for (const fnKey of Object.keys(exports)) {
+        if (typeof exports[fnKey] === 'function' && !fnKey.startsWith('_')) {
+          allModuleExports[moduleName] = {
+            ...allModuleExports[moduleName],
+            [fnKey]: 0,
+          };
+        }
+      }
+    }
+  }
+  return allModuleExports;
+}
+
+let allModuleExports = {};
+if (cli.coverage) {
+  allModuleExports = fetchModules();
 }
 
 (function recursive(i) {
@@ -50,6 +79,12 @@ if (format === 'csv') {
   const scriptPath = path.resolve(__dirname, filename);
 
   const args = cli.test ? ['--test'] : [...cli.optional.set];
+
+  let execArgv = [];
+  if (cli.coverage) {
+    execArgv = ['-r', path.join(__dirname, './coverage.js'), '--experimental-sqlite', '--no-warnings'];
+  }
+
   const cpuCore = cli.getCpuCoreSetting();
   let child;
   if (cpuCore !== null) {
@@ -57,11 +92,10 @@ if (format === 'csv') {
       stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
     });
   } else {
-    console.log(args)
     child = fork(
       scriptPath,
       args,
-      { execArgv: ['-r', path.join(__filename, '../../a.js'), '--experimental-sqlite', '--no-warnings'] }
+      { execArgv },
     );
   }
 
@@ -71,6 +105,15 @@ if (format === 'csv') {
   }
 
   child.on('message', (data) => {
+    if (cli.coverage) {
+      if (data.type === 'coverage') {
+        if (allModuleExports[data.module][data.fn] !== undefined) {
+          delete allModuleExports[data.module][data.fn];
+        }
+      }
+      return;
+    }
+
     if (data.type !== 'report') {
       return;
     }
@@ -104,3 +147,19 @@ if (format === 'csv') {
     }
   });
 })(0);
+
+
+if (cli.coverage) {
+  process.on('beforeExit', () => {
+    for (const key in allModuleExports) {
+      const tableData = [];
+      for (const innerKey in allModuleExports[key]) {
+        tableData.push({
+          [key]: innerKey,
+          Values: allModuleExports[key][innerKey]
+        });
+      }
+      console.table(tableData)
+    }
+  })
+}
