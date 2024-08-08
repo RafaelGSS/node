@@ -68,8 +68,10 @@ function CLI(usage, settings) {
       this.test = true;
     } else if (arg === 'coverage') {
       this.coverage = true;
+      const excludedBenchmarks = ['napi',  'http'];
       // Include all benchmarks to generate coverage
-      this.items.push('all');
+      this.items = Object.keys(benchmarks)
+        .filter(b => !excludedBenchmarks.includes(b));
       // Run once
       this.optional.set = ['n=1'];
     } else if (['both', 'item'].includes(mode)) {
