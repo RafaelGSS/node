@@ -100,8 +100,12 @@ if (cli.coverage) {
   }
 
   if (format !== 'csv') {
-    console.log();
-    console.log(filename);
+    // console.log();
+    // console.log(filename);
+    if (i !== 0) {
+      console.timeEnd(benchmarks[i - 1]);
+    }
+    console.time(filename);
   }
 
   child.on('message', (data) => {
