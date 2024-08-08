@@ -25,24 +25,46 @@ function getCallSite() {
   return err.stack;
 }
 
+const functionClasses = [
+  'EventEmitter',
+  'Worker',
+  'ClientRequest',
+  'Readable',
+  'StringDecoder',
+  'TLSSocket',
+  'MessageChannel',
+];
+
+const skippedModules = [
+  'node:cluster',
+  'node:trace_events',
+  'node:stream/promises',
+];
+
 function fetchModules (allModuleExports) {
   for (const f of dir) {
     if (f.endsWith('.js') && !f.startsWith('_')) {
       const moduleName = `node:${f.slice(0, f.length - 3)}`
+      if (skippedModules.includes(moduleName)) {
+        continue;
+      }
       const exports = require(moduleName);
       allModuleExports[moduleName] = Object.assign({}, exports);
+
       for (const fnKey of Object.keys(exports)) {
         if (typeof exports[fnKey] === 'function' && !fnKey.startsWith('_')) {
           if (exports[fnKey].toString().match(/^class/)) {
-            // Skip classes
-            // console.warn(`Skipping... ${fnKey}`);
-            // delete allModuleExports[moduleName][fnKey];
+            // Skip classes for now
+            continue;
+          }
+
+          if (functionClasses.includes(fnKey)) {
             continue;
           }
           const originalFn = exports[fnKey];
           allModuleExports[moduleName][fnKey] = function () {
             const callerStr = getCallSite();
-            if (callerStr && callerStr.startsWith(benchmarkFolder) &&
+            if (typeof callerStr === 'string' && callerStr.startsWith(benchmarkFolder) &&
               callerStr.replace(benchmarkFolder, '').match(/^\/.+\/.+/)) {
               if (!allModuleExports[moduleName][fnKey]._called) {
                 allModuleExports[moduleName][fnKey]._called = 0;
@@ -66,17 +88,16 @@ function fetchModules (allModuleExports) {
 fetchModules(allModuleExports);
 
 const req = Mod.prototype.require;
-// const req = Mod.prototype.require;
 Mod.prototype.require = function (id) {
-  // console.log('id', id)
+  let newId = id;
   if (!id.startsWith('node:')) {
-    const data = allModuleExports[`node:${id}`]
-    if (!data) {
-      return req.apply(this, arguments)
-    }
-    return data;
+    newId = `node:${id}`;
   }
-  return allModuleExports[id];
+  const data = allModuleExports[newId]
+  if (!data) {
+    return req.apply(this, arguments)
+  }
+  return data;
 };
 
 process.on('beforeExit', () => {
