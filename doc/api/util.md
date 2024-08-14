@@ -364,6 +364,56 @@ util.formatWithOptions({ colors: true }, 'See object %O', { foo: 42 });
 // when printed to a terminal.
 ```
 
+## `util.getCallSite()`
+
+> Stability: 1.1 - Active development
+
+<!-- YAML
+added: REPLACEME
+-->
+
+* Returns: {CallSite\[]} An array of CallSite objects, read more at <https://v8.dev/docs/stack-trace-api#customizing-stack-traces>.
+
+Returns an array of V8 CallSite objects containing the stacktrace of
+the caller function.
+
+```js
+const util = require('node:util');
+
+function exampleFunction() {
+  const callSites = util.getCallSite();
+
+  console.log('Call Sites:');
+  callSites.forEach((callSite, index) => {
+    console.log(`CallSite ${index + 1}:`);
+    console.log(`Function Name: ${callSite.getFunctionName()}`);
+    console.log(`File Name: ${callSite.getFileName()}`);
+    console.log(`Line Number: ${callSite.getLineNumber()}`);
+    console.log(`Column Number: ${callSite.getColumnNumber()}`);
+  });
+  // CallSite 1:
+  // Function Name: exampleFunction
+  // File Name: /home/example.js
+  // Line Number: 5
+  // Column Number: 26
+
+  // CallSite 2:
+  // Function Name: anotherFunction
+  // File Name: /home/example.js
+  // Line Number: 22
+  // Column Number: 3
+
+  // ...
+}
+
+// A function to simulate another stack layer
+function anotherFunction() {
+  exampleFunction();
+}
+
+anotherFunction();
+```
+
 ## `util.getSystemErrorName(err)`
 
 <!-- YAML
