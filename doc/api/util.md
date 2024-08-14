@@ -372,7 +372,7 @@ util.formatWithOptions({ colors: true }, 'See object %O', { foo: 42 });
 added: REPLACEME
 -->
 
-* Returns: {CallSite\[]} An array of CallSite objects, read more at <https://v8.dev/docs/stack-trace-api#customizing-stack-traces>.
+* Returns: {CallSite\[]} An array of CallSite objects.
 
 Returns an array of V8 CallSite objects containing the stacktrace of
 the caller function.
