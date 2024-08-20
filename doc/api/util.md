@@ -372,9 +372,13 @@ util.formatWithOptions({ colors: true }, 'See object %O', { foo: 42 });
 added: REPLACEME
 -->
 
-* Returns: {CallSite\[]} An array of CallSite objects.
+* Returns: {Object[]} An array of stacktrace objects
+  * `functionName` {string} Returns the name of the function associated with this stack frame.
+  * `scriptName` {string} Returns the name of the resource that contains the script for the function for this StackFrame.
+  * `lineNumber` {string} Returns the number, 1-based, of the line for the associate function call.
+  * `column` {number} Returns the 1-based column offset on the line for the associated function call.
 
-Returns an array of V8 CallSite objects containing the stacktrace of
+Returns an array of stacktrace objects containing the stack of
 the caller function.
 
 ```js
@@ -386,20 +390,20 @@ function exampleFunction() {
   console.log('Call Sites:');
   callSites.forEach((callSite, index) => {
     console.log(`CallSite ${index + 1}:`);
-    console.log(`Function Name: ${callSite.getFunctionName()}`);
-    console.log(`File Name: ${callSite.getFileName()}`);
-    console.log(`Line Number: ${callSite.getLineNumber()}`);
-    console.log(`Column Number: ${callSite.getColumnNumber()}`);
+    console.log(`Function Name: ${callSite.functionName}`);
+    console.log(`Script Name: ${callSite.scriptName}`);
+    console.log(`Line Number: ${callSite.lineNumer}`);
+    console.log(`Column Number: ${callSite.column}`);
   });
   // CallSite 1:
   // Function Name: exampleFunction
-  // File Name: /home/example.js
+  // Script Name: /home/example.js
   // Line Number: 5
   // Column Number: 26
 
   // CallSite 2:
   // Function Name: anotherFunction
-  // File Name: /home/example.js
+  // Script Name: /home/example.js
   // Line Number: 22
   // Column Number: 3
 

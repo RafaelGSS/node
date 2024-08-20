@@ -13,7 +13,7 @@ const assert = require('node:assert');
   const callsite = getCallSite();
   assert.ok(callsite.length > 1);
   assert.match(
-    callsite[0].getFileName(),
+    callsite[0].scriptSource,
     /test-util-getCallSite/,
     'node:util should be ignored',
   );
@@ -28,7 +28,7 @@ const assert = require('node:assert');
       `const util = require('util');
        const assert = require('assert');
        assert.ok(util.getCallSite().length > 1);
-       process.stdout.write(util.getCallSite()[0].getFileName());
+       process.stdout.write(util.getCallSite()[0].scriptName);
       `,
     ],
   );
