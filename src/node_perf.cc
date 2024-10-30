@@ -29,6 +29,7 @@ using v8::ObjectTemplate;
 using v8::PropertyAttribute;
 using v8::ReadOnly;
 using v8::Value;
+using v8::Array;
 
 // Microseconds in a millisecond, as a float.
 #define MICROS_PER_MILLIS 1e3
@@ -264,26 +265,17 @@ void LoopIdleTime(const FunctionCallbackInfo<Value>& args) {
 
 void UvMetricsInfo(const FunctionCallbackInfo<Value>& args) {
   Environment* env = Environment::GetCurrent(args);
+  Isolate* isolate = env->isolate();
   uv_metrics_t metrics;
-
   // uv_metrics_info always return 0
   CHECK_EQ(uv_metrics_info(env->event_loop(), &metrics), 0);
-
-  Local<Object> obj = Object::New(env->isolate());
-  obj->Set(env->context(),
-           env->loop_count(),
-           Integer::NewFromUnsigned(env->isolate(), metrics.loop_count))
-      .Check();
-  obj->Set(env->context(),
-           env->events(),
-           Integer::NewFromUnsigned(env->isolate(), metrics.events))
-      .Check();
-  obj->Set(env->context(),
-           env->events_waiting(),
-           Integer::NewFromUnsigned(env->isolate(), metrics.events_waiting))
-      .Check();
-
-  args.GetReturnValue().Set(obj);
+  Local<Value> data[] = {
+    Integer::New(isolate, metrics.loop_count),
+    Integer::New(isolate, metrics.events),
+    Integer::New(isolate, metrics.events_waiting),
+  };
+  Local<Array> arr = Array::New(env->isolate(), data, arraysize(data));
+  args.GetReturnValue().Set(arr);
 }
 
 void CreateELDHistogram(const FunctionCallbackInfo<Value>& args) {
