@@ -12,6 +12,8 @@ fi
 
 git config --local user.email "github-bot@iojs.org"
 git config --local user.name "Node.js GitHub Bot"
+# git config --local user.email "rafael.nunu@hotmail.com"
+# git config --local user.name "RafaelGSS"
 
 git node release --prepare --skipBranchDiff --yes --releaseDate "$RELEASE_DATE"
 # We use it to not specify the branch name as it changes based on

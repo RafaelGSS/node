@@ -25,7 +25,7 @@ env:
   NODE_VERSION: lts/*
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   releasePrepare:
