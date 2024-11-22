@@ -8,6 +8,7 @@
 </tr>
 <tr>
 <td>
+<a href="#23.3.1">23.3.1</a><br/>
 <a href="#23.3.0">23.3.0</a><br/>
 <a href="#23.2.0">23.2.0</a><br/>
 <a href="#23.1.0">23.1.0</a><br/>
@@ -40,6 +41,18 @@
   * [0.10.x](CHANGELOG_V010.md)
   * [io.js](CHANGELOG_IOJS.md)
   * [Archive](CHANGELOG_ARCHIVE.md)
+
+<a id="23.3.1"></a>
+
+## 2024-11-28, Version 23.3.1 (Current), @RafaelGSS
+
+### Notable Changes
+
+### Commits
+
+* \[[`f7647904da`](https://github.com/nodejs/node/commit/f7647904da)] - fixup! fixup! build: add create release proposal action (RafaelGSS)
+* \[[`63c830890a`](https://github.com/nodejs/node/commit/63c830890a)] - fixup! build: add create release proposal action (RafaelGSS)
+* \[[`af9a43fb9d`](https://github.com/nodejs/node/commit/af9a43fb9d)] - **build**: add create release proposal action (RafaelGSS)
 
 <a id="23.3.0"></a>
 
