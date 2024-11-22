@@ -8,6 +8,7 @@
 </tr>
 <tr>
 <td>
+<a href="#23.3.1">23.3.1</a><br/>
 <a href="#23.3.0">23.3.0</a><br/>
 <a href="#23.2.0">23.2.0</a><br/>
 <a href="#23.1.0">23.1.0</a><br/>
@@ -40,6 +41,25 @@
   * [0.10.x](CHANGELOG_V010.md)
   * [io.js](CHANGELOG_IOJS.md)
   * [Archive](CHANGELOG_ARCHIVE.md)
+
+<a id="23.3.1"></a>
+
+## 2024-11-29, Version 23.3.1 (Current), @RafaelGSS
+
+### Notable Changes
+
+* \[[`5767b76c30`](https://github.com/nodejs/node/commit/5767b76c30)] - **doc**: enforce strict policy to semver-major releases (Rafael Gonzaga) [#55732](https://github.com/nodejs/node/pull/55732)
+* \[[`bcbba723de`](https://github.com/nodejs/node/commit/bcbba723de)] - **(SEMVER-MINOR)** **sqlite**: add support for SQLite Session Extension (Bart Louwers) [#54181](https://github.com/nodejs/node/pull/54181)
+* \[[`ccb69bb8d5`](https://github.com/nodejs/node/commit/ccb69bb8d5)] - **(SEMVER-MINOR)** **src**: add cli option to preserve env vars on dr (Rafael Gonzaga) [#55697](https://github.com/nodejs/node/pull/55697)
+* \[[`d4e792643d`](https://github.com/nodejs/node/commit/d4e792643d)] - **(SEMVER-MINOR)** **util**: add sourcemap support to getCallSites (Marco Ippolito) [#55589](https://github.com/nodejs/node/pull/55589)
+* \[[`00e092bb4b`](https://github.com/nodejs/node/commit/00e092bb4b)] - **(SEMVER-MINOR)** **util**: fix util.getCallSites plurality (Chengzhong Wu) [#55626](https://github.com/nodejs/node/pull/55626)
+
+### Commits
+
+* \[[`009a5fd282`](https://github.com/nodejs/node/commit/009a5fd282)] - fixup! fixup! fixup! build: add create release proposal action (RafaelGSS)
+* \[[`4af58d8eed`](https://github.com/nodejs/node/commit/4af58d8eed)] - fixup! fixup! build: add create release proposal action (RafaelGSS)
+* \[[`77e18432aa`](https://github.com/nodejs/node/commit/77e18432aa)] - fixup! build: add create release proposal action (RafaelGSS)
+* \[[`65b95febf3`](https://github.com/nodejs/node/commit/65b95febf3)] - **build**: add create release proposal action (RafaelGSS)
 
 <a id="23.3.0"></a>
 
