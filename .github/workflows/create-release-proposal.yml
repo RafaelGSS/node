@@ -33,6 +33,7 @@ jobs:
       STAGING_BRANCH: v${{ inputs.release-line }}.x-staging
       RELEASE_BRANCH: v${{ inputs.release-line }}.x
       RELEASE_DATE: ${{ inputs.release-date }}
+      RELEASE_LINE: ${{ inputs.release-line }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332  # v4.1.7
