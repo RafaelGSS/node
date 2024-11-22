@@ -77,3 +77,5 @@ jobs:
       - name: Start git node release prepare
         run: |
           ./tools/actions/create-release.sh "${RELEASE_DATE}" "${RELEASE_LINE}"
+        env:
+          GH_TOKEN: ${{ secrets.GH_USER_TOKEN }}
