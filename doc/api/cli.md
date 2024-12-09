@@ -126,7 +126,7 @@ require('nodejs-addon-example');
 ```
 
 ```console
-$ node --experimental-permission --allow-fs-read=* index.js
+$ node --permission --allow-fs-read=* index.js
 node:internal/modules/cjs/loader:1319
   return process.dlopen(module, path.toNamespacedPath(filename));
                  ^
@@ -168,7 +168,7 @@ childProcess.spawn('node', ['-e', 'require("fs").writeFileSync("/new-file", "exa
 ```
 
 ```console
-$ node --experimental-permission --allow-fs-read=* index.js
+$ node --permission --allow-fs-read=* index.js
 node:internal/child_process:388
   const err = this._handle.spawn(options);
                            ^
@@ -197,7 +197,7 @@ changes:
     description: Paths delimited by comma (`,`) are no longer allowed.
 -->
 
-> Stability: 1.1 - Active development
+> Stability: 2.0 - Stable.
 
 This flag configures file system read permissions using
 the [Permission Model][].
@@ -213,7 +213,7 @@ Examples can be found in the [File System Permissions][] documentation.
 The initializer module also needs to be allowed. Consider the following example:
 
 ```console
-$ node --experimental-permission index.js
+$ node --permission index.js
 
 Error: Access to this API has been restricted
     at node:internal/main/run_main_module:23:47 {
@@ -226,7 +226,7 @@ Error: Access to this API has been restricted
 The process needs to have access to the `index.js` module:
 
 ```bash
-node --experimental-permission --allow-fs-read=/path/to/index.js index.js
+node --permission --allow-fs-read=/path/to/index.js index.js
 ```
 
 ### `--allow-fs-write`
@@ -239,7 +239,7 @@ changes:
     description: Paths delimited by comma (`,`) are no longer allowed.
 -->
 
-> Stability: 1.1 - Active development
+> Stability: 2.0 - Stable.
 
 This flag configures file system write permissions using
 the [Permission Model][].
@@ -285,7 +285,7 @@ new WASI({
 ```
 
 ```console
-$ node --experimental-permission --allow-fs-read=* index.js
+$ node --permission --allow-fs-read=* index.js
 
 Error: Access to this API has been restricted
     at node:internal/main/run_main_module:30:49 {
@@ -316,7 +316,7 @@ new Worker(__filename);
 ```
 
 ```console
-$ node --experimental-permission --allow-fs-read=* index.js
+$ node --permission --allow-fs-read=* index.js
 
 Error: Access to this API has been restricted
     at node:internal/main/run_main_module:17:47 {
@@ -1000,13 +1000,17 @@ added:
 
 Enable experimental support for the network inspection with Chrome DevTools.
 
-### `--experimental-permission`
+### `--permission`
 
 <!-- YAML
 added: v20.0.0
+changes:
+  - version: REPLACEME
+    pr-url: https://github.com/nodejs/node/pull/1
+    description: Permission Model is now stable.
 -->
 
-> Stability: 1.1 - Active development
+> Stability: 2.0 - Stable
 
 Enable the Permission Model for current process. When enabled, the
 following permissions are restricted:
@@ -3064,7 +3068,6 @@ one is included in the list below.
 * `--experimental-json-modules`
 * `--experimental-loader`
 * `--experimental-modules`
-* `--experimental-permission`
 * `--experimental-print-required-tla`
 * `--experimental-require-module`
 * `--experimental-shadow-realm`
@@ -3117,6 +3120,7 @@ one is included in the list below.
 * `--openssl-legacy-provider`
 * `--openssl-shared-config`
 * `--pending-deprecation`
+* `--permission`
 * `--preserve-symlinks-main`
 * `--preserve-symlinks`
 * `--prof-process`
