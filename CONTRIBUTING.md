@@ -64,7 +64,7 @@ without notice.
 ## [AI Use Policy and Guidelines](./doc/contributing/ai-guidelines.md)
 
 Node.js requires contributors to understand and take full responsibility for
-every change they propose. Pull requests consisting of AI-generated code the
+every change they propose. Pull requests containing AI-generated code the
 contributor has not personally understood, tested, and verified will likely be closed
 without review.
 

@@ -20,7 +20,7 @@ If AI tools assisted in generating a contribution, that should be
 acknowledged honestly (e.g., via an `Assisted-by:` tag in the commit
 metadata) so that reviewers have appropriate context.
 
-Pull requests that consist of AI-generated code the contributor has not
+Pull requests that contain AI-generated code the contributor has not
 personally understood, tested, and verified waste collaborator time and
 will be subject to closure without additional review. Contributors who
 repeatedly submit such changes, show no understanding of the project or
@@ -57,7 +57,9 @@ When using AI as a coding assistant:
 * **Test thoroughly.** AI-generated code must pass the full test suite and
   any manually written tests relevant to the change. Existing tests should not
   be removed or modified without human verification. Do not rely on the LLM
-  to assess correctness.
+  to assess correctness. It is crucial to manually verify the correctness of
+  tests against the expected behavior of the feature being tested,
+  independently of the feature's implementation.
 
 * **Do not disappear.** If you open a PR, follow it through. Respond to
   feedback and iterate until the work lands or is explicitly closed. If you
