@@ -16,9 +16,10 @@ Node.js requires contributors to understand and take full responsibility for
 every change they propose. The answer to "Why is X an improvement?" can
 never be "I'm not sure. The AI did it."
 
-If AI tools assisted in generating a contribution, that should be
-acknowledged honestly (e.g., via an `Assisted-by:` tag in the commit
-metadata) so that reviewers have appropriate context.
+If AI tools assisted in generating a contribution, acknowledge that honestly
+in the commit metadata using an `Assisted-by:` trailer. This applies
+regardless of how much of the work was AI-generated — the contributor
+remains the sole author and bears full responsibility for every line.
 
 Pull requests that contain AI-generated code the contributor has not
 personally understood, tested, and verified waste collaborator time and
