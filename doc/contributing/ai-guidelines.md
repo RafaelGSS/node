@@ -20,6 +20,10 @@ If AI tools assisted in generating a contribution, acknowledge that honestly
 in the commit metadata using an `Assisted-by:` trailer. This applies
 regardless of how much of the work was AI-generated — the contributor
 remains the sole author and bears full responsibility for every line.
+If the disclosure involves trademarks or commercial brands, it's recommended to
+anonymize it in the commit message or only mention it in the PR description,
+but not in the commit message, unless the context would not have made sense
+without mentioning the specific brand/trademark.
 
 Pull requests that contain AI-generated code the contributor has not
 personally understood, tested, and verified waste collaborator time and
@@ -87,5 +91,5 @@ Node.js values concise, precise communication that respects collaborator and con
   conciseness.
 
 [Developer's Certificate of Origin]: ../../CONTRIBUTING.md#developers-certificate-of-origin-11
-[commit message guidelines]: ./pull-requests.md#commit-message-guidelines
 [OpenJS Foundation AI Coding Assistants Policy]: https://openjsf.cdn.prismic.io/openjsf/aca4d5GXnQHGZDiZ_OpenJS_AI_Coding_Assistants_Policy.pdf
+[commit message guidelines]: ./pull-requests.md#commit-message-guidelines
